@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // 【必須】npm install @supabase/supabase-js
 import { createClient } from '@supabase/supabase-js';
@@ -8,8 +8,8 @@ import { createClient } from '@supabase/supabase-js';
 import { 
   Play, Edit3, CreditCard, MessageSquare, CheckCircle, ChevronRight, 
   Trash2, ArrowLeft, Save, RefreshCw, Loader2, Bot, Trophy, 
-  Home, ThumbsUp, ExternalLink, MessageCircle, Lock, Share2, Copy,
-  Sparkles, X, Crown, Globe, LogIn, LogOut, User, Key
+  Home, ThumbsUp, ExternalLink, MessageCircle, Lock, Share2, 
+  Sparkles, X, Crown, LogIn, LogOut, User, Key
 } from 'lucide-react';
 
 // --- Supabase Client Initialization ---
@@ -120,87 +120,129 @@ const AuthModal = ({ isOpen, onClose, setUser }) => {
     );
 };
 
-// 2. Portal (Top Page)
-const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLogout }) => {
+// 2. Price Page
+const PricePage = ({ onBack }) => (
+    <div className="min-h-screen bg-gray-50 py-12 px-4 font-sans text-gray-900">
+        <button onClick={onBack} className="mb-8 flex items-center gap-2 text-gray-600 font-bold hover:text-blue-600"><ArrowLeft/> トップへ戻る</button>
+        <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl font-extrabold text-gray-900 mb-4">料金プラン</h1>
+            <p className="text-xl text-gray-600 mb-12">あなたのビジネス規模に合わせた最適なプランをお選びください。</p>
+            <div className="grid md:grid-cols-3 gap-8">
+                {[
+                    {name:"Free", price:"¥0", desc:"まずはここから", feat:["クイズ作成数: 3つまで","基本テンプレート","AIアシスタント(制限あり)"]},
+                    {name:"Pro", price:"¥2,980", period:"/月", desc:"個人事業主・フリーランス向け", feat:["クイズ作成数: 無制限","LINE/LP誘導ボタン設置","広告非表示","アクセス解析"], rec:true},
+                    {name:"Business", price:"¥9,800", period:"/月", desc:"企業・チーム向け", feat:["Proの全機能","独自ドメイン","チーム管理","優先サポート"]}
+                ].map((plan, i) => (
+                    <div key={i} className={`bg-white rounded-2xl p-8 shadow-xl border-2 ${plan.rec ? 'border-blue-500 relative' : 'border-transparent'}`}>
+                        {plan.rec && <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold">RECOMMENDED</span>}
+                        <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                        <div className="text-4xl font-extrabold mb-2">{plan.price}<span className="text-sm font-medium text-gray-500">{plan.period}</span></div>
+                        <p className="text-gray-500 mb-6 text-sm">{plan.desc}</p>
+                        <ul className="text-left space-y-3 mb-8">
+                            {plan.feat.map((f, j)=><li key={j} className="flex gap-2 text-sm font-medium"><CheckCircle size={16} className="text-green-500 flex-shrink-0"/>{f}</li>)}
+                        </ul>
+                        <button className={`w-full py-3 rounded-lg font-bold ${plan.rec ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'}`}>選択する</button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
+// 3. HowTo Page
+const HowToPage = ({ onBack }) => (
+    <div className="min-h-screen bg-white py-12 px-4 font-sans text-gray-900">
+        <button onClick={onBack} className="mb-8 flex items-center gap-2 text-gray-600 font-bold hover:text-blue-600 max-w-4xl mx-auto"><ArrowLeft/> トップへ戻る</button>
+        <div className="max-w-3xl mx-auto">
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">売れる診断クイズの作り方</h1>
+            <div className="space-y-12">
+                <section>
+                    <h2 className="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2"><span className="bg-blue-100 w-8 h-8 rounded-full flex items-center justify-center">1</span> ターゲットとゴールを決める</h2>
+                    <p className="text-gray-700 leading-relaxed">まずは「誰に」「どうなって欲しいか」を明確にします。例えば「30代の婚活女性」に「自分の恋愛の癖を知って、相談所に来て欲しい」など。</p>
+                </section>
+                <section>
+                    <h2 className="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2"><span className="bg-blue-100 w-8 h-8 rounded-full flex items-center justify-center">2</span> 結果パターン（出口）から作る</h2>
+                    <p className="text-gray-700 leading-relaxed">質問から考えるのはNGです。まずは読ませたい「診断結果（Aタイプ、Bタイプ...）」を3〜4つ用意し、それぞれに合ったアドバイスと誘導（LINE登録など）を考えましょう。</p>
+                </section>
+                <section>
+                    <h2 className="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2"><span className="bg-blue-100 w-8 h-8 rounded-full flex items-center justify-center">3</span> 質問で振り分ける</h2>
+                    <p className="text-gray-700 leading-relaxed">結果パターンに導くための質問を作ります。「この回答を選んだらAタイプっぽいな」という配点を設定していくだけです。AIアシスタントを使えば一瞬で作成できます。</p>
+                </section>
+            </div>
+        </div>
+    </div>
+);
+
+// 4. Portal (Top Page)
+const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLogout, setPage }) => {
+  const handleLike = async (e, quiz) => {
+      e.stopPropagation();
+      if(!supabase) return;
+      await supabase.from('quizzes').update({ likes_count: (quiz.likes_count||0) + 1 }).eq('id', quiz.id);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
-      {/* Hero */}
-      <div className="bg-gradient-to-br from-indigo-900 to-blue-800 text-white pt-24 pb-32 px-6 rounded-b-[3rem] shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-white rounded-full blur-3xl"></div>
-        </div>
-
-        {/* User Menu */}
-        <div className="absolute top-6 right-6 z-20">
-            {user ? (
-                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 shadow-lg">
-                    <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white border border-white/30">
-                        <User size={16} />
-                    </div>
-                    <span className="text-sm font-bold text-white max-w-[120px] truncate">{user.email}</span>
-                    <div className="h-4 w-px bg-white/30 mx-1"></div>
-                    <button onClick={onLogout} className="text-white/80 hover:text-white transition-colors" title="ログアウト">
-                        <LogOut size={18} />
-                    </button>
-                </div>
-            ) : (
-                <button onClick={() => setShowAuth(true)} className="flex items-center gap-2 bg-white text-blue-900 px-6 py-2.5 rounded-full font-bold shadow-lg hover:bg-blue-50 hover:scale-105 transition-all">
-                    <LogIn size={18} /> ログイン
-                </button>
-            )}
-        </div>
-
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-3 py-1 rounded-full text-xs font-bold mb-6 text-blue-100">
-            <Sparkles size={12}/> AI診断作成プラットフォーム
+      {/* Header */}
+      <div className="bg-white border-b sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+              <div className="font-bold text-xl flex items-center gap-2 text-indigo-700 cursor-pointer" onClick={()=>setPage('portal')}><Sparkles className="text-pink-500"/> 診断メーカー</div>
+              <div className="flex items-center gap-4 text-sm font-bold text-gray-600">
+                  <button onClick={()=>setPage('price')} className="hover:text-indigo-600">料金プラン</button>
+                  <button onClick={()=>setPage('howto')} className="hover:text-indigo-600">作り方</button>
+                  {user ? (
+                      <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+                          <User size={14}/> <span className="truncate max-w-[100px]">{user.email}</span>
+                          <button onClick={onLogout} title="ログアウト"><LogOut size={14}/></button>
+                      </div>
+                  ) : (
+                      <button onClick={()=>setShowAuth(true)} className="bg-indigo-600 text-white px-4 py-2 rounded-full hover:bg-indigo-700">ログイン</button>
+                  )}
+              </div>
           </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight drop-shadow-sm">
-            顧客の心を掴む<br/>診断コンテンツを、今すぐ。
-          </h1>
-          <p className="text-lg md:text-xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed">
-            プログラミング不要。AIがあなたの代わりに診断を作成。<br/>
-            LINE登録や商品購入への誘導もスムーズに。
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button 
-              onClick={() => document.getElementById('quiz-list')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-white text-indigo-900 px-8 py-4 rounded-full font-bold shadow-xl hover:bg-indigo-50 hover:shadow-2xl transition-all flex items-center justify-center gap-2"
-            >
-              <Play size={20} className="fill-current" />
-              公開中の診断を見る
-            </button>
+      </div>
+
+      {/* Hero */}
+      <div className="bg-gradient-to-br from-indigo-900 to-blue-800 text-white py-20 px-6 text-center rounded-b-[3rem] shadow-xl mb-12">
+        <div className="max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-3 py-1 rounded-full text-xs font-bold mb-6 text-blue-100">
+                <Sparkles size={12}/> AI診断作成プラットフォーム
+            </div>
+            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight drop-shadow-sm">
+                顧客の心を掴む<br/>診断コンテンツを、今すぐ。
+            </h1>
+            <p className="text-lg md:text-xl text-blue-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+                プログラミング不要。AIがあなたの代わりに診断を作成。<br/>
+                LINE登録や商品購入への誘導もスムーズに。
+            </p>
             <button 
               onClick={onCreate}
-              className="bg-blue-600 border border-blue-400 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-blue-500 transition-all flex items-center justify-center gap-2"
+              className="bg-white text-indigo-900 px-8 py-4 rounded-full font-bold shadow-xl hover:bg-gray-50 flex items-center gap-2 mx-auto transform transition hover:scale-105"
             >
-              <Edit3 size={20} />
-              無料で作成する
+              <Edit3 size={20} /> 今すぐ無料で作成する
             </button>
-          </div>
         </div>
       </div>
 
       {/* List */}
-      <div id="quiz-list" className="max-w-6xl mx-auto px-6 -mt-20 pb-20 relative z-10">
+      <div id="quiz-list" className="max-w-6xl mx-auto px-6 pb-20">
+        <h2 className="text-2xl font-bold mb-8 text-gray-800 border-l-4 border-indigo-600 pl-4">人気の診断</h2>
         {isLoading ? (
-          <div className="flex flex-col justify-center items-center py-32 bg-white/90 backdrop-blur rounded-3xl shadow-lg border border-white/50">
+          <div className="flex flex-col justify-center items-center py-20">
             <Loader2 className="animate-spin text-indigo-600 mb-4" size={48} />
-            <p className="text-gray-900 font-bold">データを読み込んでいます...</p>
+            <p className="text-gray-600 font-bold">データを読み込んでいます...</p>
           </div>
         ) : quizzes.length === 0 ? (
           <div className="text-center py-24 bg-white rounded-3xl shadow-lg border border-gray-100">
-            <div className="inline-block p-4 bg-gray-100 rounded-full mb-4 text-gray-400"><Edit3 size={32}/></div>
             <p className="text-gray-900 font-bold mb-2 text-xl">まだ診断がありません</p>
             <p className="text-gray-600">「無料で作成する」から最初のコンテンツを作りましょう。</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {quizzes.map((quiz) => (
-              <div key={quiz.id} className="bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100 group">
+              <div key={quiz.id} onClick={() => onPlay(quiz)} className="bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden border border-gray-100 group cursor-pointer">
                 <div className={`h-40 ${quiz.color || 'bg-gray-500'} relative overflow-hidden`}>
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
-                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-                  
                   <div className="absolute top-4 left-4 bg-white/90 backdrop-blur text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
                     {quiz.category || '未分類'}
                   </div>
@@ -213,46 +255,47 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
                   <p className="text-gray-800 text-sm mb-6 flex-grow leading-relaxed line-clamp-3 font-medium">
                     {quiz.description}
                   </p>
-                  <button 
-                    onClick={() => onPlay(quiz)}
-                    className="w-full bg-gray-50 hover:bg-indigo-600 text-gray-900 hover:text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 border border-gray-200 hover:border-indigo-600 group-hover:shadow-md"
-                  >
-                    <Play size={18} className="group-hover:fill-current"/>
-                    診断する
-                  </button>
+                  <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
+                    <span className="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">診断する</span>
+                    <button 
+                        onClick={(e) => handleLike(e, quiz)}
+                        className="flex items-center gap-1 text-gray-400 hover:text-pink-500 transition-colors px-2 py-1 rounded-md hover:bg-pink-50"
+                    >
+                        <ThumbsUp size={16} /> <span className="text-xs font-bold">{quiz.likes_count || 0}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+      
+      <footer className="bg-gray-900 text-gray-400 py-12 text-center mt-12">
+          <div className="flex justify-center gap-6 mb-8 font-bold text-sm">
+              <button onClick={()=>setPage('price')} className="hover:text-white transition-colors">料金プラン</button>
+              <button onClick={()=>setPage('howto')} className="hover:text-white transition-colors">作り方</button>
+              <a href="#" className="hover:text-white transition-colors">利用規約</a>
+          </div>
+          <p className="text-xs">&copy; 2025 Diagnosis Maker. All rights reserved.</p>
+      </footer>
     </div>
   );
 };
 
-// 2. Quiz Player Components
-
+// 5. Result View
 const ResultView = ({ quiz, result, onRetry, onBack }) => {
   const [likes, setLikes] = useState(quiz.likes_count || 0);
   const [hasLiked, setHasLiked] = useState(false);
 
-  // いいね機能
   const handleLike = async () => {
     if (hasLiked) return;
-    setLikes(l => l + 1); // 画面上ですぐに反映
+    setLikes(l => l + 1);
     setHasLiked(true);
-    
-    // 裏でDB更新
     if (supabase) {
-        try {
-            await supabase.from('quizzes').update({ likes_count: likes + 1 }).eq('id', quiz.id);
-        } catch (error) {
-            console.error('Like error:', error);
-        }
+        await supabase.from('quizzes').update({ likes_count: likes + 1 }).eq('id', quiz.id);
     }
   };
-  
-  const settings = quiz.settings || {};
 
   return (
     <div className="max-w-xl mx-auto w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 animate-fade-in my-8">
@@ -266,18 +309,12 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
                 {result.description}
             </div>
             
-            {/* Business Links */}
-            {settings.lp_url && (
-                <div className="mb-6 transform transition-transform hover:scale-[1.02]">
-                    <a href={settings.lp_url} target="_blank" rel="noopener noreferrer" className="block bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-center font-bold py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-2">
-                        <ExternalLink size={20} /> {settings.lp_text || "詳細を見る"}
+            {/* 結果ごとのリンク表示 */}
+            {result.link_url && (
+                <div className="mb-8 transform transition-transform hover:scale-[1.02]">
+                    <a href={result.link_url} target="_blank" rel="noopener noreferrer" className="block bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-center font-bold py-4 px-6 rounded-2xl shadow-lg flex items-center justify-center gap-2">
+                        <ExternalLink size={20} /> {result.link_text || "詳細を見る"}
                     </a>
-                </div>
-            )}
-            {settings.line_url && (
-                <div className="bg-[#06C755]/5 border border-[#06C755]/30 rounded-2xl p-6 text-center mb-8">
-                    <p className="text-[#06C755] font-bold text-sm mb-3">{settings.line_text || "公式LINEで限定情報をゲット！"}</p>
-                    <a href={settings.line_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-[#06C755] hover:bg-[#05b54c] text-white font-bold py-3 px-10 rounded-full shadow-md transition-colors"><MessageCircle size={20} /> 友だち追加</a>
                 </div>
             )}
 
@@ -323,7 +360,6 @@ const QuizCardLayout = ({ quiz, currentStep, onAnswer }) => {
 };
 
 const QuizChatLayout = ({ quiz, currentStep, onAnswer }) => {
-  // チャットUIの実装
   return <QuizCardLayout quiz={quiz} currentStep={currentStep} onAnswer={onAnswer} />;
 };
 
@@ -355,7 +391,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
   );
 };
 
-// 3. Editor
+// 6. Editor
 const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
   const [activeTab, setActiveTab] = useState('basic');
   const [isSaving, setIsSaving] = useState(false);
@@ -363,7 +399,6 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
   
   // AI Modal
   const [showAiModal, setShowAiModal] = useState(false);
-  const [apiKey, setApiKey] = useState('');
   const [aiTheme, setAiTheme] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -375,9 +410,13 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
       description: "診断の説明文を入力してください...",
       category: "Business",
       color: "bg-indigo-600",
-      settings: { lp_url: "", lp_text: "", line_url: "", line_text: "" },
+      settings: { lp_url: "", lp_text: "", line_url: "", line_text: "" }, // Legacy support
       questions: Array(5).fill(null).map((_, i) => ({ text: `質問${i+1}`, options: Array(4).fill(null).map((_, j) => ({ label: `選択肢${j+1}`, score: { A: j===0?3:0, B: j===1?3:0, C: j===2?3:0 } })) })),
-      results: [ { type: "A", title: "タイプA", description: "結果説明..." }, { type: "B", title: "タイプB", description: "結果説明..." }, { type: "C", title: "タイプC", description: "結果説明..." } ]
+      results: [ 
+          { type: "A", title: "タイプA", description: "結果説明...", link_url:"", link_text:"" }, 
+          { type: "B", title: "タイプB", description: "結果説明...", link_url:"", link_text:"" }, 
+          { type: "C", title: "タイプC", description: "結果説明...", link_url:"", link_text:"" } 
+      ]
   });
 
   const handlePublish = () => {
@@ -387,7 +426,6 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
   };
 
   const handleAiGenerate = async () => {
-      // APIキーは環境変数から読み込む
       const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
       if(!apiKey) return alert('環境変数にOpenAI APIキーが設定されていません');
       if(!aiTheme) return alert('テーマを入力してください');
@@ -396,12 +434,7 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
       try {
           const prompt = `
             テーマ「${aiTheme}」の診断クイズを作成。JSONのみ出力。
-            {
-              "title": "...", "description": "...",
-              "questions": [{"text": "...", "options": [{"label": "...", "score": {"A":3,"B":0,"C":0}}...]}...],
-              "results": [{"type": "A", "title": "...", "description": "..."}, ...]
-            }
-            質問は5つ、各4択。結果はA,B,Cの3タイプ。
+            構成: title, description, category, questions(5問4択,各score{A,B,C}), results(3タイプ, title, description)
           `;
           const res = await fetch("https://api.openai.com/v1/chat/completions", {
               method: "POST",
@@ -413,10 +446,8 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
           const aiData = JSON.parse(jsonStr);
           setEditForm(prev => ({
               ...prev,
-              title: aiData.title || prev.title,
-              description: aiData.description || prev.description,
-              questions: aiData.questions || prev.questions,
-              results: aiData.results || prev.results
+              ...aiData,
+              results: aiData.results.map(r => ({...r, link_url:"", link_text:""})) // AIデータにリンク枠追加
           }));
           setShowAiModal(false);
           alert('AI生成完了！');
@@ -448,11 +479,10 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
                     </button>
                 ))}
                 <div className="mt-auto p-4 border-t">
-                    {user ? (
-                        <button onClick={()=>setShowAiModal(true)} className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white p-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow hover:opacity-90 transition-all"><Sparkles size={18} /> AIで自動生成</button>
-                    ) : (
-                        <button onClick={onLoginRequest} className="w-full bg-gray-100 text-gray-400 p-3 rounded-xl font-bold text-sm flex flex-col items-center gap-1 cursor-not-allowed border border-gray-200"><div className="flex items-center gap-1"><Lock size={14}/> AI機能</div><span className="text-[10px]">ログイン必須</span></button>
-                    )}
+                    {/* AIボタン: 全ユーザー解放 */}
+                    <button onClick={()=>setShowAiModal(true)} className="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white p-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow hover:opacity-90 transition-all">
+                        <Sparkles size={18} /> AIで自動生成
+                    </button>
                 </div>
             </div>
 
@@ -488,6 +518,15 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
                                     <div className="flex items-center gap-2 mb-3"><span className="bg-gray-800 text-white font-bold px-3 py-1 rounded text-sm">Type {res.type}</span></div>
                                     <Input label="結果タイトル" val={res.title} onChange={e => { const newR = [...editForm.results]; newR[rIdx].title = e.target.value; setEditForm({...editForm, results: newR}); }} />
                                     <Textarea label="詳細説明" val={res.description} onChange={e => { const newR = [...editForm.results]; newR[rIdx].description = e.target.value; setEditForm({...editForm, results: newR}); }} />
+                                    
+                                    {/* ビジネス連携（結果ごとのリンク） */}
+                                    <div className="mt-4 bg-blue-50 p-4 rounded border border-blue-200">
+                                        <p className="text-xs font-bold text-blue-600 mb-2 flex gap-1"><CreditCard size={12}/> ビジネス連携（このタイプへの誘導）</p>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <Input label="誘導先URL (LP/LINE)" val={res.link_url} onChange={v=>{const n=[...editForm.results];n[rIdx].link_url=v;setEditForm({...editForm, results:n})}} placeholder="https://..." />
+                                            <Input label="ボタンの文言" val={res.link_text} onChange={v=>{const n=[...editForm.results];n[rIdx].link_text=v;setEditForm({...editForm, results:n})}} placeholder="詳細はこちら" />
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -495,12 +534,13 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
 
                     {activeTab === 'business' && (
                         <div className="animate-fade-in space-y-6">
-                            <h3 className="text-xl font-bold mb-6 pb-2 border-b text-gray-800">ビジネス設定</h3>
-                            <Input label="商品LPリンク URL" val={editForm.settings.lp_url} onChange={e => setEditForm({...editForm, settings: {...editForm.settings, lp_url: e.target.value}})} />
-                            <Input label="LPボタン文言" val={editForm.settings.lp_text} onChange={e => setEditForm({...editForm, settings: {...editForm.settings, lp_text: e.target.value}})} />
-                            <hr />
-                            <Input label="公式LINE URL" val={editForm.settings.line_url} onChange={e => setEditForm({...editForm, settings: {...editForm.settings, line_url: e.target.value}})} />
-                            <Input label="LINE誘導文言" val={editForm.settings.line_text} onChange={e => setEditForm({...editForm, settings: {...editForm.settings, line_text: e.target.value}})} />
+                            <h3 className="text-xl font-bold mb-6 pb-2 border-b text-gray-800">ビジネス連携設定</h3>
+                            <div className="bg-green-50 border border-green-200 p-4 rounded-lg mb-6">
+                                <p className="text-green-800 text-sm font-bold">
+                                    💡 ヒント：結果パターンごとに個別のURLを設定できるようになりました。<br/>
+                                    「結果パターン」タブから各タイプごとの誘導先を設定してください。
+                                </p>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -517,7 +557,6 @@ const Editor = ({ onBack, onSave, onDelete, user, onLoginRequest }) => {
                         <div className="bg-purple-50 text-purple-900 text-xs p-3 rounded font-bold">
                             システムに設定されたAPIキーを使用します。
                         </div>
-                        {/* APIキー入力欄を削除しました */}
                         <div><label className="block text-xs font-bold text-gray-500 uppercase mb-1">テーマ</label><textarea className="w-full border rounded-lg p-2 font-bold text-gray-900" rows={3} placeholder="例：30代独身男性向けの婚活診断" value={aiTheme} onChange={e=>setAiTheme(e.target.value)} /></div>
                         <button onClick={handleAiGenerate} disabled={isGenerating} className="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 disabled:opacity-50">{isGenerating ? <Loader2 className="animate-spin mx-auto"/> : '生成する'}</button>
                     </div>
@@ -631,8 +670,13 @@ const App = () => {
     <div>
       <AuthModal isOpen={!!showAuth} onClose={()=>setShowAuth(false)} setUser={setUser} />
       
-      {view === 'portal' && <Portal quizzes={quizzes} isLoading={isLoading} user={user} setShowAuth={setShowAuth} onLogout={()=>supabase.auth.signOut()} onPlay={(q)=>{setSelectedQuiz(q); setView('quiz');}} onCreate={()=>setView('editor')} />}
+      {view === 'portal' && <Portal quizzes={quizzes} isLoading={isLoading} user={user} setShowAuth={setShowAuth} onLogout={()=>supabase.auth.signOut()} onPlay={(q)=>{setSelectedQuiz(q); setView('quiz');}} onCreate={()=>setView('editor')} setPage={setView} />}
+      
+      {view === 'price' && <PricePage onBack={()=>setView('portal')} />}
+      {view === 'howto' && <HowToPage onBack={()=>setView('portal')} />}
+      
       {view === 'quiz' && <QuizPlayer quiz={selectedQuiz} onBack={()=>{setView('portal'); setSelectedQuiz(null);}} />}
+      
       {view === 'editor' && <Editor user={user} onBack={()=>setView('portal')} onSave={handleSave} onDelete={()=>{}} onLoginRequest={()=>setShowAuth(true)} />}
     </div>
   );
