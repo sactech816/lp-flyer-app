@@ -34,7 +34,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   useEffect(() => { document.title = "クイズ作成・編集 | 診断クイズメーカー"; }, []);
   const [activeTab, setActiveTab] = useState('基本設定');
   const [isSaving, setIsSaving] = useState(false);
-  const [savedId, setSavedId] = useState(null);
+  const [savedId, setSavedId] = useState(null); // ここにはSlug(英数字)を入れるように変更
   const [aiTheme, setAiTheme] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -53,26 +53,31 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   const [form, setForm] = useState(initialData || defaultForm);
 
   const switchMode = (newMode) => {
-      // モード切替時に初期値をセット
+      // モード切替時に初期値とカテゴリをセット
       let newResults = form.results;
+      let newCategory = "Business";
+
       if (newMode === 'test') {
+          newCategory = "Education";
           newResults = [
               { type: "A", title: "満点！天才！", description: "全問正解です。素晴らしい！" },
               { type: "B", title: "あと少し！", description: "惜しい、もう少しで満点です。" },
               { type: "C", title: "頑張ろう", description: "復習して再挑戦しましょう。" }
           ];
       } else if (newMode === 'fortune') {
+          newCategory = "Fortune";
           newResults = [
               { type: "A", title: "大吉", description: "最高の運勢です！" },
               { type: "B", title: "中吉", description: "良いことがあるかも。" },
               { type: "C", title: "吉", description: "平凡こそ幸せ。" }
           ];
       }
-      setForm({ ...form, mode: newMode, results: newResults });
+      setForm({ ...form, mode: newMode, category: newCategory, results: newResults });
   };
 
   const handlePublish = () => { 
-      const urlId = initialData?.slug || savedId || initialData?.id;
+      // savedIdには英数字(slug)が入っている前提
+      const urlId = savedId || initialData?.slug || initialData?.id;
       const url = `${window.location.origin}?id=${urlId}`;
       navigator.clipboard.writeText(url); 
       alert(`公開URLをコピーしました！\n${url}`); 
@@ -154,8 +159,9 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 )}
                 <button onClick={async ()=>{
                         setIsSaving(true); 
-                        const id = await onSave(form, savedId || initialData?.id); 
-                        if(id) setSavedId(id); 
+                        // 保存処理実行、戻り値（slug or ID）を受け取る
+                        const slugOrId = await onSave(form, savedId || initialData?.id); 
+                        if(slugOrId) setSavedId(slugOrId); 
                         setIsSaving(false);
                     }} disabled={isSaving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all">
                     {isSaving ? <Loader2 className="animate-spin"/> : <Save/>} 保存
@@ -197,7 +203,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                         <div className="animate-fade-in">
                             <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Edit3 className="text-gray-400"/> 基本設定</h3>
                             
-                            {/* Mode Selection */}
+                            {/* Mode Selection (Only for New) */}
                             {!initialData && (
                                 <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                     <label className="text-sm font-bold text-gray-900 block mb-3">作成する種類を選択</label>
@@ -217,6 +223,20 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
 
                             <Input label="タイトル" val={form.title} onChange={v=>setForm({...form, title:v})} ph="タイトルを入力" />
                             <Textarea label="説明文" val={form.description} onChange={v=>setForm({...form, description:v})} />
+                            
+                            <div className="grid grid-cols-2 gap-6 mt-6">
+                                <div>
+                                    <Input label="カテゴリ" val={form.category} onChange={v=>setForm({...form, category:v})} ph="Business, Education, Fortune..." />
+                                </div>
+                                <div>
+                                    <label className="text-sm font-bold text-gray-900 block mb-2">表示レイアウト</label>
+                                    <div className="flex gap-2">
+                                        <button onClick={()=>setForm({...form, layout:'card'})} className={`flex-1 py-3 rounded-lg font-bold text-sm border flex items-center justify-center gap-2 ${form.layout==='card' ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-gray-200 text-gray-500'}`}><Layout size={16}/> カード</button>
+                                        <button onClick={()=>setForm({...form, layout:'chat'})} className={`flex-1 py-3 rounded-lg font-bold text-sm border flex items-center justify-center gap-2 ${form.layout==='chat' ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-gray-200 text-gray-500'}`}><MessageCircle size={16}/> チャット</button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div className="mt-6 mb-6">
                                 <label className="text-sm font-bold text-gray-900 block mb-2">メイン画像</label>
                                 <div className="flex gap-2">
@@ -225,21 +245,13 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                 </div>
                                 {form.image_url && <img src={form.image_url} alt="Preview" className="h-32 w-full object-cover rounded-lg mt-2 border"/>}
                             </div>
-                            <div className="grid grid-cols-2 gap-6 mt-6">
-                                <div>
-                                    <label className="text-sm font-bold text-gray-900 block mb-2">テーマカラー</label>
-                                    <div className="flex gap-3 flex-wrap">
-                                        {['bg-indigo-600', 'bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-gray-800'].map(c => (
-                                            <button key={c} onClick={()=>setForm({...form, color:c})} className={`w-10 h-10 rounded-full ${c} ${form.color===c ? 'ring-4 ring-offset-2 ring-gray-300':''}`}></button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="text-sm font-bold text-gray-900 block mb-2">表示レイアウト</label>
-                                    <div className="flex gap-2">
-                                        <button onClick={()=>setForm({...form, layout:'card'})} className={`flex-1 py-3 rounded-lg font-bold text-sm border flex items-center justify-center gap-2 ${form.layout==='card' ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-gray-200 text-gray-500'}`}><Layout size={16}/> カード</button>
-                                        <button onClick={()=>setForm({...form, layout:'chat'})} className={`flex-1 py-3 rounded-lg font-bold text-sm border flex items-center justify-center gap-2 ${form.layout==='chat' ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-gray-200 text-gray-500'}`}><MessageCircle size={16}/> チャット</button>
-                                    </div>
+
+                            <div className="mt-6">
+                                <label className="text-sm font-bold text-gray-900 block mb-2">テーマカラー</label>
+                                <div className="flex gap-3 flex-wrap">
+                                    {['bg-indigo-600', 'bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-gray-800'].map(c => (
+                                        <button key={c} onClick={()=>setForm({...form, color:c})} className={`w-10 h-10 rounded-full ${c} ${form.color===c ? 'ring-4 ring-offset-2 ring-gray-300':''}`}></button>
+                                    ))}
                                 </div>
                             </div>
                         </div>

@@ -5,8 +5,9 @@ import SEO from './SEO';
 import { supabase } from '../lib/supabase';
 
 const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLogout, setPage, onEdit, onDelete, isAdmin }) => {
-  useEffect(() => { document.title = "無料AI診断クイズメーカー | 集客・販促・教育・占いに効くクイズ作成ツール"; }, []);
+  useEffect(() => { document.title = "無料AI診断メーカー | 集客・販促に効くクイズ作成ツール"; }, []);
   const [filterMode, setFilterMode] = useState('all'); // all, diagnosis, test, fortune
+  const [sortType, setSortType] = useState('new'); // new, popular
 
   const handleLike = async (e, quiz) => {
       e.stopPropagation();
@@ -22,11 +23,19 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
       } catch(err) { console.error(err); }
   };
 
-  // フィルタリング処理
+  // 1. まずモード（タブ）で絞り込み
   const filteredQuizzes = quizzes.filter(q => {
       if (filterMode === 'all') return true;
-      // diagnosis(ビジネス), test(教育), fortune(占い)
-      return q.mode === filterMode;
+      // 互換性のため null/undefined は diagnosis (ビジネス) 扱い
+      const mode = q.mode || 'diagnosis';
+      return mode === filterMode;
+  });
+
+  // 2. 次にソート（新着 or 人気）
+  const displayedQuizzes = [...filteredQuizzes].sort((a, b) => {
+      if (sortType === 'popular') return (b.likes_count || 0) - (a.likes_count || 0);
+      // new
+      return new Date(b.created_at) - new Date(a.created_at);
   });
 
   return (
@@ -49,14 +58,14 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
         </button>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="max-w-6xl mx-auto px-6 mt-12">
-          <div className="flex flex-wrap justify-center gap-2 md:gap-4 border-b border-gray-200 pb-4">
+      {/* Filter & Sort Controls */}
+      <div className="max-w-6xl mx-auto px-6 mt-12 flex flex-col md:flex-row justify-between items-center gap-4 border-b border-gray-200 pb-4">
+          <div className="flex flex-wrap justify-center gap-2">
               <button onClick={()=>setFilterMode('all')} className={`px-4 py-2 rounded-full font-bold flex items-center gap-2 transition-colors ${filterMode==='all' ? 'bg-gray-800 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'}`}>
                   <LayoutGrid size={16}/> すべて
               </button>
               <button onClick={()=>setFilterMode('diagnosis')} className={`px-4 py-2 rounded-full font-bold flex items-center gap-2 transition-colors ${filterMode==='diagnosis' ? 'bg-indigo-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'}`}>
-                  <Briefcase size={16}/> ビジネス診断
+                  <Briefcase size={16}/> ビジネス
               </button>
               <button onClick={()=>setFilterMode('test')} className={`px-4 py-2 rounded-full font-bold flex items-center gap-2 transition-colors ${filterMode==='test' ? 'bg-orange-500 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'}`}>
                   <GraduationCap size={16}/> 学習・検定
@@ -64,6 +73,11 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
               <button onClick={()=>setFilterMode('fortune')} className={`px-4 py-2 rounded-full font-bold flex items-center gap-2 transition-colors ${filterMode==='fortune' ? 'bg-purple-600 text-white' : 'bg-white text-gray-500 hover:bg-gray-100'}`}>
                   <SparklesIcon size={16}/> 占い
               </button>
+          </div>
+
+          <div className="flex gap-2 text-sm font-bold bg-gray-100 p-1 rounded-lg">
+              <button onClick={()=>setSortType('new')} className={`px-3 py-1.5 rounded-md transition-all ${sortType==='new' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>新着順</button>
+              <button onClick={()=>setSortType('popular')} className={`px-3 py-1.5 rounded-md transition-all ${sortType==='popular' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>人気順</button>
           </div>
       </div>
 
@@ -73,10 +87,13 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
             <div className="text-center py-20"><Loader2 className="animate-spin mx-auto text-indigo-600" size={40}/></div>
         ) : (
          <div className="grid md:grid-cols-3 gap-8">
-            {filteredQuizzes.length === 0 ? (
-                <div className="col-span-3 text-center py-12 text-gray-400">まだコンテンツがありません。</div>
+            {displayedQuizzes.length === 0 ? (
+                <div className="col-span-3 text-center py-12 bg-gray-50 rounded-xl text-gray-400">
+                    <p>まだコンテンツがありません。</p>
+                    <button onClick={onCreate} className="mt-4 text-indigo-600 font-bold hover:underline">最初のひとつを作成する</button>
+                </div>
             ) : (
-                filteredQuizzes.map((quiz) => (
+                displayedQuizzes.map((quiz) => (
                 <div key={quiz.id} onClick={()=>onPlay(quiz)} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col h-full group overflow-hidden border border-gray-100 relative">
                     {/* Admin Menu */}
                     {isAdmin && (
@@ -88,7 +105,7 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
                     {/* Thumbnail */}
                     <div className={`h-40 w-full overflow-hidden relative ${quiz.color || 'bg-indigo-600'}`}>
                         {quiz.image_url && <img src={quiz.image_url} alt={quiz.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"/>}
-                        <span className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1">
+                        <span className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full text-xs font-bold shadow-sm flex items-center gap-1 text-gray-800">
                             {quiz.mode === 'test' && <GraduationCap size={12}/>}
                             {quiz.mode === 'fortune' && <SparklesIcon size={12}/>}
                             {(!quiz.mode || quiz.mode === 'diagnosis') && <Briefcase size={12}/>}
