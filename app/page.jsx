@@ -7,11 +7,11 @@ import {
   RefreshCw, Loader2, Trophy, Home, ThumbsUp, ExternalLink, X, 
   Crown, Lock, Share2, Sparkles, Wand2, QrCode, MessageCircle, Mail, BarChart3
 } from 'lucide-react';
-import Head from 'next/head'; // SEO用
+import Head from 'next/head';
 
 // --- 設定エリア (ここだけ書き換えてください) ---
 // 管理者として扱うメールアドレスを設定します
-const ADMIN_EMAIL = "admin@example.com"; 
+const ADMIN_EMAIL = "info@kei-sho.co.jp"; 
 // -------------------------------------------
 
 // --- Supabase Config ---
@@ -19,7 +19,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = (supabaseUrl && supabaseAnonKey) ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
-// --- SEO Component (簡易版) ---
+// --- SEO Component ---
 const SEO = ({ title, description }) => (
     <>
         <title>{title}</title>
@@ -27,7 +27,6 @@ const SEO = ({ title, description }) => (
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content="website" />
-        {/* AIO対策: 構造化データ */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "WebApplication",
@@ -62,7 +61,6 @@ const calculateResult = (answers, results) => {
 
 // --- Components ---
 
-// 共通ヘッダー
 const Header = ({ setPage, isAdmin }) => (
     <div className="bg-white border-b sticky top-0 z-50 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -82,14 +80,11 @@ const Header = ({ setPage, isAdmin }) => (
     </div>
 );
 
-// 1. Auth Modal
 const AuthModal = ({ isOpen, onClose, setUser }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    
     if (!isOpen) return null;
-    
     const handleLogin = async (e) => {
         e.preventDefault(); setLoading(true);
         try {
@@ -98,7 +93,6 @@ const AuthModal = ({ isOpen, onClose, setUser }) => {
             if (data.user) { setUser(data.user); onClose(); }
         } catch (e) { alert('ログインエラー: ' + e.message); } finally { setLoading(false); }
     };
-
     return (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 backdrop-blur-sm">
             <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl relative animate-fade-in">
@@ -116,7 +110,6 @@ const AuthModal = ({ isOpen, onClose, setUser }) => {
     );
 };
 
-// 2. Pages
 const PricePage = ({ onBack, isAdmin, setPage }) => (
     <div className="min-h-screen bg-gray-50 font-sans">
         <SEO title="料金プラン | 診断クイズメーカー" description="ビジネスを加速させる診断コンテンツの料金プラン。" />
@@ -149,16 +142,13 @@ const HowToPage = ({ onBack, isAdmin, setPage }) => (
         <Header setPage={setPage} isAdmin={isAdmin} />
         <div className="py-12 px-4 max-w-3xl mx-auto">
             <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">診断クイズの作り方・規約</h1>
-            
             <div className="space-y-8 text-gray-800 leading-relaxed">
                 <p>このツールは、ビジネス向けの診断コンテンツを手軽に作成するためのツールです。</p>
-                
                 <ul className="list-disc pl-5 space-y-1 bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <li><strong>質問：</strong> 5問</li>
                     <li><strong>選択肢：</strong> 各質問に4つ</li>
                     <li><strong>結果パターン：</strong> 3種類</li>
                 </ul>
-
                 <div>
                     <h2 className="text-xl font-bold text-indigo-700 mb-4">利用規約・免責事項</h2>
                     <ul className="list-disc pl-5 space-y-3 text-sm">
@@ -173,7 +163,6 @@ const HowToPage = ({ onBack, isAdmin, setPage }) => (
     </div>
 );
 
-// 3. Portal
 const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLogout, setPage, onEdit, onDelete }) => {
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const [sortType, setSortType] = useState('new');
@@ -201,8 +190,6 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-20">
       <SEO title="診断クイズメーカー | AIで無料作成" description="登録不要！AIでビジネス用やエンタメ用の診断クイズを無料で作成できるツールです。" />
       <Header setPage={setPage} isAdmin={isAdmin} />
-
-      {/* Hero */}
       <div className="bg-gradient-to-br from-indigo-900 to-blue-800 text-white py-16 px-6 text-center relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
         <h1 className="text-3xl md:text-5xl font-extrabold mb-6 relative z-10 leading-tight">
@@ -216,8 +203,6 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
             <Edit3 size={20} /> 無料で作成する
         </button>
       </div>
-
-      {/* List */}
       <div id="quiz-list" className="max-w-6xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -228,15 +213,12 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
                 <button onClick={()=>setSortType('popular')} className={`px-4 py-2 rounded-full border ${sortType==='popular' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-500 border-gray-200'}`}>人気順</button>
             </div>
         </div>
-        
         {isLoading ? (
             <div className="text-center py-20"><Loader2 className="animate-spin mx-auto text-indigo-600" size={40}/></div>
         ) : (
          <div className="grid md:grid-cols-3 gap-8">
             {sortedQuizzes.map((quiz) => (
               <div key={quiz.id} onClick={()=>onPlay(quiz)} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all cursor-pointer flex flex-col h-full group overflow-hidden border border-gray-100 relative">
-                
-                {/* 管理者用メニュー (解析含む) */}
                 {isAdmin && (
                     <div className="absolute top-2 right-2 z-20 flex gap-1">
                         <div className="bg-black/80 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-2 mr-2">
@@ -247,15 +229,12 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
                         <button onClick={(e)=>{e.stopPropagation(); onDelete(quiz.id);}} className="bg-white/90 p-2 rounded-full shadow hover:text-red-600"><Trash2 size={16}/></button>
                     </div>
                 )}
-
                 <div className={`h-40 ${quiz.color || 'bg-gray-500'} relative`}>
                     <span className="absolute top-4 left-4 bg-white/90 px-3 py-1 rounded-full text-xs font-bold shadow-sm">{quiz.category || 'その他'}</span>
                 </div>
-                
                 <div className="p-6 flex-grow flex flex-col">
                   <h3 className="text-lg font-bold mb-2 group-hover:text-indigo-600 transition-colors line-clamp-2 text-gray-900">{quiz.title}</h3>
                   <p className="text-sm text-gray-600 line-clamp-3 flex-grow mb-4">{quiz.description}</p>
-                  
                   <div className="flex items-center justify-between border-t pt-4 mt-auto">
                       <span className="text-xs font-bold bg-indigo-50 text-indigo-600 px-3 py-1 rounded-lg flex items-center gap-1">
                           <Play size={12}/> 診断する
@@ -274,8 +253,6 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
          </div>
         )}
       </div>
-
-      {/* Footer */}
       <footer className="bg-white border-t py-12 text-center text-sm text-gray-400">
           <div className="mb-4 space-x-4">
               <a href="https://forms.google.com/your-form-url" target="_blank" rel="noopener noreferrer" className="hover:text-indigo-600 font-bold inline-flex items-center gap-1"><Mail size={14}/> お問い合わせ</a>
@@ -296,13 +273,10 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
   );
 };
 
-// 4. Result View
 const ResultView = ({ quiz, result, onRetry, onBack }) => {
-  // リンククリック計測
   const handleLinkClick = async () => {
     if(supabase) await supabase.rpc('increment_clicks', { row_id: quiz.id });
   };
-
   return (
     <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden my-8 animate-fade-in border border-gray-100 flex flex-col min-h-[80vh]">
         <div className="bg-indigo-700 text-white p-10 text-center relative overflow-hidden">
@@ -314,9 +288,7 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
             <div className="prose text-gray-800 leading-relaxed whitespace-pre-wrap mb-10 text-sm md:text-base">
                 {result.description}
             </div>
-            
             <div className="space-y-4 mb-8">
-                {/* Links with Tracking */}
                 {result.link_url && (
                     <a href={result.link_url} onClick={handleLinkClick} target="_blank" rel="noopener noreferrer" className="block w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-center font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transform transition hover:scale-[1.02] active:scale-95">
                         <ExternalLink size={20}/> {result.link_text || "詳しく見る"}
@@ -333,7 +305,6 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
                     </a>
                 )}
             </div>
-
             <div className="flex gap-4 border-t pt-6">
                 <button onClick={onRetry} className="flex-1 py-3 rounded-lg border border-gray-300 font-bold text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-2 transition-colors">
                     <RefreshCw size={18}/> 再診断
@@ -352,13 +323,11 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
   );
 };
 
-// 5. Quiz Player
 const QuizPlayer = ({ quiz, onBack }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
   
-  // 閲覧数計測 (マウント時に1回だけ実行)
   useEffect(() => {
     if(supabase) supabase.rpc('increment_views', { row_id: quiz.id });
   }, []);
@@ -395,6 +364,12 @@ const QuizPlayer = ({ quiz, onBack }) => {
           <button onClick={onBack} className="text-gray-500 font-bold flex items-center gap-1 hover:text-gray-800"><ArrowLeft size={16}/> 戻る</button>
       </div>
       <div className="max-w-md mx-auto w-full px-4">
+        {/* 新追加: タイトルと説明の表示 */}
+        <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{quiz.title}</h2>
+            <p className="text-sm text-gray-600 whitespace-pre-wrap">{quiz.description}</p>
+        </div>
+
         <div className="mb-2 flex justify-between text-xs font-bold text-gray-500">
             <span>Question {currentStep+1}</span><span>{questions.length}問中</span>
         </div>
@@ -418,7 +393,6 @@ const QuizPlayer = ({ quiz, onBack }) => {
   );
 };
 
-// 6. Editor (Guest & Admin)
 const Editor = ({ onBack, onSave, initialData }) => {
   const [activeTab, setActiveTab] = useState('基本設定');
   const [isSaving, setIsSaving] = useState(false);
@@ -451,9 +425,15 @@ const Editor = ({ onBack, onSave, initialData }) => {
       if(!aiTheme) return alert('どんな診断を作りたいかテーマを入力してください');
       setIsGenerating(true);
       try {
+          // AIへの指示を強化: 具体的な文字数と質を要求
           const prompt = `
             テーマ「${aiTheme}」の診断テストを作成してください。
             出力は以下のJSON形式のみで、余計な会話は一切含めないでください。
+            
+            【重要: 結果（results）の記述について】
+            各タイプの結果説明文（description）は、ユーザーが読んで納得感を得られるよう、
+            少なくとも200〜300文字程度の充実した内容にしてください。
+            具体的でポジティブなアドバイスを含めてください。
             
             {
               "title": "キャッチーなタイトル",
@@ -470,9 +450,9 @@ const Editor = ({ onBack, onSave, initialData }) => {
                 }
               ],
               "results": [
-                {"type": "A", "title": "○○タイプ", "description": "詳細な説明"},
-                {"type": "B", "title": "△△タイプ", "description": "詳細な説明"},
-                {"type": "C", "title": "□□タイプ", "description": "詳細な説明"}
+                {"type": "A", "title": "○○タイプ", "description": "詳細な説明（200文字以上）"},
+                {"type": "B", "title": "△△タイプ", "description": "詳細な説明（200文字以上）"},
+                {"type": "C", "title": "□□タイプ", "description": "詳細な説明（200文字以上）"}
               ]
             }
             ※質問は5問、各4択。結果は3タイプ(A,B,C)必須。
@@ -574,7 +554,6 @@ const Editor = ({ onBack, onSave, initialData }) => {
                     </button>
                     <p className="text-[10px] text-gray-500 mt-2 text-center">※生成には10〜30秒ほどかかります</p>
                 </div>
-
                 <div className="p-4 space-y-1 overflow-y-auto">
                     {TABS.map(tab=>(
                         <button key={tab.id} onClick={()=>setActiveTab(tab.id)} className={`w-full px-4 py-3 text-left font-bold rounded-lg transition-colors flex items-center gap-2 ${activeTab===tab.id?'bg-indigo-50 text-indigo-700':'text-gray-600 hover:bg-gray-50'}`}>
@@ -636,10 +615,14 @@ const Editor = ({ onBack, onSave, initialData }) => {
                                     <Input label="質問文" val={q.text} onChange={v=>{const n=[...form.questions];n[i].text=v;setForm({...form, questions:n})}} />
                                     <div className="space-y-3 mt-4">
                                         {q.options.map((o, j)=>(
-                                            <div key={j} className="flex gap-2 items-center bg-white p-2 rounded border border-gray-200">
-                                                <div className="bg-gray-200 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-gray-600">{j+1}</div>
-                                                <input className="flex-grow p-1 outline-none text-sm font-bold text-gray-900 placeholder-gray-400" value={o.label} onChange={e=>{const n=[...form.questions];n[i].options[j].label=e.target.value;setForm({...form, questions:n})}} placeholder={`選択肢${j+1}`} />
-                                                <div className="flex gap-2 border-l pl-2">
+                                            // スマホレイアウト修正: flex-colで縦並び、PCはflex-row
+                                            <div key={j} className="flex flex-col md:flex-row md:items-center gap-2 bg-white p-2 rounded border border-gray-200">
+                                                <div className="flex items-center gap-2 w-full md:w-auto flex-grow">
+                                                    <div className="bg-gray-200 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">{j+1}</div>
+                                                    <input className="flex-grow p-1 outline-none text-sm font-bold text-gray-900 placeholder-gray-400 min-w-0" value={o.label} onChange={e=>{const n=[...form.questions];n[i].options[j].label=e.target.value;setForm({...form, questions:n})}} placeholder={`選択肢${j+1}`} />
+                                                </div>
+                                                
+                                                <div className="flex gap-2 border-t md:border-t-0 md:border-l pt-2 md:pt-0 md:pl-2 justify-end">
                                                     {['A','B','C'].map(t=>(
                                                         <div key={t} className="flex flex-col items-center">
                                                             <span className="text-[9px] text-gray-500">{t}</span>
@@ -666,17 +649,14 @@ const Editor = ({ onBack, onSave, initialData }) => {
                                     
                                     <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-4">
                                         <p className="text-sm font-bold text-blue-800 mb-3 flex items-center gap-2"><ExternalLink size={16}/> 誘導ボタン設置 (任意)</p>
-                                        
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                                             <Input label="リンク先URL (https://...)" val={r.link_url} onChange={v=>{const n=[...form.results];n[i].link_url=v;setForm({...form, results:n})}} ph="LPや商品ページのURL" />
                                             <Input label="ボタン文言" val={r.link_text} onChange={v=>{const n=[...form.results];n[i].link_text=v;setForm({...form, results:n})}} ph="詳細を見る" />
                                         </div>
-
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 pt-4 border-t border-blue-200">
                                             <Input label="LINE登録URL (https://...)" val={r.line_url} onChange={v=>{const n=[...form.results];n[i].line_url=v;setForm({...form, results:n})}} ph="LINE公式アカウントのURL" />
                                             <Input label="ボタン文言" val={r.line_text} onChange={v=>{const n=[...form.results];n[i].line_text=v;setForm({...form, results:n})}} ph="LINEで相談する" />
                                         </div>
-
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-blue-200">
                                             <Input label="QRコード画像URL (https://...)" val={r.qr_url} onChange={v=>{const n=[...form.results];n[i].qr_url=v;setForm({...form, results:n})}} ph="画像URL" />
                                             <Input label="ボタン文言" val={r.qr_text} onChange={v=>{const n=[...form.results];n[i].qr_text=v;setForm({...form, results:n})}} ph="QRコードを表示" />
@@ -693,7 +673,6 @@ const Editor = ({ onBack, onSave, initialData }) => {
   );
 };
 
-// 7. App Root
 const App = () => {
   const [view, setView] = useState('portal'); 
   const [selectedQuiz, setSelectedQuiz] = useState(null);
@@ -703,7 +682,6 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
 
-  // 管理者判定
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
   const fetchQuizzes = async () => {
