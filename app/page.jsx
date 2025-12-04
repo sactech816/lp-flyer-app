@@ -12,7 +12,8 @@ import Portal from '../components/Portal';
 import Dashboard from '../components/Dashboard';
 import QuizPlayer from '../components/QuizPlayer';
 import Editor from '../components/Editor';
-import { FaqPage, PricePage, HowToPage } from '../components/StaticPages';
+// ★修正: EffectiveUsePage を追加
+import { FaqPage, PricePage, HowToPage, EffectiveUsePage } from '../components/StaticPages';
 
 const App = () => {
   const [view, setView] = useState('portal'); 
@@ -25,6 +26,7 @@ const App = () => {
 
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 
+  // ... (fetchQuizzes, useEffectなどはそのまま) ...
   const fetchQuizzes = async () => {
     if(!supabase) return;
     setIsLoading(true);
@@ -38,9 +40,7 @@ const App = () => {
           const params = new URLSearchParams(window.location.search);
           const id = params.get('id');
           if(id && supabase) {
-              // slug(文字列)で検索
               let { data } = await supabase.from('quizzes').select('*').eq('slug', id).single();
-              // なければID(数値)で検索
               if (!data && !isNaN(id)) {
                  const res = await supabase.from('quizzes').select('*').eq('id', id).single();
                  data = res.data;
@@ -160,6 +160,10 @@ const App = () => {
             />
         )}
         {view === 'dashboard' && <Dashboard user={user} setPage={(p) => navigateTo(p)} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('portal');}} onEdit={(q)=>{setEditingQuiz(q); navigateTo('editor');}} onDelete={handleDelete} />}
+        
+        {/* ★追加: 効果的な使い方ページへの分岐 */}
+        {view === 'effective' && <EffectiveUsePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        
         {view === 'faq' && <FaqPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
         {view === 'price' && <PricePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
         {view === 'howto' && <HowToPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}

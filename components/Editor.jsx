@@ -34,7 +34,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   useEffect(() => { document.title = "クイズ作成・編集 | 診断クイズメーカー"; }, []);
   const [activeTab, setActiveTab] = useState('基本設定');
   const [isSaving, setIsSaving] = useState(false);
-  const [savedId, setSavedId] = useState(null); // ここにはSlug(英数字)を入れる
+  const [savedId, setSavedId] = useState(null);
   const [aiTheme, setAiTheme] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -53,7 +53,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   const [form, setForm] = useState(initialData || defaultForm);
 
   const switchMode = (newMode) => {
-      // モード切替時に初期値とカテゴリをセット
       let newResults = form.results;
       let newCategory = "Business";
 
@@ -72,12 +71,10 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
               { type: "C", title: "吉", description: "平凡こそ幸せ。" }
           ];
       }
-      // モードとカテゴリを同時に更新
       setForm({ ...form, mode: newMode, category: newCategory, results: newResults });
   };
 
   const handlePublish = () => { 
-      // savedIdには英数字(slug)が入っている前提
       const urlId = savedId || initialData?.slug || initialData?.id;
       const url = `${window.location.origin}?id=${urlId}`;
       navigator.clipboard.writeText(url); 
@@ -127,7 +124,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
       } catch(e) { alert('AI生成エラー: ' + e.message); } finally { setIsGenerating(false); }
   };
 
-  // テストモード時の正解設定
   const setCorrectOption = (qIndex, optIndex) => {
       const newQuestions = [...form.questions];
       newQuestions[qIndex].options = newQuestions[qIndex].options.map((opt, idx) => ({
@@ -145,15 +141,12 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 <h2 className="font-bold text-lg text-gray-900">
                     {initialData ? '編集' : '新規作成'}
                 </h2>
-                {/* 既存データがある場合はバッジを表示、なければ選択ボタンを表示 */}
-                {initialData && (
-                    <span className={`text-xs px-2 py-1 rounded font-bold ml-2 ${
-                        form.mode === 'test' ? 'bg-orange-100 text-orange-700' : 
-                        form.mode === 'fortune' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'
-                    }`}>
-                        {form.mode === 'test' ? '検定・テスト' : form.mode === 'fortune' ? '占い' : 'ビジネス診断'}
-                    </span>
-                )}
+                <span className={`text-xs px-2 py-1 rounded font-bold ml-2 ${
+                    form.mode === 'test' ? 'bg-orange-100 text-orange-700' : 
+                    form.mode === 'fortune' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'
+                }`}>
+                    {form.mode === 'test' ? '検定・テスト' : form.mode === 'fortune' ? '占い' : 'ビジネス診断'}
+                </span>
             </div>
             <div className="flex gap-2">
                 {savedId && (
@@ -163,23 +156,20 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 )}
                 <button onClick={async ()=>{
                         setIsSaving(true); 
-                        // ★修正ポイント：保存処理（payload）に mode を確実に追加
                         const payload = {
                             title: form.title, 
                             description: form.description, 
-                            category: form.category, // ここも重要
+                            category: form.category, 
                             color: form.color,
                             questions: form.questions, 
                             results: form.results, 
                             user_id: user?.id || null,
                             layout: form.layout || 'card',
                             image_url: form.image_url || null,
-                            mode: form.mode || 'diagnosis' // ★ここが抜けていました！
+                            mode: form.mode || 'diagnosis'
                         };
-                        
-                        // IDまたはSlugを取得して返すように修正
                         const returnedId = await onSave(payload, savedId || initialData?.id);
-                        if(returnedId) setSavedId(returnedId); // Slugを受け取る
+                        if(returnedId) setSavedId(returnedId); 
                         setIsSaving(false);
                     }} disabled={isSaving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all">
                     {isSaving ? <Loader2 className="animate-spin"/> : <Save/>} 保存
@@ -202,6 +192,8 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                     <button onClick={handleAiGenerate} disabled={isGenerating} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-bold text-xs transition-all shadow flex items-center justify-center gap-1">
                         {isGenerating ? <Loader2 className="animate-spin" size={12}/> : <Wand2 size={12}/>} 生成する
                     </button>
+                    {/* ★ここを復活させました */}
+                    <p className="text-[10px] text-gray-500 mt-2 text-center">※生成には10〜30秒ほどかかります</p>
                 </div>
 
                 <div className="p-4 space-y-1 overflow-y-auto flex-grow">
@@ -212,6 +204,12 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                         </button>
                     ))}
                 </div>
+                {/* ★ここを復活させました */}
+                <div className="p-4 border-t">
+                    <button onClick={()=>setPage('howto')} className="w-full text-xs text-gray-500 hover:text-indigo-600 flex items-center justify-center gap-1">
+                        <BookOpen size={14}/> 使い方・規約を見る
+                    </button>
+                </div>
             </div>
 
             {/* Main Content */}
@@ -221,7 +219,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                         <div className="animate-fade-in">
                             <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Edit3 className="text-gray-400"/> 基本設定</h3>
                             
-                            {/* Mode Selection (New Only) */}
+                            {/* Mode Selection */}
                             {!initialData && (
                                 <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                     <label className="text-sm font-bold text-gray-900 block mb-3">作成する種類を選択</label>
