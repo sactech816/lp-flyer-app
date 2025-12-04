@@ -8,6 +8,8 @@ import {
   Crown, Lock, Share2, Sparkles, Wand2, QrCode, MessageCircle, Mail, 
   HelpCircle, ChevronDown, ChevronUp, Twitter, BookOpen, User, LogOut, LayoutDashboard
 } from 'lucide-react';
+// グラフ用ライブラリ
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // --- 設定エリア ---
 const ADMIN_EMAIL = "info@kei-sho.co.jp"; 
@@ -24,19 +26,13 @@ const generateSlug = () => {
   return Array.from({length: 5}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 };
 
-// --- SEO Component ---
-const SEO = ({ title, description }) => (
-    <>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta property="og:title" content={title} />
-        <meta property="og:description" content={description} />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-    </>
-);
+// --- Title Manager ---
+// Next.js App Router (use client) で確実にタイトルを変えるためのフック
+const usePageTitle = (title) => {
+    useEffect(() => {
+        document.title = title;
+    }, [title]);
+};
 
 // --- Logic ---
 const calculateResult = (answers, results) => {
@@ -152,6 +148,7 @@ const AuthModal = ({ isOpen, onClose, setUser }) => {
 // --- Pages ---
 
 const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout }) => {
+    usePageTitle("マイページ | 診断クイズメーカー");
     const [myQuizzes, setMyQuizzes] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -165,59 +162,108 @@ const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout }) => {
         fetchMyQuizzes();
     }, [user]);
 
+    // グラフ用データ整形
+    const graphData = myQuizzes.map(q => ({
+        name: q.title.length > 10 ? q.title.substring(0, 10)+'...' : q.title,
+        views: q.views_count || 0,
+        clicks: q.clicks_count || 0
+    }));
+
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} />
-            <div className="max-w-5xl mx-auto py-12 px-4">
+            <div className="max-w-6xl mx-auto py-12 px-4">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2"><LayoutDashboard/> マイページ</h1>
                     <button onClick={onLogout} className="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 text-sm"><LogOut size={16}/> ログアウト</button>
                 </div>
 
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-indigo-100 p-3 rounded-full text-indigo-600"><User size={24}/></div>
-                        <div>
-                            <p className="text-xs text-gray-500 font-bold">ログイン中のアカウント</p>
-                            <p className="text-lg font-bold text-gray-900">{user?.email}</p>
+                <div className="grid lg:grid-cols-3 gap-8">
+                    {/* 左側：アカウント情報 & サマリー */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="bg-indigo-100 p-3 rounded-full text-indigo-600"><User size={24}/></div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-bold">ログイン中</p>
+                                    <p className="text-sm font-bold text-gray-900 break-all">{user?.email}</p>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 text-center">
+                                <div className="bg-gray-50 p-3 rounded-lg">
+                                    <div className="text-2xl font-extrabold text-indigo-600">{myQuizzes.length}</div>
+                                    <div className="text-xs text-gray-500 font-bold">作成数</div>
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded-lg">
+                                    <div className="text-2xl font-extrabold text-green-600">
+                                        {myQuizzes.reduce((acc, q) => acc + (q.views_count||0), 0)}
+                                    </div>
+                                    <div className="text-xs text-gray-500 font-bold">総PV数</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 右側：アクセス解析グラフ */}
+                    <div className="lg:col-span-2">
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 h-[300px]">
+                            <h3 className="font-bold text-gray-700 mb-4 flex items-center gap-2"><Trophy size={18}/> アクセス解析</h3>
+                            {graphData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={graphData}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                        <XAxis dataKey="name" tick={{fontSize: 10}} height={50} interval={0} angle={-30} textAnchor="end"/>
+                                        <YAxis />
+                                        <Tooltip />
+                                        <Legend />
+                                        <Bar dataKey="views" name="閲覧数" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="clicks" name="ボタンクリック" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full flex items-center justify-center text-gray-400 text-sm">データがありません</div>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                <h2 className="text-xl font-bold text-gray-800 mb-4 border-l-4 border-indigo-600 pl-4">作成した診断リスト</h2>
-                {loading ? <div className="text-center py-10"><Loader2 className="animate-spin mx-auto text-indigo-600"/></div> : (
-                    myQuizzes.length === 0 ? (
-                        <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-                            <p className="text-gray-500 mb-4">まだ診断を作成していません。</p>
-                            <button onClick={()=>setPage('editor')} className="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold hover:bg-indigo-700">新規作成する</button>
-                        </div>
-                    ) : (
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {myQuizzes.map(quiz => (
-                                <div key={quiz.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group">
-                                    <div className={`h-3 bg-indigo-600 w-full`}></div>
-                                    <div className="p-5">
-                                        <h3 className="font-bold text-lg mb-2 line-clamp-1">{quiz.title}</h3>
-                                        <div className="flex gap-4 text-xs text-gray-500 font-bold mb-4">
-                                            <span className="flex items-center gap-1"><Play size={12}/> {quiz.views_count||0} views</span>
-                                            <span className="flex items-center gap-1"><ExternalLink size={12}/> {quiz.clicks_count||0} clicks</span>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <button onClick={()=>onEdit(quiz)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-1"><Edit3 size={14}/> 編集</button>
-                                            <button onClick={()=>onDelete(quiz.id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-1"><Trash2 size={14}/> 削除</button>
+                <div className="mt-12">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4 border-l-4 border-indigo-600 pl-4">作成した診断リスト</h2>
+                    {loading ? <div className="text-center py-10"><Loader2 className="animate-spin mx-auto text-indigo-600"/></div> : (
+                        myQuizzes.length === 0 ? (
+                            <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
+                                <p className="text-gray-500 mb-4">まだ診断を作成していません。</p>
+                                <button onClick={()=>setPage('editor')} className="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold hover:bg-indigo-700">新規作成する</button>
+                            </div>
+                        ) : (
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {myQuizzes.map(quiz => (
+                                    <div key={quiz.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group">
+                                        <div className={`h-3 ${quiz.color || 'bg-indigo-600'} w-full`}></div>
+                                        <div className="p-5">
+                                            <h3 className="font-bold text-lg mb-2 line-clamp-1">{quiz.title}</h3>
+                                            <div className="flex gap-4 text-xs text-gray-500 font-bold mb-4">
+                                                <span className="flex items-center gap-1"><Play size={12}/> {quiz.views_count||0} views</span>
+                                                <span className="flex items-center gap-1"><ExternalLink size={12}/> {quiz.clicks_count||0} clicks</span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={()=>onEdit(quiz)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-1"><Edit3 size={14}/> 編集</button>
+                                                <button onClick={()=>onDelete(quiz.id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-1"><Trash2 size={14}/> 削除</button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                    )
-                )}
+                                ))}
+                            </div>
+                        )
+                    )}
+                </div>
             </div>
         </div>
     );
 };
 
 const FaqPage = ({ onBack, setPage, user, onLogout, setShowAuth }) => {
+    usePageTitle("よくある質問 | 診断クイズメーカー");
     const [openIndex, setOpenIndex] = useState(null);
     const faqs = [
         { category: "一般・全般", q: "無料で使えますか？", a: "はい、現在はβ版としてすべての機能を無料で公開しています。" },
@@ -246,53 +292,66 @@ const FaqPage = ({ onBack, setPage, user, onLogout, setShowAuth }) => {
     );
 };
 
-const PricePage = ({ onBack, setPage, user, onLogout, setShowAuth }) => (
-    <div className="min-h-screen bg-gray-50 font-sans">
-        <SEO title="料金プラン | 無料AI診断メーカー" description="ビジネスを加速させる診断コンテンツの料金プラン。" />
-        <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} />
-        <div className="py-12 px-4">
-            <div className="max-w-4xl mx-auto text-center">
-                <button onClick={onBack} className="mb-6 flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600 mx-auto"><ArrowLeft size={16}/> トップへ戻る</button>
-                <h1 className="text-3xl font-extrabold text-gray-900 mb-4">料金プラン</h1>
-                <p className="text-gray-600 mb-12">現在はベータ版のため、基本機能はすべて無料でご利用いただけます。</p>
-                <div className="grid md:grid-cols-3 gap-8 text-left">
-                    <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-indigo-500 relative transform scale-105 z-10">
-                        <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold">BETA FREE</span>
-                        <h3 className="text-2xl font-bold mb-2 text-gray-900">Standard</h3>
-                        <div className="text-4xl font-extrabold mb-4 text-gray-900">¥0<span className="text-sm font-medium text-gray-500">/月</span></div>
-                        <ul className="space-y-3 mb-8 text-sm text-gray-600">
-                            <li className="flex gap-2"><CheckCircle size={16} className="text-green-500"/>診断作成数 無制限</li>
-                            <li className="flex gap-2"><CheckCircle size={16} className="text-green-500"/>AI自動生成機能</li>
-                            <li className="flex gap-2"><CheckCircle size={16} className="text-green-500"/>簡易アクセス解析</li>
-                        </ul>
-                        <button className="w-full py-3 rounded-lg font-bold bg-indigo-600 text-white">現在のプラン</button>
+const PricePage = ({ onBack, setPage, user, onLogout, setShowAuth }) => {
+    usePageTitle("料金プラン | 診断クイズメーカー");
+    return (
+        <div className="min-h-screen bg-gray-50 font-sans">
+            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} />
+            <div className="py-12 px-4">
+                <div className="max-w-4xl mx-auto text-center">
+                    <button onClick={onBack} className="mb-6 flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600 mx-auto"><ArrowLeft size={16}/> トップへ戻る</button>
+                    <h1 className="text-3xl font-extrabold text-gray-900 mb-4">料金プラン</h1>
+                    <p className="text-gray-600 mb-12">現在はベータ版のため、基本機能はすべて無料でご利用いただけます。</p>
+                    <div className="grid md:grid-cols-3 gap-8 text-left">
+                        <div className="bg-white rounded-2xl p-8 shadow-xl border-2 border-indigo-500 relative transform scale-105 z-10">
+                            <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-indigo-500 text-white px-3 py-1 rounded-full text-xs font-bold">BETA FREE</span>
+                            <h3 className="text-2xl font-bold mb-2 text-gray-900">Standard</h3>
+                            <div className="text-4xl font-extrabold mb-4 text-gray-900">¥0<span className="text-sm font-medium text-gray-500">/月</span></div>
+                            <ul className="space-y-3 mb-8 text-sm text-gray-600">
+                                <li className="flex gap-2"><CheckCircle size={16} className="text-green-500"/>診断作成数 無制限</li>
+                                <li className="flex gap-2"><CheckCircle size={16} className="text-green-500"/>AI自動生成機能</li>
+                                <li className="flex gap-2"><CheckCircle size={16} className="text-green-500"/>簡易アクセス解析</li>
+                            </ul>
+                            <button className="w-full py-3 rounded-lg font-bold bg-indigo-600 text-white">現在のプラン</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
-const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth }) => (
-    <div className="min-h-screen bg-white font-sans">
-        <SEO title="使い方・規約 | 無料AI診断メーカー" description="診断クイズの作り方と利用規約について。" />
-        <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} />
-        <div className="py-12 px-4 max-w-3xl mx-auto">
-            <button onClick={onBack} className="mb-6 flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600"><ArrowLeft size={16}/> 戻る</button>
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">診断クイズの作り方・規約</h1>
-            <div className="space-y-8 text-gray-800 leading-relaxed">
-                <p>このツールは、ビジネス向けの診断コンテンツを手軽に作成するためのツールです。</p>
-                <ul className="list-disc pl-5 space-y-1 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                    <li><strong>質問：</strong> 5問</li>
-                    <li><strong>選択肢：</strong> 各質問に4つ</li>
-                    <li><strong>結果パターン：</strong> 3種類</li>
-                </ul>
+const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth }) => {
+    usePageTitle("使い方・規約 | 診断クイズメーカー");
+    return (
+        <div className="min-h-screen bg-white font-sans">
+            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} />
+            <div className="py-12 px-4 max-w-3xl mx-auto">
+                <button onClick={onBack} className="mb-6 flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600"><ArrowLeft size={16}/> 戻る</button>
+                <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">診断クイズの作り方・規約</h1>
+                <div className="space-y-8 text-gray-800 leading-relaxed">
+                    <p>このツールは、ビジネス向けの診断コンテンツを手軽に作成するためのツールです。</p>
+                    <ul className="list-disc pl-5 space-y-1 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <li><strong>質問：</strong> 5問</li>
+                        <li><strong>選択肢：</strong> 各質問に4つ</li>
+                        <li><strong>結果パターン：</strong> 3種類</li>
+                    </ul>
+                    <div>
+                        <h2 className="text-xl font-bold text-indigo-700 mb-4">利用規約・免責事項</h2>
+                        <ul className="list-disc pl-5 space-y-3 text-sm">
+                            <li><strong>ツール本体について:</strong> 本書購入者様のみご利用可能です。</li>
+                            <li><strong>作成したコンテンツの利用:</strong> 個人・商用を問わず自由にご利用いただけます。</li>
+                            <li><strong>免責事項:</strong> 本ツールの利用によって生じたいかなる損害についても、提供者は一切の責任を負いません。</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLogout, setPage, onEdit, onDelete }) => {
+  usePageTitle("無料AI診断メーカー | 集客・販促に効くクイズ作成ツール");
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
   const [sortType, setSortType] = useState('new');
 
@@ -317,7 +376,6 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-20">
-      <SEO title="無料AI診断メーカー | 集客・販促に効くクイズ作成ツール" description="集客やエンタメに使える診断テストをAIが自動生成。登録不要、無料で今すぐ作成できます。" />
       <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
       <div className="bg-gradient-to-br from-indigo-900 to-blue-800 text-white py-16 px-6 text-center relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -394,11 +452,11 @@ const Portal = ({ quizzes, isLoading, onPlay, onCreate, user, setShowAuth, onLog
 };
 
 const ResultView = ({ quiz, result, onRetry, onBack }) => {
+  usePageTitle(`${result.title} | 診断結果`);
   const handleLinkClick = async () => {
     if(supabase) await supabase.rpc('increment_clicks', { row_id: quiz.id });
   };
 
-  // URL共有用に、slugがあれば優先して使用
   const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}?id=${quiz.slug || quiz.id}` : '';
   const shareText = `${quiz.title} | 診断結果は「${result.title}」でした！ #診断クイズメーカー`;
   
@@ -462,107 +520,91 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
   );
 };
 
-// 5. Quiz Player (ランダム表示対応版)
 const QuizPlayer = ({ quiz, onBack }) => {
-    const [currentStep, setCurrentStep] = useState(0);
-    const [answers, setAnswers] = useState({});
-    const [result, setResult] = useState(null);
-    const [playableQuestions, setPlayableQuestions] = useState(null); // シャッフル後の質問データ
-    
-    // 初期化（閲覧数カウント ＆ 選択肢シャッフル）
-    useEffect(() => {
-      if(supabase) supabase.rpc('increment_views', { row_id: quiz.id });
+  usePageTitle(`${quiz.title} | 診断中`);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(null);
+  const [playableQuestions, setPlayableQuestions] = useState(null);
   
-      // データパースとシャッフル処理
-      const rawQuestions = typeof quiz.questions === 'string' ? JSON.parse(quiz.questions) : quiz.questions;
-      
-      // 質問ごとの選択肢をシャッフルする関数
-      const shuffleArray = (array) => {
-          const newArr = [...array];
-          for (let i = newArr.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-          }
-          return newArr;
-      };
-  
-      // 全質問の選択肢をシャッフルしてセット
-      const shuffled = rawQuestions.map(q => ({
-          ...q,
-          options: shuffleArray(q.options)
-      }));
-      
-      setPlayableQuestions(shuffled);
-    }, []); // 最初の1回だけ実行
-  
-    const results = typeof quiz.results === 'string' ? JSON.parse(quiz.results) : quiz.results;
-  
-    const handleAnswer = (option) => {
-      const newAnswers = { ...answers, [currentStep]: option };
-      setAnswers(newAnswers);
-      if (currentStep + 1 < playableQuestions.length) { 
-          setCurrentStep(currentStep + 1); 
-      } else { 
-          setResult(calculateResult(newAnswers, results)); 
-      }
+  useEffect(() => {
+    if(supabase) supabase.rpc('increment_views', { row_id: quiz.id }).then(({error})=> error && console.error(error));
+
+    const rawQuestions = typeof quiz.questions === 'string' ? JSON.parse(quiz.questions) : quiz.questions;
+    const shuffleArray = (array) => {
+        const newArr = [...array];
+        for (let i = newArr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+        }
+        return newArr;
     };
-  
-    // 読み込み中（シャッフル処理待ち）の表示
-    if (!playableQuestions || !results) {
-        return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-indigo-600" size={40}/></div>;
+    setPlayableQuestions(rawQuestions.map(q => ({ ...q, options: shuffleArray(q.options) })));
+  }, []);
+
+  const results = typeof quiz.results === 'string' ? JSON.parse(quiz.results) : quiz.results;
+
+  const handleAnswer = (option) => {
+    const newAnswers = { ...answers, [currentStep]: option };
+    setAnswers(newAnswers);
+    if (currentStep + 1 < playableQuestions.length) { 
+        setCurrentStep(currentStep + 1); 
+    } else { 
+        setResult(calculateResult(newAnswers, results)); 
     }
-  
-    if (result) { 
-        return (
-          <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-              <SEO title={`${result.title} | 診断結果`} description={result.description.substring(0, 100)} />
-              <ResultView quiz={quiz} result={result} onRetry={() => {setResult(null); setCurrentStep(0); setAnswers({});}} onBack={onBack} />
-          </div>
-        ); 
-    }
-    
-    const question = playableQuestions[currentStep];
-    const progress = Math.round(((currentStep)/playableQuestions.length)*100);
-  
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-6 font-sans">
-        <SEO title={`${quiz.title} | 診断中`} description={quiz.description} />
-        <div className="w-full max-w-md mb-4 px-4">
-            <button onClick={onBack} className="text-gray-500 font-bold flex items-center gap-1 hover:text-gray-800"><ArrowLeft size={16}/> 戻る</button>
-        </div>
-        <div className="max-w-md mx-auto w-full px-4">
-          {/* Colorful Header */}
-          <div className={`${quiz.color || 'bg-indigo-600'} text-white rounded-t-3xl p-6 text-center shadow-lg transition-colors duration-500 relative overflow-hidden`}>
-               <div className="absolute top-0 left-0 w-full h-full bg-white opacity-10" style={{backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '15px 15px'}}></div>
-               <h2 className="text-xl font-bold mb-2 relative z-10">{quiz.title}</h2>
-               <p className="text-xs opacity-90 relative z-10 whitespace-pre-wrap">{quiz.description}</p>
-          </div>
-  
-          <div className="bg-white rounded-b-3xl shadow-xl p-8 border border-gray-100 border-t-0 mb-8 animate-slide-up">
-              <div className="mb-4 flex justify-between text-xs font-bold text-gray-400">
-                  <span>Q{currentStep+1} / {playableQuestions.length}</span>
-                  <span>{progress}%</span>
-              </div>
-              <div className="h-2 bg-gray-100 rounded-full mb-8 overflow-hidden">
-                  <div className={`${quiz.color || 'bg-indigo-600'} h-full transition-all duration-300 ease-out`} style={{width:`${((currentStep+1)/playableQuestions.length)*100}%`}}></div>
-              </div>
-  
-              <h3 className="text-lg font-bold text-gray-900 mb-8 text-center leading-relaxed">{question.text}</h3>
-              <div className="space-y-4">
-                  {question.options.map((opt, idx) => (
-                      <button key={idx} onClick={() => handleAnswer(opt)} className="w-full p-4 text-left border-2 border-gray-100 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 text-gray-800 font-bold transition-all flex justify-between items-center group active:scale-95">
-                          <span className="flex-grow">{opt.label}</span>
-                          <div className="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-indigo-500 flex-shrink-0 ml-4"></div>
-                      </button>
-                  ))}
-              </div>
-          </div>
-        </div>
-      </div>
-    );
   };
 
+  if (!playableQuestions || !results) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-indigo-600" size={40}/></div>;
+
+  if (result) { 
+      return (
+        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
+            <ResultView quiz={quiz} result={result} onRetry={() => {setResult(null); setCurrentStep(0); setAnswers({});}} onBack={onBack} />
+        </div>
+      ); 
+  }
+  
+  const question = playableQuestions[currentStep];
+  const progress = Math.round(((currentStep)/playableQuestions.length)*100);
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-6 font-sans">
+      <div className="w-full max-w-md mb-4 px-4">
+          <button onClick={onBack} className="text-gray-500 font-bold flex items-center gap-1 hover:text-gray-800"><ArrowLeft size={16}/> 戻る</button>
+      </div>
+      <div className="max-w-md mx-auto w-full px-4">
+        <div className={`${quiz.color || 'bg-indigo-600'} text-white rounded-t-3xl p-6 text-center shadow-lg transition-colors duration-500 relative overflow-hidden`}>
+             <div className="absolute top-0 left-0 w-full h-full bg-white opacity-10" style={{backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '15px 15px'}}></div>
+             <h2 className="text-xl font-bold mb-2 relative z-10">{quiz.title}</h2>
+             <p className="text-xs opacity-90 relative z-10 whitespace-pre-wrap">{quiz.description}</p>
+        </div>
+
+        <div className="bg-white rounded-b-3xl shadow-xl p-8 border border-gray-100 border-t-0 mb-8 animate-slide-up">
+            <div className="mb-4 flex justify-between text-xs font-bold text-gray-400">
+                <span>Q{currentStep+1} / {playableQuestions.length}</span>
+                <span>{progress}%</span>
+            </div>
+            <div className="h-2 bg-gray-100 rounded-full mb-8 overflow-hidden">
+                <div className={`${quiz.color || 'bg-indigo-600'} h-full transition-all duration-300 ease-out`} style={{width:`${((currentStep+1)/playableQuestions.length)*100}%`}}></div>
+            </div>
+
+            <h3 className="text-lg font-bold text-gray-900 mb-8 text-center leading-relaxed">{question.text}</h3>
+            <div className="space-y-4">
+                {question.options.map((opt, idx) => (
+                    <button key={idx} onClick={() => handleAnswer(opt)} className="w-full p-4 text-left border-2 border-gray-100 rounded-xl hover:border-indigo-500 hover:bg-indigo-50 text-gray-800 font-bold transition-all flex justify-between items-center group active:scale-95">
+                        <span className="flex-grow">{opt.label}</span>
+                        <div className="w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-indigo-500 flex-shrink-0 ml-4"></div>
+                    </button>
+                ))}
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
+  usePageTitle("クイズ作成・編集 | 診断クイズメーカー");
   const [activeTab, setActiveTab] = useState('基本設定');
   const [isSaving, setIsSaving] = useState(false);
   const [savedId, setSavedId] = useState(null);
