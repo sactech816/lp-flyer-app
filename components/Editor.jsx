@@ -34,7 +34,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   useEffect(() => { document.title = "クイズ作成・編集 | 診断クイズメーカー"; }, []);
   const [activeTab, setActiveTab] = useState('基本設定');
   const [isSaving, setIsSaving] = useState(false);
-  const [savedId, setSavedId] = useState(null); // ここにはSlug(英数字)を入れるように変更
+  const [savedId, setSavedId] = useState(null); // ここにはSlug(英数字)を入れる
   const [aiTheme, setAiTheme] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -72,6 +72,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
               { type: "C", title: "吉", description: "平凡こそ幸せ。" }
           ];
       }
+      // モードとカテゴリを同時に更新
       setForm({ ...form, mode: newMode, category: newCategory, results: newResults });
   };
 
@@ -144,12 +145,15 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 <h2 className="font-bold text-lg text-gray-900">
                     {initialData ? '編集' : '新規作成'}
                 </h2>
-                <span className={`text-xs px-2 py-1 rounded font-bold ml-2 ${
-                    form.mode === 'test' ? 'bg-orange-100 text-orange-700' : 
-                    form.mode === 'fortune' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'
-                }`}>
-                    {form.mode === 'test' ? '検定・テスト' : form.mode === 'fortune' ? '占い' : 'ビジネス診断'}
-                </span>
+                {/* 既存データがある場合はバッジを表示、なければ選択ボタンを表示 */}
+                {initialData && (
+                    <span className={`text-xs px-2 py-1 rounded font-bold ml-2 ${
+                        form.mode === 'test' ? 'bg-orange-100 text-orange-700' : 
+                        form.mode === 'fortune' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'
+                    }`}>
+                        {form.mode === 'test' ? '検定・テスト' : form.mode === 'fortune' ? '占い' : 'ビジネス診断'}
+                    </span>
+                )}
             </div>
             <div className="flex gap-2">
                 {savedId && (
@@ -159,9 +163,23 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 )}
                 <button onClick={async ()=>{
                         setIsSaving(true); 
-                        // 保存処理実行、戻り値（slug or ID）を受け取る
-                        const slugOrId = await onSave(form, savedId || initialData?.id); 
-                        if(slugOrId) setSavedId(slugOrId); 
+                        // ★修正ポイント：保存処理（payload）に mode を確実に追加
+                        const payload = {
+                            title: form.title, 
+                            description: form.description, 
+                            category: form.category, // ここも重要
+                            color: form.color,
+                            questions: form.questions, 
+                            results: form.results, 
+                            user_id: user?.id || null,
+                            layout: form.layout || 'card',
+                            image_url: form.image_url || null,
+                            mode: form.mode || 'diagnosis' // ★ここが抜けていました！
+                        };
+                        
+                        // IDまたはSlugを取得して返すように修正
+                        const returnedId = await onSave(payload, savedId || initialData?.id);
+                        if(returnedId) setSavedId(returnedId); // Slugを受け取る
                         setIsSaving(false);
                     }} disabled={isSaving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all">
                     {isSaving ? <Loader2 className="animate-spin"/> : <Save/>} 保存
@@ -203,7 +221,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                         <div className="animate-fade-in">
                             <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Edit3 className="text-gray-400"/> 基本設定</h3>
                             
-                            {/* Mode Selection (Only for New) */}
+                            {/* Mode Selection (New Only) */}
                             {!initialData && (
                                 <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                     <label className="text-sm font-bold text-gray-900 block mb-3">作成する種類を選択</label>
