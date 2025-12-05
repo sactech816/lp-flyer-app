@@ -1,60 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import { User, LayoutDashboard, LogOut, Loader2, Play, ExternalLink, Edit3, Trash2, Trophy, MessageCircle, Layout, Table, BarChart2 } from 'lucide-react';
+import { User, LayoutDashboard, LogOut, Loader2, Play, ExternalLink, Edit3, Trash2, Trophy, MessageCircle, Layout, Table, BarChart2, Download, ShoppingCart, CheckCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Header from './Header';
 import { supabase } from '../lib/supabase';
+import { generateQuizHTML } from '../lib/htmlGenerator';
 
 const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout }) => {
     useEffect(() => { document.title = "マイページ | 診断クイズメーカー"; }, []);
     const [myQuizzes, setMyQuizzes] = useState([]);
+    const [purchases, setPurchases] = useState([]); // 購入済みリスト
     const [loading, setLoading] = useState(true);
-    const [viewMode, setViewMode] = useState('graph'); // graph or table
+    const [viewMode, setViewMode] = useState('graph');
+    const [processingId, setProcessingId] = useState(null); // 処理中のクイズID
 
     useEffect(() => {
-        const fetchMyQuizzes = async () => {
+        const init = async () => {
             if(!user) return;
-            const { data } = await supabase.from('quizzes').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-            setMyQuizzes(data || []);
+            // 1. クイズ取得
+            const { data: quizzes } = await supabase.from('quizzes').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+            setMyQuizzes(quizzes || []);
+
+            // 2. 購入履歴取得
+            const { data: bought } = await supabase.from('purchases').select('quiz_id').eq('user_id', user.id);
+            setPurchases(bought?.map(p => p.quiz_id) || []);
+
+            // 3. 決済完了後の処理 (URLパラメータ確認)
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('payment') === 'success' && params.get('session_id')) {
+                const quizId = params.get('quiz_id');
+                await verifyPayment(params.get('session_id'), quizId);
+                // URLを綺麗にする
+                window.history.replaceState(null, '', window.location.pathname);
+            }
+
             setLoading(false);
         };
-        fetchMyQuizzes();
+        init();
     }, [user]);
 
+    // 決済検証＆保存
+    const verifyPayment = async (sessionId, quizId) => {
+        try {
+            const res = await fetch('/api/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sessionId, quizId, userId: user.id }),
+            });
+            if (res.ok) {
+                alert('寄付ありがとうございます！HTMLのダウンロードが可能になりました。');
+                setPurchases(prev => [...prev, parseInt(quizId)]);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    // 購入ボタン (Stripeへ移動)
+    const handlePurchase = async (quiz) => {
+        if (!confirm(`「${quiz.title}」のHTMLデータをダウンロードしますか？\n\n次の画面で金額（寄付額）を自由に入力して決済してください。決済完了後にダウンロードボタンが有効になります。`)) return;
+        setProcessingId(quiz.id);
+        try {
+            const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    quizId: quiz.id,
+                    quizTitle: quiz.title,
+                    userId: user.id,
+                    email: user.email
+                }),
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error('決済URLの取得に失敗しました');
+            }
+        } catch (e) {
+            alert('エラー: ' + e.message);
+            setProcessingId(null);
+        }
+    };
+
+    // ダウンロード実行
+    const handleDownload = (quiz) => {
+        const htmlContent = generateQuizHTML(quiz);
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${quiz.title || 'quiz'}.html`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    // ... (以下、グラフデータ生成などは以前と同じ) ...
     const graphData = myQuizzes.map(q => ({
         name: q.title.length > 10 ? q.title.substring(0, 10)+'...' : q.title,
         views: q.views_count || 0,
         completions: q.completions_count || 0,
         clicks: q.clicks_count || 0
     }));
-
-    // ボタンを押した時の処理
-const handlePurchase = async (quiz) => {
-    if (!confirm(`「${quiz.title}」のHTMLデータを購入・ダウンロードしますか？\n価格は決済画面で自由に設定できます（500円〜）。`)) return;
-
-    try {
-        const res = await fetch('/api/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                quizId: quiz.id,
-                quizTitle: quiz.title,
-                userId: user.id,
-                email: user.email
-            }),
-        });
-        const data = await res.json();
-        if (data.url) {
-            window.location.href = data.url; // Stripeへ移動
-        }
-    } catch (e) {
-        alert('決済エラーが発生しました');
-    }
-};
-
-// ... (JSX内のボタン配置箇所)
-<button onClick={() => handlePurchase(quiz)} className="...">
-    <Download size={14} /> HTML購入
-</button>
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
@@ -155,7 +203,6 @@ const handlePurchase = async (quiz) => {
 
                 <div className="mt-12">
                     <h2 className="text-xl font-bold text-black mb-4 border-l-4 border-indigo-600 pl-4">作成した診断リスト</h2>
-                    {/* ... (My Quizzes List remains same as previous version) ... */}
                     {loading ? <div className="text-center py-10"><Loader2 className="animate-spin mx-auto text-indigo-600"/></div> : (
                         myQuizzes.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
@@ -178,10 +225,22 @@ const handlePurchase = async (quiz) => {
                                                 <span className="flex items-center gap-1"><Play size={12}/> {quiz.views_count||0} views</span>
                                                 <span className="flex items-center gap-1"><ExternalLink size={12}/> {quiz.clicks_count||0} clicks</span>
                                             </div>
-                                            <div className="flex gap-2">
-                                                <button onClick={()=>onEdit(quiz)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-1"><Edit3 size={14}/> 編集</button>
-                                                <button onClick={()=>onDelete(quiz.id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-1"><Trash2 size={14}/> 削除</button>
+                                            <div className="flex gap-2 mb-3">
+                                                <button onClick={()=>onEdit(quiz)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1"><Edit3 size={14}/> 編集</button>
+                                                <button onClick={()=>onDelete(quiz.id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1"><Trash2 size={14}/> 削除</button>
                                             </div>
+                                            
+                                            {/* HTML購入・ダウンロードボタン */}
+                                            {purchases.includes(quiz.id) ? (
+                                                <button onClick={()=>handleDownload(quiz)} className="w-full bg-green-500 text-white py-2 rounded-lg font-bold text-xs hover:bg-green-600 flex items-center justify-center gap-1 animate-pulse">
+                                                    <CheckCircle size={14}/> HTMLダウンロード
+                                                </button>
+                                            ) : (
+                                                <button onClick={()=>handlePurchase(quiz)} disabled={processingId === quiz.id} className="w-full bg-orange-500 text-white py-2 rounded-lg font-bold text-xs hover:bg-orange-600 flex items-center justify-center gap-1">
+                                                    {processingId === quiz.id ? <Loader2 className="animate-spin" size={14}/> : <ShoppingCart size={14}/>}
+                                                    HTML購入 (寄付)
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
