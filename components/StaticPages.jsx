@@ -5,7 +5,7 @@ import {
     Share2, Search, Megaphone, Lightbulb, Target, Heart,
     QrCode, Users, Repeat, Smartphone, Eye, Zap, Lock, Unlock,
     Download, Code, FileText, Image as ImageIcon, BarChart2,
-    Mail, Shield, Scale, ExternalLink
+    Mail, Shield, Scale, ExternalLink, Smile
 } from 'lucide-react';
 import Header from './Header';
 import SEO from './SEO';

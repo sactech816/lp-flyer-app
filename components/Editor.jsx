@@ -3,7 +3,7 @@ import {
     Edit3, MessageSquare, Trophy, Loader2, Save, Share2, 
     Sparkles, Wand2, BookOpen, Image as ImageIcon, 
     Layout, MessageCircle, ArrowLeft, Briefcase, GraduationCap, 
-    CheckCircle, Shuffle, Plus, Trash2, X, Link, QrCode, UploadCloud, Mail
+    CheckCircle, Shuffle, Plus, Trash2, X, Link, QrCode, UploadCloud
 } from 'lucide-react';
 import { generateSlug } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -49,7 +49,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
 
   const defaultForm = {
       title: "新規クイズ", description: "説明文を入力...", category: "Business", color: "bg-indigo-600", layout: "card", image_url: "", mode: "diagnosis",
-      collect_email: false, // メール収集フラグ
+      collect_email: false,
       questions: Array(5).fill(null).map((_,i)=>({text:`質問${i+1}を入力してください`, options: Array(4).fill(null).map((_,j)=>({label:`選択肢${j+1}`, score:{A:j===0?3:0, B:j===1?3:0, C:j===2?3:0}}))})),
       results: [ {type:"A", title:"結果A", description:"説明...", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:""}, {type:"B", title:"結果B", description:"...", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:""}, {type:"C", title:"結果C", description:"...", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:""} ]
   };
@@ -146,10 +146,16 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
           const fileName = `${Math.random()}.${fileExt}`;
           const filePath = `${user?.id || 'anonymous'}/${fileName}`;
 
-          const { error: uploadError } = await supabase.storage.from('quiz-thumbnails').upload(filePath, file);
+          const { error: uploadError } = await supabase.storage
+              .from('quiz-thumbnails')
+              .upload(filePath, file);
+
           if (uploadError) throw uploadError;
 
-          const { data } = supabase.storage.from('quiz-thumbnails').getPublicUrl(filePath);
+          const { data } = supabase.storage
+              .from('quiz-thumbnails')
+              .getPublicUrl(filePath);
+
           setForm({ ...form, image_url: data.publicUrl });
       } catch (error) {
           alert('アップロードエラー: ' + error.message);
@@ -240,7 +246,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                             title: form.title, description: form.description, category: form.category, color: form.color,
                             questions: form.questions, results: form.results, 
                             user_id: user?.id || null, layout: form.layout || 'card', image_url: form.image_url || null, mode: form.mode || 'diagnosis',
-                            collect_email: form.collect_email || false // ★メール収集フラグを追加
+                            collect_email: form.collect_email || false
                         };
                         const returnedId = await onSave(payload, savedId || initialData?.id);
                         if(returnedId) setSavedId(returnedId); 
@@ -252,6 +258,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
         </div>
         
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+            {/* Sidebar */}
             <div className="bg-white border-b md:border-b-0 md:border-r flex flex-col w-full md:w-64 shrink-0">
                 <div className="p-4 bg-gradient-to-b from-purple-50 to-white border-b">
                     <div className="flex items-center gap-2 mb-2 text-purple-700 font-bold text-sm">
@@ -275,21 +282,20 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                             <span className="capitalize">{tab.label}</span>
                         </button>
                     ))}
-                </div>
-                
-                <div className="hidden md:block p-4 border-t mt-auto">
-                    <button onClick={()=>setPage('howto')} className="w-full text-xs text-gray-500 hover:text-indigo-600 flex items-center justify-center gap-1">
+                    
+                    {/* ★修正: リンク位置をここに移動 */}
+                    <button onClick={()=>setPage('howto')} className="flex-shrink-0 w-full px-4 py-3 text-left text-xs text-gray-500 hover:text-indigo-600 flex items-center gap-2 border-t mt-2 pt-4">
                         <BookOpen size={14}/> 使い方・規約を見る
                     </button>
                 </div>
             </div>
 
+            {/* Main Content */}
             <div className="flex-grow p-4 md:p-8 overflow-y-auto bg-gray-50">
                 <div className="max-w-3xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
                     {activeTab === '基本設定' && (
                         <div className="animate-fade-in">
                             <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Edit3 className="text-gray-400"/> 基本設定</h3>
-                            
                             {!initialData && (
                                 <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                     <label className="text-sm font-bold text-gray-900 block mb-3">作成する種類を選択</label>
@@ -307,7 +313,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                 </div>
                             )}
 
-                            {/* ★追加: メール収集設定 */}
                             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
                                 <div>
                                     <h4 className="font-bold text-green-900 flex items-center gap-2"><Mail size={18}/> リード獲得機能</h4>
@@ -343,7 +348,12 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                             <div className="mt-6 mb-6">
                                 <label className="text-sm font-bold text-gray-900 block mb-2">メイン画像</label>
                                 <div className="flex flex-col md:flex-row gap-2">
-                                    <input className="flex-grow border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400" value={form.image_url||''} onChange={e=>setForm({...form, image_url:e.target.value})} placeholder="画像URL (https://...) またはアップロード"/>
+                                    <input 
+                                        className="flex-grow border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400" 
+                                        value={form.image_url||''} 
+                                        onChange={e=>setForm({...form, image_url:e.target.value})} 
+                                        placeholder="画像URL (https://...) またはアップロード"
+                                    />
                                     <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
                                         {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
                                         <span>アップロード</span>
@@ -356,7 +366,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                         </div>
                     )}
                     
-                    {/* ... (質問・結果タブは以前のまま) */}
                     {activeTab === '質問作成' && (
                         <div className="space-y-8 animate-fade-in">
                             <div className="flex justify-between items-center border-b pb-2 mb-6">
@@ -375,6 +384,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                             <span>選択肢</span>
                                             <button onClick={()=>addOption(i)} className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 flex items-center gap-1"><Plus size={12}/> 追加</button>
                                         </div>
+                                        
                                         <div className="flex text-xs text-gray-400 px-2 mt-2">
                                             <span className="flex-grow"></span>
                                             {form.mode === 'test' ? <span className="w-16 text-center text-orange-500 font-bold">正解</span> 
@@ -386,6 +396,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                               </div>
                                             }
                                         </div>
+
                                         {q.options.map((o, j)=>(
                                             <div key={j} className="flex items-center gap-2 bg-white p-2 rounded border border-gray-200">
                                                 <button onClick={()=>removeOption(i, j)} className="text-gray-300 hover:text-red-500"><Trash2 size={14}/></button>
@@ -421,9 +432,11 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                 <h3 className="font-bold text-xl flex items-center gap-2 text-gray-900"><Trophy className="text-gray-400"/> 結果パターン ({form.results.length})</h3>
                                 <button onClick={addResult} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-bold hover:bg-indigo-100 flex items-center gap-1"><Plus size={14}/> 追加</button>
                             </div>
+                            
                             <div className={`p-4 rounded-lg mb-6 text-sm ${form.mode==='test'?'bg-orange-50 text-orange-800':form.mode==='fortune'?'bg-purple-50 text-purple-800':'bg-blue-50 text-blue-800'}`}>
                                 {form.mode === 'test' ? "正解数に応じて結果が変わります" : form.mode === 'fortune' ? "結果はランダムに表示されます" : "獲得ポイントが多いタイプの結果が表示されます"}
                             </div>
+                            
                             {form.results.map((r, i)=>(
                                 <div key={i} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative overflow-hidden group">
                                     <button onClick={()=>removeResult(i)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1 z-10"><Trash2 size={16}/></button>
@@ -432,6 +445,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                     </div>
                                     <Input label="タイトル" val={r.title} onChange={v=>{const n=[...form.results];n[i].title=v;setForm({...form, results:n})}} />
                                     <Textarea label="結果の説明文" val={r.description} onChange={v=>{const n=[...form.results];n[i].description=v;setForm({...form, results:n})}}/>
+                                    
                                     <div className="bg-white p-4 rounded-xl border border-gray-200 mt-4">
                                         <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2"><Link size={14}/> 誘導ボタン設定 (任意)</p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
