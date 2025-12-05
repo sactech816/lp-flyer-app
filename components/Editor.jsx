@@ -74,7 +74,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
               { type: "C", title: "吉", description: "平凡こそ幸せ。", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:"" }
           ];
       } else {
-          // ★修正: ビジネス診断に戻す場合の処理を追加
           newCategory = "Business";
           newResults = [
               { type: "A", title: "結果A", description: "説明...", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:"" },
@@ -122,6 +121,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
 
   const addResult = () => {
       if(form.results.length >= 10) return alert('結果パターンは最大10個までです');
+      // A,B,C...の次の文字を取得
       const nextType = String.fromCharCode(65 + form.results.length);
       setForm({
           ...form,
@@ -132,6 +132,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   const removeResult = (index) => {
       if(form.results.length <= 2) return alert('結果パターンは最低2つ必要です');
       const newResults = form.results.filter((_, i) => i !== index);
+      // 削除後にタイプID(A,B,C...)を振り直す必要があればここで処理するが、今回は簡易的に詰めるだけにします
       setForm({...form, results: newResults});
   };
 
@@ -294,7 +295,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                     {activeTab === '基本設定' && (
                         <div className="animate-fade-in">
                             <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Edit3 className="text-gray-400"/> 基本設定</h3>
-                            
                             {!initialData && (
                                 <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                     <label className="text-sm font-bold text-gray-900 block mb-3">作成する種類を選択</label>
@@ -311,7 +311,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                     </div>
                                 </div>
                             )}
-
                             <Input label="タイトル" val={form.title} onChange={v=>setForm({...form, title:v})} ph="タイトルを入力" />
                             <Textarea label="説明文" val={form.description} onChange={v=>setForm({...form, description:v})} />
                             
@@ -336,12 +335,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                             <div className="mt-6 mb-6">
                                 <label className="text-sm font-bold text-gray-900 block mb-2">メイン画像</label>
                                 <div className="flex flex-col md:flex-row gap-2">
-                                    <input 
-                                        className="flex-grow border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400" 
-                                        value={form.image_url||''} 
-                                        onChange={e=>setForm({...form, image_url:e.target.value})} 
-                                        placeholder="画像URL (https://...) またはアップロード"
-                                    />
+                                    <input className="flex-grow border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400" value={form.image_url||''} onChange={e=>setForm({...form, image_url:e.target.value})} placeholder="画像URL (https://...) またはアップロード"/>
                                     <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
                                         {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
                                         <span>アップロード</span>
@@ -377,7 +371,13 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                             <span className="flex-grow"></span>
                                             {form.mode === 'test' ? <span className="w-16 text-center text-orange-500 font-bold">正解</span> 
                                             : form.mode === 'fortune' ? <span className="w-16 text-center text-purple-500 font-bold">ランダム</span>
-                                            : <div className="flex gap-2 w-32 justify-end"><span>A</span><span>B</span><span>C</span></div>}
+                                            : <div className="flex gap-2 w-32 justify-end">
+                                                {/* ★修正：固定のA,B,Cではなく、結果の数に合わせて動的に表示 */}
+                                                {form.results.map(r => (
+                                                    <span key={r.type} className="w-8 text-center">{r.type}</span>
+                                                ))}
+                                              </div>
+                                            }
                                         </div>
 
                                         {q.options.map((o, j)=>(
@@ -393,9 +393,10 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                                     <div className="w-16 flex justify-center border-l pl-2 text-gray-300"><Shuffle size={16}/></div>
                                                 ) : (
                                                     <div className="flex gap-2 border-l pl-2 justify-end">
-                                                        {['A','B','C'].map(t=>(
-                                                            <div key={t} className="flex flex-col items-center">
-                                                                <input type="number" className="w-8 bg-gray-50 border border-gray-300 text-center text-xs rounded text-gray-900" value={o.score[t]} onChange={e=>{const n=[...form.questions];n[i].options[j].score[t]=e.target.value;setForm({...form, questions:n})}} />
+                                                        {/* ★修正：固定のA,B,Cではなく、結果パターン数分ループ */}
+                                                        {form.results.map(r => (
+                                                            <div key={r.type} className="flex flex-col items-center">
+                                                                <input type="number" className="w-8 bg-gray-50 border border-gray-300 text-center text-xs rounded text-gray-900" value={o.score[r.type] || 0} onChange={e=>{const n=[...form.questions];n[i].options[j].score[r.type]=e.target.value;setForm({...form, questions:n})}} />
                                                             </div>
                                                         ))}
                                                     </div>
