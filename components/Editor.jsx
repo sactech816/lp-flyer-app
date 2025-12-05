@@ -5,6 +5,7 @@ import {
     Layout, MessageCircle, ArrowLeft, Briefcase, GraduationCap, 
     CheckCircle, Shuffle, Plus, Trash2, X, Link, QrCode, UploadCloud
 } from 'lucide-react';
+// ↓ パス修正
 import { generateSlug } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 
@@ -121,7 +122,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
 
   const addResult = () => {
       if(form.results.length >= 10) return alert('結果パターンは最大10個までです');
-      // A,B,C...の次の文字を取得
       const nextType = String.fromCharCode(65 + form.results.length);
       setForm({
           ...form,
@@ -132,7 +132,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   const removeResult = (index) => {
       if(form.results.length <= 2) return alert('結果パターンは最低2つ必要です');
       const newResults = form.results.filter((_, i) => i !== index);
-      // 削除後にタイプID(A,B,C...)を振り直す必要があればここで処理するが、今回は簡易的に詰めるだけにします
       setForm({...form, results: newResults});
   };
 
@@ -258,6 +257,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
         </div>
         
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+            {/* Sidebar / Topbar */}
             <div className="bg-white border-b md:border-b-0 md:border-r flex flex-col w-full md:w-64 shrink-0">
                 <div className="p-4 bg-gradient-to-b from-purple-50 to-white border-b">
                     <div className="flex items-center gap-2 mb-2 text-purple-700 font-bold text-sm">
@@ -290,11 +290,13 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 </div>
             </div>
 
+            {/* Main Content */}
             <div className="flex-grow p-4 md:p-8 overflow-y-auto bg-gray-50">
                 <div className="max-w-3xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
                     {activeTab === '基本設定' && (
                         <div className="animate-fade-in">
                             <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Edit3 className="text-gray-400"/> 基本設定</h3>
+                            
                             {!initialData && (
                                 <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                     <label className="text-sm font-bold text-gray-900 block mb-3">作成する種類を選択</label>
@@ -372,7 +374,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                             {form.mode === 'test' ? <span className="w-16 text-center text-orange-500 font-bold">正解</span> 
                                             : form.mode === 'fortune' ? <span className="w-16 text-center text-purple-500 font-bold">ランダム</span>
                                             : <div className="flex gap-2 w-32 justify-end">
-                                                {/* ★修正：固定のA,B,Cではなく、結果の数に合わせて動的に表示 */}
                                                 {form.results.map(r => (
                                                     <span key={r.type} className="w-8 text-center">{r.type}</span>
                                                 ))}
@@ -393,7 +394,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                                     <div className="w-16 flex justify-center border-l pl-2 text-gray-300"><Shuffle size={16}/></div>
                                                 ) : (
                                                     <div className="flex gap-2 border-l pl-2 justify-end">
-                                                        {/* ★修正：固定のA,B,Cではなく、結果パターン数分ループ */}
                                                         {form.results.map(r => (
                                                             <div key={r.type} className="flex flex-col items-center">
                                                                 <input type="number" className="w-8 bg-gray-50 border border-gray-300 text-center text-xs rounded text-gray-900" value={o.score[r.type] || 0} onChange={e=>{const n=[...form.questions];n[i].options[j].score[r.type]=e.target.value;setForm({...form, questions:n})}} />
