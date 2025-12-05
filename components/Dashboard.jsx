@@ -17,7 +17,12 @@ const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin }) => {
 
     const fetchMyQuizzes = async () => {
         if(!user) return;
-        const { data: quizzes } = await supabase.from('quizzes').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        // 管理者の場合はすべてのクイズを取得、それ以外は自分のクイズのみ
+        const query = isAdmin 
+            ? supabase.from('quizzes').select('*').order('created_at', { ascending: false })
+            : supabase.from('quizzes').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+        
+        const { data: quizzes } = await query;
         setMyQuizzes(quizzes || []);
     };
 
@@ -260,7 +265,10 @@ const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin }) => {
                 </div>
 
                 <div className="mt-12">
-                    <h2 className="text-xl font-bold text-black mb-4 border-l-4 border-indigo-600 pl-4">作成した診断リスト</h2>
+                    <h2 className="text-xl font-bold text-black mb-4 border-l-4 border-indigo-600 pl-4 flex items-center gap-2">
+                        {isAdmin ? '全診断リスト（管理者）' : '作成した診断リスト'}
+                        {isAdmin && <span className="text-xs bg-red-500 text-white px-2 py-1 rounded-full">ADMIN</span>}
+                    </h2>
                     {loading ? <div className="text-center py-10"><Loader2 className="animate-spin mx-auto text-indigo-600"/></div> : (
                         myQuizzes.length === 0 ? (
                             <div className="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
@@ -288,9 +296,30 @@ const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin }) => {
                                         </div>
                                         <div className="p-5">
                                             <h3 className="font-bold text-lg mb-2 line-clamp-1 text-black">{quiz.title}</h3>
-                                            <div className="flex gap-4 text-xs text-gray-500 font-bold mb-4">
+                                            <div className="flex gap-4 text-xs text-gray-500 font-bold mb-2">
                                                 <span className="flex items-center gap-1"><Play size={12}/> {quiz.views_count||0}</span>
                                                 <span className="flex items-center gap-1"><ExternalLink size={12}/> {quiz.clicks_count||0}</span>
+                                            </div>
+                                            
+                                            {/* URL表示とコピー */}
+                                            <div className="mb-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                                                <div className="flex items-center gap-2">
+                                                    <input 
+                                                        type="text" 
+                                                        value={`${window.location.origin}?id=${quiz.slug || quiz.id}`}
+                                                        readOnly
+                                                        className="flex-1 text-xs bg-transparent border-none outline-none text-gray-600 truncate"
+                                                    />
+                                                    <button 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(`${window.location.origin}?id=${quiz.slug || quiz.id}`);
+                                                            alert('URLをコピーしました！');
+                                                        }}
+                                                        className="text-indigo-600 hover:text-indigo-700 p-1"
+                                                    >
+                                                        <Copy size={14}/>
+                                                    </button>
+                                                </div>
                                             </div>
                                             
                                             <div className="flex gap-2 mb-2">

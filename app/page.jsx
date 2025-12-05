@@ -52,10 +52,15 @@ const App = () => {
           // URLパラメータのチェック
           const params = new URLSearchParams(window.location.search);
           const id = params.get('id');
+          const page = params.get('page');
           const paymentStatus = params.get('payment'); // Stripeからの戻り判定
           
+          // ページ指定がある場合（使い方ページなど）
+          if (page) {
+              setView(page);
+          }
           // 決済完了・キャンセル戻りならダッシュボードへ強制移動
-          if (paymentStatus === 'success' || paymentStatus === 'cancel') {
+          else if (paymentStatus === 'success' || paymentStatus === 'cancel') {
               setView('dashboard');
           } 
           // クイズIDがある場合（シェアURLからのアクセス）

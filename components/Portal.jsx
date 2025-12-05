@@ -146,8 +146,12 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                                         {index + 1}
                                     </div>
                                     <div onClick={() => onPlay(quiz)} className="cursor-pointer">
-                                        {quiz.image_url && (
+                                        {quiz.image_url ? (
                                             <img src={quiz.image_url} alt="" className="w-full h-40 object-cover"/>
+                                        ) : (
+                                            <div className="w-full h-40 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
+                                                <Sparkles size={48} className="text-indigo-300"/>
+                                            </div>
                                         )}
                                         <div className="p-5">
                                             <h3 className="font-bold text-lg mb-2 line-clamp-2 text-gray-900">{quiz.title}</h3>
