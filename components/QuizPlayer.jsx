@@ -8,7 +8,7 @@ import confetti from 'canvas-confetti';
 const ResultView = ({ quiz, result, onRetry, onBack }) => {
   useEffect(() => { 
       document.title = `${result.title} | 結果発表`;
-      if(supabase) supabase.rpc('increment_completions', { row_id: quiz.id });
+      // ★削除: 完了数カウントは showResultOrEmail で実行済み
       if (quiz.mode === 'test' && result.score / result.total >= 0.8) {
           fireConfetti();
       }
@@ -146,7 +146,13 @@ const QuizPlayer = ({ quiz, onBack }) => {
 
   const results = typeof quiz.results === 'string' ? JSON.parse(quiz.results) : quiz.results;
 
-  const showResultOrEmail = (finalAnswers) => {
+  const showResultOrEmail = async (finalAnswers) => {
+      // ★修正: 完了数を必ずここでカウント（メールフォーム表示の前に実行）
+      if(supabase) {
+          const { error } = await supabase.rpc('increment_completions', { row_id: quiz.id });
+          if(error) console.error('完了数カウントエラー:', error);
+      }
+
       if (quiz.collect_email && !showEmailForm) {
           setShowEmailForm(true);
           if (quiz.layout === 'chat') {
