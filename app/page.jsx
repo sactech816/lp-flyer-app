@@ -11,7 +11,11 @@ import Portal from '../components/Portal';
 import Dashboard from '../components/Dashboard';
 import QuizPlayer from '../components/QuizPlayer';
 import Editor from '../components/Editor';
-import { FaqPage, PricePage, HowToPage, EffectiveUsePage, QuizLogicPage } from '../components/StaticPages';
+import { 
+    FaqPage, PricePage, HowToPage, 
+    EffectiveUsePage, QuizLogicPage, 
+    ContactPage, LegalPage, PrivacyPage 
+} from '../components/StaticPages';
 import { Loader2 } from 'lucide-react';
 
 const App = () => {
@@ -47,12 +51,15 @@ const App = () => {
           const id = params.get('id');
           const paymentStatus = params.get('payment'); // 決済ステータス取得
           
-          // ★修正: 決済戻りならダッシュボードへ強制移動
+          // 決済完了・キャンセル戻りならダッシュボードへ強制移動
           if (paymentStatus === 'success' || paymentStatus === 'cancel') {
               setView('dashboard');
           } 
+          // クイズIDがある場合
           else if(id && supabase) {
+              // slug(文字列)で検索
               let { data } = await supabase.from('quizzes').select('*').eq('slug', id).single();
+              // なければID(数値)で検索
               if (!data && !isNaN(id)) {
                  const res = await supabase.from('quizzes').select('*').eq('id', id).single();
                  data = res.data;
@@ -114,7 +121,8 @@ const App = () => {
               user_id: user?.id || null,
               layout: form.layout || 'card',
               image_url: form.image_url || null,
-              mode: form.mode || 'diagnosis'
+              mode: form.mode || 'diagnosis',
+              collect_email: form.collect_email || false
           };
           
           if (!id && !form.slug) { 
@@ -188,10 +196,17 @@ const App = () => {
         
         {view === 'effective' && <EffectiveUsePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
         {view === 'logic' && <QuizLogicPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        {view === 'howto' && <HowToPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
         
+        {/* 新規ページ群 */}
+        {view === 'contact' && <ContactPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        {view === 'legal' && <LegalPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        {view === 'privacy' && <PrivacyPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        
+        {/* 旧ページ互換 */}
         {view === 'faq' && <FaqPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
         {view === 'price' && <PricePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
-        {view === 'howto' && <HowToPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        
         {view === 'quiz' && (
             <QuizPlayer 
                 quiz={selectedQuiz} 
