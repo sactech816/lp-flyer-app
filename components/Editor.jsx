@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
     Edit3, MessageSquare, Trophy, Loader2, Save, Share2, 
     Sparkles, Wand2, BookOpen, Image as ImageIcon, 
-    Layout, MessageCircle, ArrowLeft, Briefcase, GraduationCap, CheckCircle, Shuffle
+    Layout, MessageCircle, ArrowLeft, Briefcase, GraduationCap, CheckCircle, Shuffle, Plus, Trash2, X
 } from 'lucide-react';
 import { generateSlug } from '../lib/utils';
 
@@ -81,6 +81,36 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
       alert(`公開URLをコピーしました！\n${url}`); 
   };
 
+  // 質問・結果の追加・削除機能
+  const addQuestion = () => {
+      if(form.questions.length >= 10) return alert('質問は最大10個までです');
+      setForm({
+          ...form,
+          questions: [...form.questions, {text:`質問${form.questions.length+1}`, options: Array(4).fill(null).map((_,j)=>({label:`選択肢${j+1}`, score:{A:0, B:0, C:0}}))}]
+      });
+  };
+
+  const removeQuestion = (index) => {
+      if(form.questions.length <= 1) return alert('質問は最低1つ必要です');
+      const newQuestions = form.questions.filter((_, i) => i !== index);
+      setForm({...form, questions: newQuestions});
+  };
+
+  const addResult = () => {
+      if(form.results.length >= 10) return alert('結果パターンは最大10個までです');
+      const nextType = String.fromCharCode(65 + form.results.length); // D, E, F...
+      setForm({
+          ...form,
+          results: [...form.results, {type: nextType, title:`結果${nextType}`, description:"..."}]
+      });
+  };
+
+  const removeResult = (index) => {
+      if(form.results.length <= 2) return alert('結果パターンは最低2つ必要です');
+      const newResults = form.results.filter((_, i) => i !== index);
+      setForm({...form, results: newResults});
+  };
+
   const handleRandomImage = () => {
       const curatedImages = [
           "https://images.unsplash.com/photo-1664575602276-acd073f104c1?auto=format&fit=crop&w=800&q=80",
@@ -102,9 +132,9 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
       try {
           let prompt = "";
           if (form.mode === 'test') {
-              prompt = `テーマ「${aiTheme}」の4択学習クイズを作成して。質問5つ。各質問で正解は1つだけ（scoreのAを1、他を0にする）。結果は高得点・中得点・低得点の3段階。`;
+              prompt = `テーマ「${aiTheme}」の4択学習クイズを作成して。質問5つ。各質問で正解は1つだけ。結果は高・中・低得点の3段階。`;
           } else if (form.mode === 'fortune') {
-              prompt = `テーマ「${aiTheme}」の占いを作成して。質問5つ（運勢には影響しない演出用）。結果は大吉・中吉・吉などの3パターン。`;
+              prompt = `テーマ「${aiTheme}」の占いを作成して。質問5つ。結果は3パターン。`;
           } else {
               prompt = `テーマ「${aiTheme}」の性格/タイプ診断を作成して。質問5つ。結果は3タイプ。`;
           }
@@ -138,48 +168,42 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
         <div className="bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-50 shadow-sm">
             <div className="flex items-center gap-3">
                 <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-700"><ArrowLeft/></button>
-                <h2 className="font-bold text-lg text-gray-900">
+                <h2 className="font-bold text-lg text-gray-900 line-clamp-1">
                     {initialData ? '編集' : '新規作成'}
                 </h2>
-                <span className={`text-xs px-2 py-1 rounded font-bold ml-2 ${
+                <span className={`hidden md:inline text-xs px-2 py-1 rounded font-bold ml-2 ${
                     form.mode === 'test' ? 'bg-orange-100 text-orange-700' : 
                     form.mode === 'fortune' ? 'bg-purple-100 text-purple-700' : 'bg-indigo-100 text-indigo-700'
                 }`}>
-                    {form.mode === 'test' ? '検定・テスト' : form.mode === 'fortune' ? '占い' : 'ビジネス診断'}
+                    {form.mode === 'test' ? 'テスト' : form.mode === 'fortune' ? '占い' : '診断'}
                 </span>
             </div>
             <div className="flex gap-2">
                 {savedId && (
-                    <button onClick={handlePublish} className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 animate-pulse">
-                        <Share2 size={18}/> 公開URL
+                    <button onClick={handlePublish} className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 animate-pulse whitespace-nowrap">
+                        <Share2 size={18}/> <span className="hidden md:inline">公開URL</span>
                     </button>
                 )}
                 <button onClick={async ()=>{
                         setIsSaving(true); 
                         const payload = {
-                            title: form.title, 
-                            description: form.description, 
-                            category: form.category, 
-                            color: form.color,
-                            questions: form.questions, 
-                            results: form.results, 
-                            user_id: user?.id || null,
-                            layout: form.layout || 'card',
-                            image_url: form.image_url || null,
-                            mode: form.mode || 'diagnosis'
+                            title: form.title, description: form.description, category: form.category, color: form.color,
+                            questions: form.questions, results: form.results, 
+                            user_id: user?.id || null, layout: form.layout || 'card', image_url: form.image_url || null, mode: form.mode || 'diagnosis'
                         };
                         const returnedId = await onSave(payload, savedId || initialData?.id);
                         if(returnedId) setSavedId(returnedId); 
                         setIsSaving(false);
-                    }} disabled={isSaving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all">
+                    }} disabled={isSaving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all whitespace-nowrap">
                     {isSaving ? <Loader2 className="animate-spin"/> : <Save/>} 保存
                 </button>
             </div>
         </div>
         
-        <div className="flex flex-grow overflow-hidden">
-            {/* Sidebar */}
-            <div className="w-64 bg-white border-r flex flex-col hidden md:flex shrink-0">
+        <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+            {/* Sidebar (Desktop) / Topbar (Mobile) */}
+            <div className="bg-white border-b md:border-b-0 md:border-r flex flex-col w-full md:w-64 shrink-0">
+                {/* AI Section */}
                 <div className="p-4 bg-gradient-to-b from-purple-50 to-white border-b">
                     <div className="flex items-center gap-2 mb-2 text-purple-700 font-bold text-sm">
                         <Sparkles size={16}/> AI自動生成
@@ -192,20 +216,20 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                     <button onClick={handleAiGenerate} disabled={isGenerating} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-bold text-xs transition-all shadow flex items-center justify-center gap-1">
                         {isGenerating ? <Loader2 className="animate-spin" size={12}/> : <Wand2 size={12}/>} 生成する
                     </button>
-                    {/* ★ここを復活させました */}
                     <p className="text-[10px] text-gray-500 mt-2 text-center">※生成には10〜30秒ほどかかります</p>
                 </div>
 
-                <div className="p-4 space-y-1 overflow-y-auto flex-grow">
+                {/* Tabs */}
+                <div className="flex md:flex-col overflow-x-auto md:overflow-visible p-2 md:p-4 gap-2 border-b md:border-b-0">
                     {TABS.map(tab=>(
-                        <button key={tab.id} onClick={()=>setActiveTab(tab.id)} className={`w-full px-4 py-3 text-left font-bold rounded-lg transition-colors flex items-center gap-2 ${activeTab===tab.id?'bg-indigo-50 text-indigo-700':'text-gray-600 hover:bg-gray-50'}`}>
+                        <button key={tab.id} onClick={()=>setActiveTab(tab.id)} className={`flex-shrink-0 px-4 py-3 text-left font-bold rounded-lg transition-colors flex items-center gap-2 ${activeTab===tab.id?'bg-indigo-50 text-indigo-700':'text-gray-600 hover:bg-gray-50'}`}>
                             <tab.icon size={16}/>
                             <span className="capitalize">{tab.label}</span>
                         </button>
                     ))}
                 </div>
-                {/* ★ここを復活させました */}
-                <div className="p-4 border-t">
+                
+                <div className="hidden md:block p-4 border-t mt-auto">
                     <button onClick={()=>setPage('howto')} className="w-full text-xs text-gray-500 hover:text-indigo-600 flex items-center justify-center gap-1">
                         <BookOpen size={14}/> 使い方・規約を見る
                     </button>
@@ -218,41 +242,42 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                     {activeTab === '基本設定' && (
                         <div className="animate-fade-in">
                             <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Edit3 className="text-gray-400"/> 基本設定</h3>
-                            
-                            {/* Mode Selection */}
                             {!initialData && (
                                 <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-200">
                                     <label className="text-sm font-bold text-gray-900 block mb-3">作成する種類を選択</label>
                                     <div className="grid grid-cols-3 gap-3">
-                                        <button onClick={()=>switchMode('diagnosis')} className={`py-4 rounded-xl border-2 font-bold flex flex-col items-center gap-2 ${form.mode==='diagnosis' ? 'border-indigo-600 bg-white text-indigo-700' : 'border-transparent bg-white shadow-sm text-gray-400'}`}>
-                                            <Briefcase size={24}/> ビジネス診断
+                                        <button onClick={()=>switchMode('diagnosis')} className={`py-4 rounded-xl border-2 font-bold flex flex-col items-center gap-2 text-xs md:text-sm ${form.mode==='diagnosis' ? 'border-indigo-600 bg-white text-indigo-700' : 'border-transparent bg-white shadow-sm text-gray-400'}`}>
+                                            <Briefcase size={20}/> ビジネス
                                         </button>
-                                        <button onClick={()=>switchMode('test')} className={`py-4 rounded-xl border-2 font-bold flex flex-col items-center gap-2 ${form.mode==='test' ? 'border-orange-500 bg-white text-orange-600' : 'border-transparent bg-white shadow-sm text-gray-400'}`}>
-                                            <GraduationCap size={24}/> 学習・検定
+                                        <button onClick={()=>switchMode('test')} className={`py-4 rounded-xl border-2 font-bold flex flex-col items-center gap-2 text-xs md:text-sm ${form.mode==='test' ? 'border-orange-500 bg-white text-orange-600' : 'border-transparent bg-white shadow-sm text-gray-400'}`}>
+                                            <GraduationCap size={20}/> 学習
                                         </button>
-                                        <button onClick={()=>switchMode('fortune')} className={`py-4 rounded-xl border-2 font-bold flex flex-col items-center gap-2 ${form.mode==='fortune' ? 'border-purple-500 bg-white text-purple-600' : 'border-transparent bg-white shadow-sm text-gray-400'}`}>
-                                            <Sparkles size={24}/> 占い・運勢
+                                        <button onClick={()=>switchMode('fortune')} className={`py-4 rounded-xl border-2 font-bold flex flex-col items-center gap-2 text-xs md:text-sm ${form.mode==='fortune' ? 'border-purple-500 bg-white text-purple-600' : 'border-transparent bg-white shadow-sm text-gray-400'}`}>
+                                            <Sparkles size={20}/> 占い
                                         </button>
                                     </div>
                                 </div>
                             )}
-
                             <Input label="タイトル" val={form.title} onChange={v=>setForm({...form, title:v})} ph="タイトルを入力" />
                             <Textarea label="説明文" val={form.description} onChange={v=>setForm({...form, description:v})} />
                             
-                            <div className="grid grid-cols-2 gap-6 mt-6">
-                                <div>
-                                    <Input label="カテゴリ" val={form.category} onChange={v=>setForm({...form, category:v})} ph="Business, Education, Fortune..." />
-                                </div>
-                                <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                <div className="mb-4 md:mb-0">
                                     <label className="text-sm font-bold text-gray-900 block mb-2">表示レイアウト</label>
                                     <div className="flex gap-2">
                                         <button onClick={()=>setForm({...form, layout:'card'})} className={`flex-1 py-3 rounded-lg font-bold text-sm border flex items-center justify-center gap-2 ${form.layout==='card' ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-gray-200 text-gray-500'}`}><Layout size={16}/> カード</button>
                                         <button onClick={()=>setForm({...form, layout:'chat'})} className={`flex-1 py-3 rounded-lg font-bold text-sm border flex items-center justify-center gap-2 ${form.layout==='chat' ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-gray-200 text-gray-500'}`}><MessageCircle size={16}/> チャット</button>
                                     </div>
                                 </div>
+                                <div>
+                                    <label className="text-sm font-bold text-gray-900 block mb-2">テーマカラー</label>
+                                    <div className="flex gap-3 flex-wrap">
+                                        {['bg-indigo-600', 'bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-gray-800'].map(c => (
+                                            <button key={c} onClick={()=>setForm({...form, color:c})} className={`w-8 h-8 rounded-full ${c} ${form.color===c ? 'ring-4 ring-offset-2 ring-gray-300':''}`}></button>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
-
                             <div className="mt-6 mb-6">
                                 <label className="text-sm font-bold text-gray-900 block mb-2">メイン画像</label>
                                 <div className="flex gap-2">
@@ -261,23 +286,19 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                 </div>
                                 {form.image_url && <img src={form.image_url} alt="Preview" className="h-32 w-full object-cover rounded-lg mt-2 border"/>}
                             </div>
-
-                            <div className="mt-6">
-                                <label className="text-sm font-bold text-gray-900 block mb-2">テーマカラー</label>
-                                <div className="flex gap-3 flex-wrap">
-                                    {['bg-indigo-600', 'bg-pink-500', 'bg-blue-500', 'bg-green-500', 'bg-orange-500', 'bg-gray-800'].map(c => (
-                                        <button key={c} onClick={()=>setForm({...form, color:c})} className={`w-10 h-10 rounded-full ${c} ${form.color===c ? 'ring-4 ring-offset-2 ring-gray-300':''}`}></button>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
                     )}
                     
                     {activeTab === '質問作成' && (
                         <div className="space-y-8 animate-fade-in">
-                            <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><MessageSquare className="text-gray-400"/> 質問作成 (5問)</h3>
+                            <div className="flex justify-between items-center border-b pb-2 mb-6">
+                                <h3 className="font-bold text-xl flex items-center gap-2 text-gray-900"><MessageSquare className="text-gray-400"/> 質問 ({form.questions.length}問)</h3>
+                                <button onClick={addQuestion} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-bold hover:bg-indigo-100 flex items-center gap-1"><Plus size={14}/> 追加</button>
+                            </div>
+                            
                             {form.questions.map((q, i)=>(
-                                <div key={i} className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                                <div key={i} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative group">
+                                    <button onClick={()=>removeQuestion(i)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1"><Trash2 size={16}/></button>
                                     <div className="font-bold text-indigo-600 mb-2">Q{i+1}</div>
                                     <Input label="質問文" val={q.text} onChange={v=>{const n=[...form.questions];n[i].text=v;setForm({...form, questions:n})}} />
                                     <div className="space-y-3 mt-4">
@@ -312,24 +333,32 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                     </div>
                                 </div>
                             ))}
+                            <button onClick={addQuestion} className="w-full py-3 bg-gray-50 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl font-bold hover:bg-gray-100 hover:border-gray-400 flex items-center justify-center gap-2"><Plus size={16}/> 質問を追加する</button>
                         </div>
                     )}
 
                     {activeTab === '結果ページ' && (
                         <div className="space-y-8 animate-fade-in">
-                            <h3 className="font-bold text-xl mb-6 border-b pb-2 flex items-center gap-2 text-gray-900"><Trophy className="text-gray-400"/> 結果ページ設定</h3>
-                            <div className={`p-4 rounded-lg mb-6 text-sm ${form.mode==='test'?'bg-orange-50 text-orange-800':form.mode==='fortune'?'bg-purple-50 text-purple-800':'bg-blue-50 text-blue-800'}`}>
-                                {form.mode === 'test' ? "正解数に応じて結果が変わります（A:高得点, B:中得点, C:低得点）" : form.mode === 'fortune' ? "結果はランダムに表示されます（大吉・中吉・小吉など）" : "獲得ポイントが多いタイプの結果が表示されます"}
+                            <div className="flex justify-between items-center border-b pb-2 mb-6">
+                                <h3 className="font-bold text-xl flex items-center gap-2 text-gray-900"><Trophy className="text-gray-400"/> 結果パターン ({form.results.length})</h3>
+                                <button onClick={addResult} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-bold hover:bg-indigo-100 flex items-center gap-1"><Plus size={14}/> 追加</button>
                             </div>
+                            
+                            <div className={`p-4 rounded-lg mb-6 text-sm ${form.mode==='test'?'bg-orange-50 text-orange-800':form.mode==='fortune'?'bg-purple-50 text-purple-800':'bg-blue-50 text-blue-800'}`}>
+                                {form.mode === 'test' ? "正解数に応じて結果が変わります（上から順に高得点→低得点）" : form.mode === 'fortune' ? "結果はランダムに表示されます" : "獲得ポイントが多いタイプの結果が表示されます"}
+                            </div>
+                            
                             {form.results.map((r, i)=>(
-                                <div key={i} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 bg-gray-200 text-gray-600 px-3 py-1 rounded-bl-lg font-bold text-xs">
-                                        {form.mode === 'test' ? (i===0 ? '高得点' : i===1 ? '中得点' : '低得点') : `パターン ${r.type}`}
+                                <div key={i} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative overflow-hidden group">
+                                    <button onClick={()=>removeResult(i)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1 z-10"><Trash2 size={16}/></button>
+                                    <div className="absolute top-0 right-0 bg-gray-200 text-gray-600 px-3 py-1 rounded-bl-lg font-bold text-xs pointer-events-none">
+                                        {form.mode === 'test' ? `ランク ${i+1}` : `パターン ${r.type}`}
                                     </div>
                                     <Input label="タイトル" val={r.title} onChange={v=>{const n=[...form.results];n[i].title=v;setForm({...form, results:n})}} />
                                     <Textarea label="結果の説明文" val={r.description} onChange={v=>{const n=[...form.results];n[i].description=v;setForm({...form, results:n})}}/>
                                 </div>
                             ))}
+                            <button onClick={addResult} className="w-full py-3 bg-gray-50 border-2 border-dashed border-gray-300 text-gray-500 rounded-xl font-bold hover:bg-gray-100 hover:border-gray-400 flex items-center justify-center gap-2"><Plus size={16}/> 結果パターンを追加する</button>
                         </div>
                     )}
                 </div>

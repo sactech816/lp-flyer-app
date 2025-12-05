@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Loader2, Sparkles, Trophy, ExternalLink, MessageCircle, QrCode, RefreshCw, Home, Twitter, Share2, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, Trophy, ExternalLink, MessageCircle, QrCode, RefreshCw, Home, Twitter, Share2, CheckCircle, XCircle, Sparkles } from 'lucide-react';
 import SEO from './SEO';
 import { supabase } from '../lib/supabase';
 import { calculateResult } from '../lib/utils';
-import confetti from 'canvas-confetti'; // 紙吹雪用
+import confetti from 'canvas-confetti';
 
-// --- Result View (共通) ---
 const ResultView = ({ quiz, result, onRetry, onBack }) => {
   useEffect(() => { 
       document.title = `${result.title} | 結果発表`;
-      // 教育モードかつ高得点(8割以上)なら紙吹雪！
+      // カウントアップ：結果画面に到達した時点で「完了数」を増やす
+      if(supabase) supabase.rpc('increment_completions', { row_id: quiz.id });
+
+      // 教育モードかつ高得点(8割以上)なら紙吹雪
       if (quiz.mode === 'test' && result.score / result.total >= 0.8) {
           fireConfetti();
       }
@@ -41,14 +43,11 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
             {quiz.image_url && <img src={quiz.image_url} className="absolute inset-0 w-full h-full object-cover opacity-20"/>}
             <div className="absolute top-0 left-0 w-full h-full bg-white opacity-10" style={{backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
             <Trophy className="mx-auto mb-4 text-yellow-300 relative z-10 animate-bounce" size={56} />
-            
-            {/* テストモードなら点数表示 */}
             {quiz.mode === 'test' && (
                 <div className="relative z-10 mb-2 text-2xl font-bold bg-white/20 inline-block px-4 py-1 rounded-full">
                     {result.score} / {result.total} 問正解
                 </div>
             )}
-            
             <h2 className="text-3xl font-extrabold mt-2 relative z-10">{result.title}</h2>
         </div>
         <div className="p-8 md:p-10 flex-grow">
@@ -56,7 +55,6 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
                 {result.description}
             </div>
             
-            {/* SNS Share */}
             <div className="bg-gray-50 p-4 rounded-xl mb-8 text-center border border-gray-100">
                 <p className="text-xs font-bold text-gray-500 mb-3">結果をシェアする</p>
                 <div className="flex justify-center gap-3">
@@ -102,17 +100,15 @@ const ResultView = ({ quiz, result, onRetry, onBack }) => {
   );
 };
 
-// --- Player Logic ---
 const QuizPlayer = ({ quiz, onBack }) => {
-  useEffect(() => { document.title = `${quiz.title} | 実施中`; }, [quiz.title]);
+  useEffect(() => { document.title = `${quiz.title} | 診断中`; }, [quiz.title]);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
   const [playableQuestions, setPlayableQuestions] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
-  // テストモード用のフィードバック状態
-  const [feedback, setFeedback] = useState(null); // 'correct' | 'incorrect' | null
+  const [feedback, setFeedback] = useState(null);
   
   const messagesEndRef = useRef(null);
   
@@ -148,7 +144,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
   const results = typeof quiz.results === 'string' ? JSON.parse(quiz.results) : quiz.results;
 
   const proceedToNext = (newAnswers) => {
-      setFeedback(null); // フィードバックを消す
+      setFeedback(null);
       if (currentStep + 1 < playableQuestions.length) {
           if (quiz.layout === 'chat') {
               setIsTyping(true);
@@ -177,7 +173,6 @@ const QuizPlayer = ({ quiz, onBack }) => {
   };
 
   const handleAnswer = (option) => {
-    // 既に回答済みなら何もしない（連打防止）
     if (feedback) return;
 
     const newAnswers = { ...answers, [currentStep]: option };
@@ -187,17 +182,13 @@ const QuizPlayer = ({ quiz, onBack }) => {
         setChatHistory(prev => [...prev, { type: 'user', text: option.label }]);
     }
 
-    // 教育モードなら正誤判定を表示
     if (quiz.mode === 'test') {
         const isCorrect = option.score && option.score.A === 1;
         setFeedback(isCorrect ? 'correct' : 'incorrect');
-        
-        // 1.5秒後に次へ
         setTimeout(() => {
             proceedToNext(newAnswers);
         }, 1500);
     } else {
-        // 通常モードはすぐ次へ（チャットの場合は遅延あり）
         proceedToNext(newAnswers);
     }
   };
@@ -216,7 +207,6 @@ const QuizPlayer = ({ quiz, onBack }) => {
   const question = playableQuestions[currentStep];
   const progress = Math.round(((currentStep)/playableQuestions.length)*100);
 
-  // --- Feedback Overlay (For Test Mode) ---
   const FeedbackOverlay = () => {
       if (!feedback) return null;
       return (
@@ -238,7 +228,6 @@ const QuizPlayer = ({ quiz, onBack }) => {
       );
   };
 
-  // --- Render: Chat Mode ---
   if (quiz.layout === 'chat') {
       return (
         <div className="min-h-screen bg-gray-200 flex items-center justify-center font-sans">
@@ -269,7 +258,6 @@ const QuizPlayer = ({ quiz, onBack }) => {
                             </div>
                         </div>
                     ))}
-                    
                     {isTyping && (
                         <div className="flex items-start gap-2 mb-4 animate-fade-in">
                             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00B900] to-[#00C851] flex items-center justify-center text-white flex-shrink-0 text-xl shadow-sm">🤖</div>
@@ -300,7 +288,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
       );
   }
 
-  // Card Mode (Existing)
+  // Card Mode
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center py-6 font-sans">
       <FeedbackOverlay />
