@@ -3,9 +3,8 @@ import {
     Edit3, MessageSquare, Trophy, Loader2, Save, Share2, 
     Sparkles, Wand2, BookOpen, Image as ImageIcon, 
     Layout, MessageCircle, ArrowLeft, Briefcase, GraduationCap, 
-    CheckCircle, Shuffle, Plus, Trash2, X, Link, QrCode, UploadCloud
+    CheckCircle, Shuffle, Plus, Trash2, X, Link, QrCode, UploadCloud, Mail
 } from 'lucide-react';
-// ↓ パス修正
 import { generateSlug } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 
@@ -50,6 +49,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
 
   const defaultForm = {
       title: "新規クイズ", description: "説明文を入力...", category: "Business", color: "bg-indigo-600", layout: "card", image_url: "", mode: "diagnosis",
+      collect_email: false, // メール収集フラグ
       questions: Array(5).fill(null).map((_,i)=>({text:`質問${i+1}を入力してください`, options: Array(4).fill(null).map((_,j)=>({label:`選択肢${j+1}`, score:{A:j===0?3:0, B:j===1?3:0, C:j===2?3:0}}))})),
       results: [ {type:"A", title:"結果A", description:"説明...", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:""}, {type:"B", title:"結果B", description:"...", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:""}, {type:"C", title:"結果C", description:"...", link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:""} ]
   };
@@ -146,16 +146,10 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
           const fileName = `${Math.random()}.${fileExt}`;
           const filePath = `${user?.id || 'anonymous'}/${fileName}`;
 
-          const { error: uploadError } = await supabase.storage
-              .from('quiz-thumbnails')
-              .upload(filePath, file);
-
+          const { error: uploadError } = await supabase.storage.from('quiz-thumbnails').upload(filePath, file);
           if (uploadError) throw uploadError;
 
-          const { data } = supabase.storage
-              .from('quiz-thumbnails')
-              .getPublicUrl(filePath);
-
+          const { data } = supabase.storage.from('quiz-thumbnails').getPublicUrl(filePath);
           setForm({ ...form, image_url: data.publicUrl });
       } catch (error) {
           alert('アップロードエラー: ' + error.message);
@@ -185,7 +179,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
       try {
           let prompt = "";
           if (form.mode === 'test') {
-              prompt = `テーマ「${aiTheme}」の4択学習クイズを作成して。質問5つ。各質問で正解は1つだけ（scoreのAを1、他を0にする）。結果は高得点・中得点・低得点の3段階。`;
+              prompt = `テーマ「${aiTheme}」の4択学習クイズを作成して。質問5つ。各質問で正解は1つだけ（scoreのAを1、他を0にする）。結果は高・中・低得点の3段階。`;
           } else if (form.mode === 'fortune') {
               prompt = `テーマ「${aiTheme}」の占いを作成して。質問5つ（運勢には影響しない演出用）。結果は大吉・中吉・吉などの3パターン。`;
           } else {
@@ -245,7 +239,8 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                         const payload = {
                             title: form.title, description: form.description, category: form.category, color: form.color,
                             questions: form.questions, results: form.results, 
-                            user_id: user?.id || null, layout: form.layout || 'card', image_url: form.image_url || null, mode: form.mode || 'diagnosis'
+                            user_id: user?.id || null, layout: form.layout || 'card', image_url: form.image_url || null, mode: form.mode || 'diagnosis',
+                            collect_email: form.collect_email || false // ★メール収集フラグを追加
                         };
                         const returnedId = await onSave(payload, savedId || initialData?.id);
                         if(returnedId) setSavedId(returnedId); 
@@ -257,7 +252,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
         </div>
         
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-            {/* Sidebar / Topbar */}
             <div className="bg-white border-b md:border-b-0 md:border-r flex flex-col w-full md:w-64 shrink-0">
                 <div className="p-4 bg-gradient-to-b from-purple-50 to-white border-b">
                     <div className="flex items-center gap-2 mb-2 text-purple-700 font-bold text-sm">
@@ -290,7 +284,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 </div>
             </div>
 
-            {/* Main Content */}
             <div className="flex-grow p-4 md:p-8 overflow-y-auto bg-gray-50">
                 <div className="max-w-3xl mx-auto bg-white p-6 md:p-10 rounded-2xl shadow-sm border border-gray-100 min-h-[500px]">
                     {activeTab === '基本設定' && (
@@ -313,6 +306,19 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                     </div>
                                 </div>
                             )}
+
+                            {/* ★追加: メール収集設定 */}
+                            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
+                                <div>
+                                    <h4 className="font-bold text-green-900 flex items-center gap-2"><Mail size={18}/> リード獲得機能</h4>
+                                    <p className="text-xs text-green-700 mt-1">結果表示の前にメールアドレスの入力を求めます。</p>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" className="sr-only peer" checked={form.collect_email} onChange={e=>setForm({...form, collect_email: e.target.checked})} />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                </label>
+                            </div>
+
                             <Input label="タイトル" val={form.title} onChange={v=>setForm({...form, title:v})} ph="タイトルを入力" />
                             <Textarea label="説明文" val={form.description} onChange={v=>setForm({...form, description:v})} />
                             
@@ -350,6 +356,7 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                         </div>
                     )}
                     
+                    {/* ... (質問・結果タブは以前のまま) */}
                     {activeTab === '質問作成' && (
                         <div className="space-y-8 animate-fade-in">
                             <div className="flex justify-between items-center border-b pb-2 mb-6">
@@ -368,7 +375,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                             <span>選択肢</span>
                                             <button onClick={()=>addOption(i)} className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 flex items-center gap-1"><Plus size={12}/> 追加</button>
                                         </div>
-                                        
                                         <div className="flex text-xs text-gray-400 px-2 mt-2">
                                             <span className="flex-grow"></span>
                                             {form.mode === 'test' ? <span className="w-16 text-center text-orange-500 font-bold">正解</span> 
@@ -380,7 +386,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                               </div>
                                             }
                                         </div>
-
                                         {q.options.map((o, j)=>(
                                             <div key={j} className="flex items-center gap-2 bg-white p-2 rounded border border-gray-200">
                                                 <button onClick={()=>removeOption(i, j)} className="text-gray-300 hover:text-red-500"><Trash2 size={14}/></button>
@@ -416,11 +421,9 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                 <h3 className="font-bold text-xl flex items-center gap-2 text-gray-900"><Trophy className="text-gray-400"/> 結果パターン ({form.results.length})</h3>
                                 <button onClick={addResult} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-bold hover:bg-indigo-100 flex items-center gap-1"><Plus size={14}/> 追加</button>
                             </div>
-                            
                             <div className={`p-4 rounded-lg mb-6 text-sm ${form.mode==='test'?'bg-orange-50 text-orange-800':form.mode==='fortune'?'bg-purple-50 text-purple-800':'bg-blue-50 text-blue-800'}`}>
-                                {form.mode === 'test' ? "正解数に応じて結果が変わります（上から順に高得点→低得点）" : form.mode === 'fortune' ? "結果はランダムに表示されます" : "獲得ポイントが多いタイプの結果が表示されます"}
+                                {form.mode === 'test' ? "正解数に応じて結果が変わります" : form.mode === 'fortune' ? "結果はランダムに表示されます" : "獲得ポイントが多いタイプの結果が表示されます"}
                             </div>
-                            
                             {form.results.map((r, i)=>(
                                 <div key={i} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative overflow-hidden group">
                                     <button onClick={()=>removeResult(i)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1 z-10"><Trash2 size={16}/></button>
@@ -429,7 +432,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                     </div>
                                     <Input label="タイトル" val={r.title} onChange={v=>{const n=[...form.results];n[i].title=v;setForm({...form, results:n})}} />
                                     <Textarea label="結果の説明文" val={r.description} onChange={v=>{const n=[...form.results];n[i].description=v;setForm({...form, results:n})}}/>
-                                    
                                     <div className="bg-white p-4 rounded-xl border border-gray-200 mt-4">
                                         <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2"><Link size={14}/> 誘導ボタン設定 (任意)</p>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

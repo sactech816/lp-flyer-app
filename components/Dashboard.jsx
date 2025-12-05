@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, LayoutDashboard, LogOut, Loader2, Play, ExternalLink, Edit3, Trash2, Trophy, MessageCircle, Layout, Table, BarChart2, Download, ShoppingCart, CheckCircle } from 'lucide-react';
-// ↓ パス修正
+import { User, LayoutDashboard, LogOut, Loader2, Play, ExternalLink, Edit3, Trash2, Trophy, MessageCircle, Layout, Table, BarChart2, Download, ShoppingCart, CheckCircle, Code, Users, Lock } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Header from './Header';
 import { supabase } from '../lib/supabase';
@@ -44,7 +43,7 @@ const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout }) => {
                 body: JSON.stringify({ sessionId, quizId, userId: user.id }),
             });
             if (res.ok) {
-                alert('寄付ありがとうございます！HTMLのダウンロードが可能になりました。');
+                alert('寄付ありがとうございます！Pro機能（HTML・埋め込み・リスト）が開放されました。');
                 setPurchases(prev => [...prev, parseInt(quizId)]);
             }
         } catch (e) {
@@ -52,45 +51,39 @@ const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout }) => {
         }
     };
 
-// 購入ボタン (Stripeへ移動)
-const handlePurchase = async (quiz) => {
-    // ★修正: 初期値を "1000" に設定
-    const inputPrice = window.prompt(`「${quiz.title}」のHTMLデータを購入します。\n\n応援・寄付金額を入力してください（500円〜50,000円）。`, "1000");
-    
-    // キャンセルされた場合
-    if (inputPrice === null) return;
-
-    // ★修正: 金額のバリデーション（500円以上、50,000円以下）
-    const price = parseInt(inputPrice, 10);
-    if (isNaN(price) || price < 500 || price > 50000) {
-        alert("金額は 500円以上、50,000円以下 の半角数字で入力してください。");
-        return;
-    }
-
-    setProcessingId(quiz.id);
-    try {
-        const res = await fetch('/api/checkout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                quizId: quiz.id,
-                quizTitle: quiz.title,
-                userId: user.id,
-                email: user.email,
-                price: price // ここで金額を送る
-            }),
-        });
-        const data = await res.json();
-        if (data.url) {
-            window.location.href = data.url;
-        } else {
-            throw new Error('決済URLの取得に失敗しました');
+    const handlePurchase = async (quiz) => {
+        const inputPrice = window.prompt(`「${quiz.title}」のPro機能（HTML・埋め込み・リスト取得）を開放します。\n\n応援・寄付金額を入力してください（500円〜50,000円）。`, "1000");
+        if (inputPrice === null) return;
+        const price = parseInt(inputPrice, 10);
+        if (isNaN(price) || price < 500 || price > 50000) {
+            alert("金額は 500円以上、50,000円以下 の半角数字で入力してください。");
+            return;
         }
-    } catch (e) {
-        alert('エラー: ' + e.message);
-        setProcessingId(null);
-    }
-};
+
+        setProcessingId(quiz.id);
+        try {
+            const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    quizId: quiz.id,
+                    quizTitle: quiz.title,
+                    userId: user.id,
+                    email: user.email,
+                    price: price 
+                }),
+            });
+            const data = await res.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error('決済URLの取得に失敗しました');
+            }
+        } catch (e) {
+            alert('エラー: ' + e.message);
+            setProcessingId(null);
+        }
+    };
 
     const handleDownload = (quiz) => {
         const htmlContent = generateQuizHTML(quiz);
@@ -103,6 +96,33 @@ const handlePurchase = async (quiz) => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    };
+
+    const handleEmbed = (quiz, isPurchased) => {
+        if (!isPurchased) return alert("この機能を利用するには、寄付（購入）によるロック解除が必要です。");
+        
+        const url = `${window.location.origin}?id=${quiz.slug || quiz.id}`;
+        const code = `<iframe src="${url}" width="100%" height="600" style="border:none; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></iframe>`;
+        navigator.clipboard.writeText(code);
+        alert('埋め込みコードをコピーしました！\n\nWordPressなどの「カスタムHTML」ブロックに貼り付けてください。');
+    };
+
+    const handleDownloadLeads = async (quiz, isPurchased) => {
+        if (!isPurchased) return alert("この機能を利用するには、寄付（購入）によるロック解除が必要です。");
+
+        const { data, error } = await supabase.from('quiz_leads').select('email, created_at').eq('quiz_id', quiz.id);
+        if(error || !data || data.length === 0) return alert('まだ登録されたメールアドレスはありません。');
+        
+        const csvContent = "data:text/csv;charset=utf-8," 
+            + "Email,Registered At\n"
+            + data.map(row => `${row.email},${new Date(row.created_at).toLocaleString()}`).join("\n");
+            
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `leads_${quiz.title}.csv`);
+        document.body.appendChild(link);
+        link.click();
     };
 
     const graphData = myQuizzes.map(q => ({
@@ -122,6 +142,7 @@ const handlePurchase = async (quiz) => {
                 </div>
 
                 <div className="grid lg:grid-cols-3 gap-8">
+                    {/* Graph Section */}
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                             <div className="flex items-center gap-4 mb-4">
@@ -155,7 +176,6 @@ const handlePurchase = async (quiz) => {
                                     <button onClick={()=>setViewMode('table')} className={`p-1.5 rounded ${viewMode==='table'?'bg-white shadow text-indigo-600':'text-gray-400'}`}><Table size={16}/></button>
                                 </div>
                             </div>
-                            
                             {myQuizzes.length === 0 ? (
                                 <div className="h-64 flex items-center justify-center text-gray-400 text-sm">データがありません</div>
                             ) : viewMode === 'graph' ? (
@@ -219,38 +239,64 @@ const handlePurchase = async (quiz) => {
                             </div>
                         ) : (
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {myQuizzes.map(quiz => (
+                                {myQuizzes.map(quiz => {
+                                    const isPurchased = purchases.includes(quiz.id);
+                                    return (
                                     <div key={quiz.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group">
                                         <div className={`h-32 w-full overflow-hidden relative ${quiz.color || 'bg-indigo-600'}`}>
                                             {quiz.image_url && <img src={quiz.image_url} alt={quiz.title} className="w-full h-full object-cover"/>}
                                             <span className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
                                                 {quiz.layout === 'chat' ? <><MessageCircle size={10}/> Chat</> : <><Layout size={10}/> Card</>}
                                             </span>
+                                            {quiz.collect_email && (
+                                                <span className="absolute bottom-2 right-2 bg-green-500 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+                                                    <Users size={10}/> Leads
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="p-5">
                                             <h3 className="font-bold text-lg mb-2 line-clamp-1 text-black">{quiz.title}</h3>
                                             <div className="flex gap-4 text-xs text-gray-500 font-bold mb-4">
-                                                <span className="flex items-center gap-1"><Play size={12}/> {quiz.views_count||0} views</span>
-                                                <span className="flex items-center gap-1"><ExternalLink size={12}/> {quiz.clicks_count||0} clicks</span>
-                                            </div>
-                                            <div className="flex gap-2 mb-3">
-                                                <button onClick={()=>onEdit(quiz)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1"><Edit3 size={14}/> 編集</button>
-                                                <button onClick={()=>onDelete(quiz.id)} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1"><Trash2 size={14}/> 削除</button>
+                                                <span className="flex items-center gap-1"><Play size={12}/> {quiz.views_count||0}</span>
+                                                <span className="flex items-center gap-1"><ExternalLink size={12}/> {quiz.clicks_count||0}</span>
                                             </div>
                                             
-                                            {purchases.includes(quiz.id) ? (
+                                            {/* Action Buttons */}
+                                            <div className="flex gap-2 mb-2">
+                                                <button onClick={()=>onEdit(quiz)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1"><Edit3 size={14}/> 編集</button>
+                                                
+                                                {/* 埋め込みボタン (Lock logic) */}
+                                                <button onClick={()=>handleEmbed(quiz, isPurchased)} className={`flex-1 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1 ${isPurchased ? 'bg-blue-50 hover:bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                                                    {isPurchased ? <Code size={14}/> : <Lock size={14}/>} 埋め込み
+                                                </button>
+                                            </div>
+
+                                            {/* Lead CSV Button (Only if enabled & Lock logic) */}
+                                            {quiz.collect_email && (
+                                                <button onClick={()=>handleDownloadLeads(quiz, isPurchased)} className={`w-full mb-2 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1 ${isPurchased ? 'bg-green-50 hover:bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+                                                    {isPurchased ? <Download size={14}/> : <Lock size={14}/>} アドレス帳(CSV)
+                                                </button>
+                                            )}
+
+                                            <div className="flex gap-2 mb-2">
+                                                <button onClick={()=>onDelete(quiz.id)} className="w-full bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1"><Trash2 size={14}/> 削除</button>
+                                            </div>
+                                            
+                                            {/* Purchase / Download Button */}
+                                            {isPurchased ? (
                                                 <button onClick={()=>handleDownload(quiz)} className="w-full bg-green-500 text-white py-2 rounded-lg font-bold text-xs hover:bg-green-600 flex items-center justify-center gap-1 animate-pulse">
                                                     <CheckCircle size={14}/> HTMLダウンロード
                                                 </button>
                                             ) : (
                                                 <button onClick={()=>handlePurchase(quiz)} disabled={processingId === quiz.id} className="w-full bg-orange-500 text-white py-2 rounded-lg font-bold text-xs hover:bg-orange-600 flex items-center justify-center gap-1">
                                                     {processingId === quiz.id ? <Loader2 className="animate-spin" size={14}/> : <ShoppingCart size={14}/>}
-                                                    HTML購入 (寄付)
+                                                    機能開放 / 寄付
                                                 </button>
                                             )}
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )
                     )}

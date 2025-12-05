@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Loader2, Trophy, ExternalLink, MessageCircle, QrCode, RefreshCw, Home, Twitter, Share2, CheckCircle, XCircle, Sparkles } from 'lucide-react';
+import { ArrowLeft, Loader2, Trophy, ExternalLink, MessageCircle, QrCode, RefreshCw, Home, Twitter, Share2, CheckCircle, XCircle, Sparkles, Mail } from 'lucide-react';
 import SEO from './SEO';
 import { supabase } from '../lib/supabase';
 import { calculateResult } from '../lib/utils';
@@ -8,10 +8,7 @@ import confetti from 'canvas-confetti';
 const ResultView = ({ quiz, result, onRetry, onBack }) => {
   useEffect(() => { 
       document.title = `${result.title} | 結果発表`;
-      // カウントアップ：結果画面に到達した時点で「完了数」を増やす
       if(supabase) supabase.rpc('increment_completions', { row_id: quiz.id });
-
-      // 教育モードかつ高得点(8割以上)なら紙吹雪
       if (quiz.mode === 'test' && result.score / result.total >= 0.8) {
           fireConfetti();
       }
@@ -110,6 +107,11 @@ const QuizPlayer = ({ quiz, onBack }) => {
   const [isTyping, setIsTyping] = useState(false);
   const [feedback, setFeedback] = useState(null);
   
+  // ★追加: メール収集用ステート
+  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
+  
   const messagesEndRef = useRef(null);
   
   useEffect(() => {
@@ -129,7 +131,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
 
   useEffect(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatHistory, isTyping, currentStep, feedback]);
+  }, [chatHistory, isTyping, currentStep, feedback, showEmailForm]);
 
   useEffect(() => {
       if (playableQuestions && currentStep === 0 && chatHistory.length === 0 && quiz.layout === 'chat') {
@@ -142,6 +144,23 @@ const QuizPlayer = ({ quiz, onBack }) => {
   }, [playableQuestions, quiz.layout]);
 
   const results = typeof quiz.results === 'string' ? JSON.parse(quiz.results) : quiz.results;
+
+  // 結果表示の直前にメールフォームを挟むロジック
+  const showResultOrEmail = (finalAnswers) => {
+      // メール収集がONで、まだ表示していない場合
+      if (quiz.collect_email && !showEmailForm) {
+          setShowEmailForm(true);
+          // チャットモードならフォーム表示用メッセージを追加
+          if (quiz.layout === 'chat') {
+              setTimeout(() => {
+                  setChatHistory(prev => [...prev, { type: 'bot', text: "診断結果が出ました！\n結果を受け取るメールアドレスを入力してください。" }]);
+              }, 500);
+          }
+      } else {
+          // 通常通り結果を表示
+          setResult(calculateResult(finalAnswers, results, quiz.mode));
+      }
+  };
 
   const proceedToNext = (newAnswers) => {
       setFeedback(null);
@@ -163,17 +182,17 @@ const QuizPlayer = ({ quiz, onBack }) => {
                   setIsTyping(false);
                   setChatHistory(prev => [...prev, { type: 'bot', text: "お疲れ様でした！\n結果を集計しています..." }]);
                   setTimeout(() => {
-                      setResult(calculateResult(newAnswers, results, quiz.mode));
+                      showResultOrEmail(newAnswers);
                   }, 2000);
               }, 1500);
           } else {
-              setResult(calculateResult(newAnswers, results, quiz.mode));
+              showResultOrEmail(newAnswers);
           }
       }
   };
 
   const handleAnswer = (option) => {
-    if (feedback) return;
+    if (feedback || showEmailForm) return;
 
     const newAnswers = { ...answers, [currentStep]: option };
     setAnswers(newAnswers);
@@ -193,13 +212,32 @@ const QuizPlayer = ({ quiz, onBack }) => {
     }
   };
 
+  const handleEmailSubmit = async (e) => {
+      e.preventDefault();
+      if(!email || !email.includes('@')) return alert('正しいメールアドレスを入力してください');
+      setEmailSubmitting(true);
+      
+      try {
+          if(supabase) {
+              await supabase.from('quiz_leads').insert([{ quiz_id: quiz.id, email: email }]);
+          }
+          setShowEmailForm(false);
+          setResult(calculateResult(answers, results, quiz.mode));
+      } catch(err) {
+          console.error(err);
+          alert('エラーが発生しました');
+      } finally {
+          setEmailSubmitting(false);
+      }
+  };
+
   if (!playableQuestions || !results) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-indigo-600" size={40}/></div>;
 
   if (result) { 
       return (
         <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
             <SEO title={`${result.title} | 結果`} description={result.description.substring(0, 100)} image={quiz.image_url} />
-            <ResultView quiz={quiz} result={result} onRetry={() => {setResult(null); setCurrentStep(0); setAnswers({}); setChatHistory([]);}} onBack={onBack} />
+            <ResultView quiz={quiz} result={result} onRetry={() => {setResult(null); setCurrentStep(0); setAnswers({}); setChatHistory([]); setShowEmailForm(false); setEmail('');}} onBack={onBack} />
         </div>
       ); 
   }
@@ -227,6 +265,36 @@ const QuizPlayer = ({ quiz, onBack }) => {
           </div>
       );
   };
+
+  // ★追加: メール入力フォーム (カード/チャット共通)
+  if (showEmailForm) {
+      return (
+          <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
+              <div className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-gray-100 animate-slide-up text-center">
+                  <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Mail size={32}/>
+                  </div>
+                  <h2 className="text-2xl font-extrabold text-gray-900 mb-2">診断完了！</h2>
+                  <p className="text-gray-500 mb-6 text-sm">結果を表示するために、<br/>メールアドレスを入力してください。</p>
+                  
+                  <form onSubmit={handleEmailSubmit} className="space-y-4">
+                      <input 
+                          type="email" 
+                          required
+                          placeholder="your@email.com" 
+                          className="w-full border-2 border-gray-200 p-4 rounded-xl text-lg font-bold outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-all text-center"
+                          value={email}
+                          onChange={e=>setEmail(e.target.value)}
+                      />
+                      <button type="submit" disabled={emailSubmitting} className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                          {emailSubmitting ? <Loader2 className="animate-spin"/> : "結果を見る"}
+                      </button>
+                  </form>
+                  <p className="text-[10px] text-gray-400 mt-4">※入力いただいたアドレスにメルマガをお送りする場合があります。</p>
+              </div>
+          </div>
+      );
+  }
 
   if (quiz.layout === 'chat') {
       return (
