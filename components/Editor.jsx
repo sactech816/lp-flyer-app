@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase';
 // --- プリセットデータ定義 ---
 const PRESETS = {
     business: [
-        { label: "選択してください", data: null },
+        { label: "ビジネス診断のクイズテンプレート", data: null },
         { 
             label: "起業家タイプ診断", 
             data: {
@@ -74,7 +74,7 @@ const PRESETS = {
         }
     ],
     education: [
-        { label: "選択してください", data: null },
+        { label: "学習テストのクイズテンプレート", data: null },
         { 
             label: "確定申告「経費」クイズ", 
             data: {
@@ -137,7 +137,7 @@ const PRESETS = {
         }
     ],
     fortune: [
-        { label: "選択してください", data: null },
+        { label: "占いのクイズテンプレート", data: null },
         { 
             label: "今日の「推し活」運勢", 
             data: {
@@ -305,7 +305,13 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
       const urlId = savedId || initialData?.slug || initialData?.id;
       const url = `${window.location.origin}?id=${urlId}`;
       navigator.clipboard.writeText(url); 
-      alert(`公開URLをコピーしました！\n${url}`); 
+      alert(`公開URLをクリップボードにコピーしました！\n\n${url}`); 
+  };
+
+  const resetToDefault = () => {
+      if(confirm('初期値に戻しますか？現在の入力内容は失われます。')) {
+          setForm(defaultForm);
+      }
   };
 
   const addQuestion = () => {
@@ -688,25 +694,33 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
 
                                     {/* ゼロから作成 */}
                                     <div className="border-2 border-gray-200 rounded-xl p-6 bg-white hover:border-indigo-300 transition-all">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-gray-100 p-3 rounded-lg">
-                                                    <Edit3 size={24} className="text-gray-600"/>
-                                                </div>
-                                                <div>
-                                                    <h5 className="font-bold text-gray-900">ゼロから作成</h5>
-                                                    <p className="text-xs text-gray-500">すべて自分で設定する</p>
-                                                </div>
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="bg-gray-100 p-3 rounded-lg">
+                                                <Edit3 size={24} className="text-gray-600"/>
                                             </div>
-                                            <button 
-                                                onClick={() => setCurrentStep(2)} 
-                                                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-bold text-sm transition-all shadow-md hover:shadow-lg"
-                                            >
-                                                次へ進む
-                                            </button>
+                                            <div>
+                                                <h5 className="font-bold text-gray-900">ゼロから作成（初期値に戻す）</h5>
+                                                <p className="text-xs text-gray-500">すべて自分で設定する</p>
+                                            </div>
                                         </div>
+                                        <button 
+                                            onClick={resetToDefault} 
+                                            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm transition-all border border-gray-300"
+                                        >
+                                            初期値に戻す
+                                        </button>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* 次へ進むボタン（枠外） */}
+                            <div className="flex justify-end pt-6 border-t">
+                                <button 
+                                    onClick={() => setCurrentStep(2)} 
+                                    className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                                >
+                                    次へ進む <ChevronDown size={18} className="rotate-[-90deg]"/>
+                                </button>
                             </div>
                         </div>
                     )}
@@ -830,35 +844,33 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                             <span>選択肢</span>
                                             <button onClick={()=>addOption(i)} className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 flex items-center gap-1"><Plus size={12}/> 追加</button>
                                         </div>
-                                        <div className="flex text-xs text-gray-400 px-2 mt-2">
-                                            <span className="flex-grow"></span>
-                                            {form.mode === 'test' ? <span className="w-16 text-center text-orange-500 font-bold">正解</span> 
-                                            : form.mode === 'fortune' ? <span className="w-16 text-center text-purple-500 font-bold">ランダム</span>
-                                            : <div className="flex gap-2 w-32 justify-end">
-                                                {form.results.map(r => (
-                                                    <span key={r.type} className="w-8 text-center">{r.type}</span>
-                                                ))}
-                                              </div>
-                                            }
-                                        </div>
                                         {q.options.map((o, j)=>(
-                                            <div key={j} className="flex items-center gap-2 bg-white p-2 rounded border border-gray-200">
-                                                <button onClick={()=>removeOption(i, j)} className="text-gray-300 hover:text-red-500"><Trash2 size={14}/></button>
-                                                <input className="flex-grow p-1 outline-none text-sm font-bold text-gray-900 placeholder-gray-400 min-w-0" value={o.label} onChange={e=>{const n=[...form.questions];n[i].options[j].label=e.target.value;setForm({...form, questions:n})}} placeholder={`選択肢${j+1}`} />
+                                            <div key={j} className="bg-white p-3 rounded border border-gray-200">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <button onClick={()=>removeOption(i, j)} className="text-gray-300 hover:text-red-500"><Trash2 size={14}/></button>
+                                                    <input className="flex-grow p-1 outline-none text-sm font-bold text-gray-900 placeholder-gray-400 min-w-0" value={o.label} onChange={e=>{const n=[...form.questions];n[i].options[j].label=e.target.value;setForm({...form, questions:n})}} placeholder={`選択肢${j+1}`} />
+                                                </div>
                                                 
                                                 {form.mode === 'test' ? (
-                                                    <div className="w-16 flex justify-center border-l pl-2">
+                                                    <div className="flex items-center gap-2 pl-6">
+                                                        <span className="text-xs text-orange-500 font-bold">正解:</span>
                                                         <button onClick={()=>setCorrectOption(i, j)} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${o.score.A === 1 ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-300 hover:bg-gray-200'}`}><CheckCircle size={16}/></button>
                                                     </div>
                                                 ) : form.mode === 'fortune' ? (
-                                                    <div className="w-16 flex justify-center border-l pl-2 text-gray-300"><Shuffle size={16}/></div>
+                                                    <div className="flex items-center gap-2 pl-6 text-gray-400">
+                                                        <Shuffle size={14}/> <span className="text-xs">ランダム表示</span>
+                                                    </div>
                                                 ) : (
-                                                    <div className="flex gap-2 border-l pl-2 justify-end">
-                                                        {form.results.map(r => (
-                                                            <div key={r.type} className="flex flex-col items-center">
-                                                                <input type="number" className="w-8 bg-gray-50 border border-gray-300 text-center text-xs rounded text-gray-900" value={o.score[r.type] || 0} onChange={e=>{const n=[...form.questions];n[i].options[j].score[r.type]=e.target.value;setForm({...form, questions:n})}} />
-                                                            </div>
-                                                        ))}
+                                                    <div className="pl-6 pt-2 border-t border-gray-100">
+                                                        <div className="text-xs text-gray-500 mb-2 font-bold">スコア配分:</div>
+                                                        <div className={`grid gap-2 ${form.results.length <= 3 ? 'grid-cols-3' : form.results.length <= 5 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+                                                            {form.results.map(r => (
+                                                                <div key={r.type} className="flex items-center gap-1">
+                                                                    <span className="text-xs font-bold text-gray-600 w-5">{r.type}:</span>
+                                                                    <input type="number" className="flex-1 bg-gray-50 border border-gray-300 text-center text-xs rounded text-gray-900 py-1 px-1" value={o.score[r.type] || 0} onChange={e=>{const n=[...form.questions];n[i].options[j].score[r.type]=e.target.value;setForm({...form, questions:n})}} />
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 )}
                                             </div>
