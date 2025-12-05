@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// ★修正: MessageCircle を追加しました
 import { 
     ArrowLeft, CheckCircle, ChevronDown, ChevronUp, 
     Briefcase, GraduationCap, Sparkles, TrendingUp, 
@@ -11,12 +10,7 @@ import {
 import Header from './Header';
 import SEO from './SEO';
 
-// ... (以下、中身のコードはそのままでOKですが、一番確実なのは前回のコードの先頭 import 部分だけを上記に書き換えることです)
-// ※ファイル全体を貼り付けると非常に長くなるため、今回は「import部分の修正」だけで確実に直ります。
-// ↓ もしコピペ用として中身が必要であれば、前回のコードの import 部分だけを上記に差し替えてご使用ください。
-
-// ... (EffectiveUsePage, QuizLogicPage, HowToPage... などのコンポーネントは変更なし)
-// --- 1. Effective Use Page ---
+// --- Effective Use Page ---
 export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { document.title = "効果的な使い方・メリット | 診断クイズメーカー"; }, []);
     
@@ -60,7 +54,7 @@ export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth,
     );
 };
 
-// --- 2. Quiz Logic Page ---
+// --- Quiz Logic Page ---
 export const QuizLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { document.title = "バズる診断の作り方 | 診断クイズメーカー"; }, []);
     
@@ -102,7 +96,7 @@ export const QuizLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, is
     );
 };
 
-// --- 3. HowTo Page ---
+// --- HowTo Page ---
 export const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { document.title = "使い方・機能一覧 | 診断クイズメーカー"; }, []);
     return (
@@ -117,7 +111,8 @@ export const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
                         <div className="flex items-center gap-2 mb-4 text-gray-700 font-bold text-xl">
                             <Unlock size={24} className="text-blue-500"/> 基本機能 (無料)
                         </div>
-                        <ul className="space-y-4 text-sm">
+                        {/* ★修正: 文字色を濃く修正 */}
+                        <ul className="space-y-4 text-sm text-gray-800">
                             <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><Zap size={16}/></span><span><strong>3つの作成モード:</strong> ビジネス診断 / 学習テスト / 占い</span></li>
                             <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><Sparkles size={16}/></span><span><strong>AI自動生成:</strong> テーマを入れるだけで全自動作成</span></li>
                             <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><ImageIcon size={16}/></span><span><strong>画像機能:</strong> アップロード / 自動画像設定</span></li>
@@ -132,7 +127,8 @@ export const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
                             <Lock size={24} className="text-orange-500"/> Pro機能 (寄付で開放)
                         </div>
                         <p className="text-xs text-indigo-700 mb-4">※クイズごとに任意の金額(500円〜)を寄付いただくと開放されます。</p>
-                        <ul className="space-y-4 text-sm">
+                        {/* ★修正: 文字色を濃く修正 */}
+                        <ul className="space-y-4 text-sm text-gray-800">
                             <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Download size={16}/></span><span><strong>HTML書き出し:</strong> 自社サーバーに設置可能なファイルをDL</span></li>
                             <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Code size={16}/></span><span><strong>埋め込みタグ発行:</strong> ブログやHPに診断を埋め込み</span></li>
                             <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><FileText size={16}/></span><span><strong>リストCSV出力:</strong> 獲得したメールアドレスを一括DL</span></li>

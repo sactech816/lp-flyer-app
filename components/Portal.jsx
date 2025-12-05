@@ -2,27 +2,36 @@ import React, { useState } from 'react';
 import { 
     Search, Zap, TrendingUp, MessageCircle, 
     Sparkles, ArrowRight, Play, CheckCircle,
-    ChevronLeft, ChevronRight // ★追加: ページ送り用アイコン
+    ChevronLeft, ChevronRight, Heart // ★Heart追加
 } from 'lucide-react';
 import Header from './Header'; 
+import { supabase } from '../lib/supabase'; // ★いいね用に追加
 
 const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCreate, setPage, isAdmin }) => {
     
     const [filter, setFilter] = useState('All');
-    const [currentPage, setCurrentPage] = useState(1); // ★追加: 現在のページ番号
-    const ITEMS_PER_PAGE = 9; // ★追加: 1ページに表示する数（9個＝3列×3行）
+    const [sortOrder, setSortOrder] = useState('newest'); // ★追加: ソート状態
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 9;
 
-    // フィルタリング
+    // カテゴリで絞り込み
     const filteredQuizzes = filter === 'All' ? quizzes : quizzes.filter(q => q.category === filter);
 
-    // ★追加: ページネーション計算
-    const totalPages = Math.ceil(filteredQuizzes.length / ITEMS_PER_PAGE);
-    const displayQuizzes = filteredQuizzes.slice(
+    // ★追加: ソート処理
+    const sortedQuizzes = [...filteredQuizzes].sort((a, b) => {
+        if (sortOrder === 'popular') {
+            return (b.views_count || 0) - (a.views_count || 0); // PV順
+        }
+        return new Date(b.created_at) - new Date(a.created_at); // 新着順
+    });
+
+    // ページネーション
+    const totalPages = Math.ceil(sortedQuizzes.length / ITEMS_PER_PAGE);
+    const displayQuizzes = sortedQuizzes.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
 
-    // カテゴリ切り替え時にページをリセットする処理
     const handleFilterChange = (cat) => {
         setFilter(cat);
         setCurrentPage(1);
@@ -30,18 +39,26 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
-        // ページ上部へスクロール（任意）
         const el = document.getElementById('quiz-list-top');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
     };
 
+    // ★追加: いいね処理
+    const handleLike = async (e, quizId) => {
+        e.stopPropagation(); // カードクリック(onPlay)を阻止
+        if(supabase) {
+            await supabase.rpc('increment_likes', { row_id: quizId });
+            // ※簡易的にリロードせずUI更新はしないが、次回ロード時に増える
+            // 本格実装ならここでローカルの数値を+1する
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white font-sans flex flex-col">
-            {/* ヘッダー */}
             <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
 
             <div className="flex-grow">
-                {/* ヒーローセクション */}
+                {/* ヒーロー */}
                 <div className="bg-gradient-to-br from-indigo-900 via-purple-800 to-indigo-900 text-white pt-20 pb-24 px-4 relative overflow-hidden">
                     <div className="absolute inset-0 opacity-10" style={{backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
                     <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -67,27 +84,35 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                     </div>
                 </div>
 
-                {/* クイズ一覧セクション */}
+                {/* クイズ一覧 */}
                 <div id="quiz-list-top" className="max-w-6xl mx-auto py-16 px-4">
                     <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4 border-b border-gray-100 pb-4">
                         <div>
                             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                                <Zap className="text-yellow-500"/> 新着の診断クイズ
+                                <Zap className="text-yellow-500"/> 診断クイズ一覧
                             </h2>
-                            <p className="text-gray-500 text-sm mt-1">作成されたばかりのコンテンツをチェックしましょう</p>
+                            <p className="text-gray-500 text-sm mt-1">気になる診断をプレイしてみましょう</p>
                         </div>
                         
-                        {/* タブ切り替え */}
-                        <div className="flex bg-gray-100 p-1 rounded-lg">
-                            {['All', 'Business', 'Education', 'Fortune'].map(cat => (
-                                <button 
-                                    key={cat}
-                                    onClick={()=>handleFilterChange(cat)}
-                                    className={`px-4 py-2 rounded-md text-xs font-bold transition-all ${filter===cat ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                                >
-                                    {cat === 'All' ? 'すべて' : cat === 'Business' ? 'ビジネス' : cat === 'Education' ? '学習・検定' : '占い'}
-                                </button>
-                            ))}
+                        <div className="flex gap-4 items-center">
+                            {/* ★追加: ソートタブ */}
+                            <div className="flex bg-gray-100 p-1 rounded-lg">
+                                <button onClick={()=>setSortOrder('newest')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${sortOrder==='newest' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>新着順</button>
+                                <button onClick={()=>setSortOrder('popular')} className={`px-3 py-1.5 rounded text-xs font-bold transition-all ${sortOrder==='popular' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500'}`}>人気順</button>
+                            </div>
+
+                            {/* カテゴリタブ */}
+                            <div className="flex bg-gray-100 p-1 rounded-lg overflow-x-auto max-w-[200px] md:max-w-none">
+                                {['All', 'Business', 'Education', 'Fortune'].map(cat => (
+                                    <button 
+                                        key={cat}
+                                        onClick={()=>handleFilterChange(cat)}
+                                        className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all whitespace-nowrap ${filter===cat ? 'bg-white text-indigo-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        {cat === 'All' ? 'すべて' : cat === 'Business' ? 'ビジネス' : cat === 'Education' ? '学習' : '占い'}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 
@@ -98,7 +123,6 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                     ) : (
                         <>
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {/* ★修正: displayQuizzes (ページ分割後のデータ) を表示 */}
                                 {displayQuizzes.length > 0 ? displayQuizzes.map(quiz => (
                                     <div key={quiz.id} onClick={()=>onPlay(quiz)} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all cursor-pointer group overflow-hidden flex flex-col h-full transform hover:-translate-y-1">
                                         <div className={`h-40 w-full relative overflow-hidden ${quiz.color || 'bg-indigo-600'}`}>
@@ -115,16 +139,22 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                                             </div>
                                         </div>
                                         <div className="p-6 flex flex-col flex-grow">
-                                            <div className="mb-2 flex items-center gap-2">
-                                                <span className={`text-[10px] font-bold px-2 py-1 rounded ${
-                                                    quiz.mode === 'test' ? 'bg-orange-100 text-orange-600' : 
-                                                    quiz.mode === 'fortune' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'
-                                                }`}>
-                                                    {quiz.mode === 'test' ? '検定' : quiz.mode === 'fortune' ? '占い' : '診断'}
-                                                </span>
-                                                <span className="text-[10px] text-gray-400 flex items-center gap-1">
-                                                    <Play size={10}/> {quiz.views_count||0}
-                                                </span>
+                                            <div className="mb-2 flex items-center justify-between">
+                                                <div className="flex gap-2">
+                                                    <span className={`text-[10px] font-bold px-2 py-1 rounded ${
+                                                        quiz.mode === 'test' ? 'bg-orange-100 text-orange-600' : 
+                                                        quiz.mode === 'fortune' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'
+                                                    }`}>
+                                                        {quiz.mode === 'test' ? '検定' : quiz.mode === 'fortune' ? '占い' : '診断'}
+                                                    </span>
+                                                    <span className="text-[10px] text-gray-400 flex items-center gap-1">
+                                                        <Play size={10}/> {quiz.views_count||0}
+                                                    </span>
+                                                </div>
+                                                {/* ★追加: いいねボタン */}
+                                                <button onClick={(e)=>handleLike(e, quiz.id)} className="text-gray-300 hover:text-pink-500 flex items-center gap-1 text-xs font-bold transition-colors">
+                                                    <Heart size={14} className={quiz.likes_count > 0 ? "fill-pink-500 text-pink-500" : ""}/> {quiz.likes_count||0}
+                                                </button>
                                             </div>
                                             <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-2 group-hover:text-indigo-600 transition-colors">{quiz.title}</h3>
                                             <p className="text-gray-500 text-xs line-clamp-3 mb-4 leading-relaxed">{quiz.description}</p>
@@ -142,7 +172,6 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                                 )}
                             </div>
 
-                            {/* ★追加: ページネーションボタン */}
                             {totalPages > 1 && (
                                 <div className="flex justify-center items-center gap-6 mt-12">
                                     <button 
@@ -171,10 +200,8 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                 </div>
             </div>
 
-            {/* フッター */}
             <footer className="bg-gray-900 text-gray-400 py-12 mt-12 border-t border-gray-800">
                 <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-8">
-                    {/* カラム1 */}
                     <div className="col-span-1 md:col-span-2">
                         <h2 className="text-white font-bold text-xl mb-4 flex items-center gap-2">
                             <Sparkles className="text-pink-500"/> 診断クイズメーカー
@@ -189,7 +216,6 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                         </button>
                     </div>
 
-                    {/* カラム2 */}
                     <div>
                         <h3 className="text-white font-bold mb-4 border-b border-gray-700 pb-2 inline-block">メニュー</h3>
                         <ul className="space-y-3 text-sm">
@@ -200,7 +226,6 @@ const Portal = ({ quizzes, isLoading, user, setShowAuth, onLogout, onPlay, onCre
                         </ul>
                     </div>
 
-                    {/* カラム3 */}
                     <div>
                         <h3 className="text-white font-bold mb-4 border-b border-gray-700 pb-2 inline-block">サポート・規約</h3>
                         <ul className="space-y-3 text-sm">
