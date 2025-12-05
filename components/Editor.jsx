@@ -3,7 +3,7 @@ import {
     Edit3, MessageSquare, Trophy, Loader2, Save, Share2, 
     Sparkles, Wand2, BookOpen, Image as ImageIcon, 
     Layout, MessageCircle, ArrowLeft, Briefcase, GraduationCap, 
-    CheckCircle, Shuffle, Plus, Trash2, X, Link, QrCode, UploadCloud, Mail, FileText, ChevronDown, RefreshCw
+    CheckCircle, Shuffle, Plus, Trash2, X, Link, QrCode, UploadCloud, Mail, FileText, ChevronDown, RefreshCw, Eye
 } from 'lucide-react';
 import { generateSlug } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -235,6 +235,8 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [regenerateSlug, setRegenerateSlug] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
 
   const STEPS = [
       { id: 1, icon: Sparkles, label: 'クイズの種類', description: 'テンプレートまたはAI生成' },
@@ -441,6 +443,81 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans text-gray-900">
+        {/* プレビューモーダル */}
+        {showPreview && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4" onClick={() => setShowPreview(false)}>
+                <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                    <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
+                        <h3 className="font-bold text-lg flex items-center gap-2">
+                            <Eye size={20} className="text-purple-600"/> プレビュー
+                        </h3>
+                        <button onClick={() => setShowPreview(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                            <X size={20}/>
+                        </button>
+                    </div>
+                    
+                    <div className="p-6">
+                        {/* タイトル・説明 */}
+                        <div className="mb-6">
+                            {form.image_url && (
+                                <img src={form.image_url} alt="" className="w-full h-48 object-cover rounded-xl mb-4"/>
+                            )}
+                            <h2 className="text-2xl font-bold mb-2">{form.title || '（タイトル未設定）'}</h2>
+                            <p className="text-gray-600">{form.description || '（説明文未設定）'}</p>
+                        </div>
+
+                        {/* 質問プレビュー */}
+                        {form.questions.length > 0 && (
+                            <div className="bg-gray-50 p-6 rounded-xl">
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="text-sm text-gray-500">
+                                        質問 {previewQuestionIndex + 1} / {form.questions.length}
+                                    </span>
+                                </div>
+                                <h3 className="font-bold text-lg mb-4">{form.questions[previewQuestionIndex]?.text}</h3>
+                                <div className="space-y-2">
+                                    {form.questions[previewQuestionIndex]?.options.map((opt, i) => (
+                                        <button key={i} className="w-full p-4 bg-white border-2 border-gray-200 rounded-lg text-left hover:border-indigo-500 transition-all">
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <div className="flex gap-2 mt-4">
+                                    <button 
+                                        onClick={() => setPreviewQuestionIndex(Math.max(0, previewQuestionIndex - 1))}
+                                        disabled={previewQuestionIndex === 0}
+                                        className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+                                    >
+                                        前へ
+                                    </button>
+                                    <button 
+                                        onClick={() => setPreviewQuestionIndex(Math.min(form.questions.length - 1, previewQuestionIndex + 1))}
+                                        disabled={previewQuestionIndex === form.questions.length - 1}
+                                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg disabled:opacity-50"
+                                    >
+                                        次へ
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 結果プレビュー */}
+                        <div className="mt-6">
+                            <h4 className="font-bold mb-3">結果パターン</h4>
+                            <div className="space-y-3">
+                                {form.results.map((r, i) => (
+                                    <div key={i} className="bg-gray-50 p-4 rounded-lg">
+                                        <div className="font-bold text-indigo-600 mb-1">{r.title}</div>
+                                        <div className="text-sm text-gray-600">{r.description}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+
         {/* ヘッダー */}
         <div className="bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-50 shadow-sm">
             <div className="flex items-center gap-3">
@@ -456,6 +533,9 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 </span>
             </div>
             <div className="flex gap-2">
+                <button onClick={() => setShowPreview(!showPreview)} className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-purple-100 whitespace-nowrap transition-all">
+                    <Eye size={18}/> <span className="hidden md:inline">プレビュー</span>
+                </button>
                 {(savedId || initialData?.slug || initialData?.id) && (
                     <button onClick={() => handlePublish(savedId || initialData?.slug || initialData?.id)} className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 animate-pulse whitespace-nowrap">
                         <Share2 size={18}/> <span className="hidden md:inline">公開URL</span>
@@ -463,14 +543,20 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                 )}
                 <button onClick={async ()=>{
                         setIsSaving(true); 
-                        const payload = {
-                            title: form.title, description: form.description, category: form.category, color: form.color,
-                            questions: form.questions, results: form.results, 
-                            user_id: user?.id || null, layout: form.layout || 'card', image_url: form.image_url || null, mode: form.mode || 'diagnosis',
+                        const saveData = {
+                            title: form.title, 
+                            description: form.description, 
+                            category: form.category, 
+                            color: form.color,
+                            questions: form.questions, 
+                            results: form.results, 
+                            layout: form.layout || 'card', 
+                            image_url: form.image_url || null, 
+                            mode: form.mode || 'diagnosis',
                             collect_email: form.collect_email || false,
                             regenerateSlug: regenerateSlug
                         };
-                        const returnedId = await onSave(payload, savedId || initialData?.id);
+                        const returnedId = await onSave(saveData, savedId || initialData?.id);
                         if(returnedId) setSavedId(returnedId); 
                         setIsSaving(false);
                     }} disabled={isSaving} className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all whitespace-nowrap">
@@ -864,13 +950,13 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                                         <Shuffle size={14}/> <span className="text-xs">ランダム表示</span>
                                                     </div>
                                                 ) : (
-                                                    <div className="pl-6 pt-2 border-t border-gray-100">
+                                                    <div className="pl-6 pt-2 border-t border-gray-100 mt-2">
                                                         <div className="text-xs text-gray-500 mb-2 font-bold">スコア配分:</div>
-                                                        <div className={`grid gap-2 ${form.results.length <= 3 ? 'grid-cols-3' : form.results.length <= 5 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+                                                        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                                                             {form.results.map(r => (
-                                                                <div key={r.type} className="flex items-center gap-1">
-                                                                    <span className="text-xs font-bold text-gray-600 w-5">{r.type}:</span>
-                                                                    <input type="number" className="flex-1 bg-gray-50 border border-gray-300 text-center text-xs rounded text-gray-900 py-1 px-1" value={o.score[r.type] || 0} onChange={e=>{const n=[...form.questions];n[i].options[j].score[r.type]=e.target.value;setForm({...form, questions:n})}} />
+                                                                <div key={r.type} className="flex items-center gap-1 bg-gray-50 p-1.5 rounded">
+                                                                    <span className="text-xs font-bold text-gray-700 min-w-[20px]">{r.type}:</span>
+                                                                    <input type="number" className="flex-1 min-w-0 bg-white border border-gray-300 text-center text-xs rounded text-gray-900 py-1 px-1 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" value={o.score[r.type] || 0} onChange={e=>{const n=[...form.questions];n[i].options[j].score[r.type]=e.target.value;setForm({...form, questions:n})}} />
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -912,9 +998,11 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                             </div>
                             {form.results.map((r, i)=>(
                                 <div key={i} className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative overflow-hidden group">
-                                    <button onClick={()=>removeResult(i)} className="absolute top-2 right-2 text-gray-300 hover:text-red-500 p-1 z-10"><Trash2 size={16}/></button>
-                                    <div className="absolute top-0 right-0 bg-gray-200 text-gray-600 px-3 py-1 rounded-bl-lg font-bold text-xs pointer-events-none">
-                                        {form.mode === 'test' ? `ランク ${i+1}` : `パターン ${r.type}`}
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg font-bold text-sm">
+                                            {form.mode === 'test' ? `ランク ${i+1}` : `パターン ${r.type}`}
+                                        </div>
+                                        <button onClick={()=>removeResult(i)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"><Trash2 size={18}/></button>
                                     </div>
                                     <Input label="タイトル" val={r.title} onChange={v=>{const n=[...form.results];n[i].title=v;setForm({...form, results:n})}} />
                                     <Textarea label="結果の説明文" val={r.description} onChange={v=>{const n=[...form.results];n[i].description=v;setForm({...form, results:n})}}/>
@@ -945,14 +1033,20 @@ const Editor = ({ onBack, onSave, initialData, setPage, user }) => {
                                 <button 
                                     onClick={async ()=>{
                                         setIsSaving(true); 
-                                        const payload = {
-                                            title: form.title, description: form.description, category: form.category, color: form.color,
-                                            questions: form.questions, results: form.results, 
-                                            user_id: user?.id || null, layout: form.layout || 'card', image_url: form.image_url || null, mode: form.mode || 'diagnosis',
+                                        const saveData = {
+                                            title: form.title, 
+                                            description: form.description, 
+                                            category: form.category, 
+                                            color: form.color,
+                                            questions: form.questions, 
+                                            results: form.results, 
+                                            layout: form.layout || 'card', 
+                                            image_url: form.image_url || null, 
+                                            mode: form.mode || 'diagnosis',
                                             collect_email: form.collect_email || false,
                                             regenerateSlug: regenerateSlug
                                         };
-                                        const returnedId = await onSave(payload, savedId || initialData?.id);
+                                        const returnedId = await onSave(saveData, savedId || initialData?.id);
                                         if(returnedId) {
                                             setSavedId(returnedId);
                                             handlePublish(returnedId);
