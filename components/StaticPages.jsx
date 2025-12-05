@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, CheckCircle, ChevronDown, ChevronUp, Briefcase, GraduationCap, Sparkles, TrendingUp, Share2, Search, Megaphone } from 'lucide-react';
+// ★修正: 必要なアイコンをすべてここに追加しました
+import { 
+    ArrowLeft, CheckCircle, ChevronDown, ChevronUp, 
+    Briefcase, GraduationCap, Sparkles, TrendingUp, 
+    Share2, Search, Megaphone, Lightbulb, Target, Heart 
+} from 'lucide-react';
 import Header from './Header';
 import SEO from './SEO';
 
-// --- Effective Use Page (New!) ---
+// --- Effective Use Page ---
 export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { document.title = "効果的な使い方・メリット | 診断クイズメーカー"; }, []);
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
             
-            {/* Hero */}
             <div className="bg-indigo-900 text-white py-16 px-6 text-center">
                 <h1 className="text-3xl font-extrabold mb-4">作って終わりじゃない！<br/>診断クイズの<span className="text-yellow-300">効果的な活用法</span></h1>
                 <p className="text-indigo-200 max-w-xl mx-auto">
@@ -22,7 +26,6 @@ export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth,
             <div className="max-w-4xl mx-auto py-12 px-4 space-y-12">
                 <button onClick={onBack} className="flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600 mb-4"><ArrowLeft size={16}/> 戻る</button>
 
-                {/* Section 1: SNS */}
                 <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-8 items-center">
                     <div className="flex-shrink-0 bg-blue-100 p-6 rounded-full text-blue-600">
                         <Share2 size={40}/>
@@ -38,7 +41,6 @@ export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth,
                     </div>
                 </section>
 
-                {/* Section 2: SEO & AI */}
                 <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-8 items-center">
                     <div className="flex-shrink-0 bg-purple-100 p-6 rounded-full text-purple-600">
                         <Search size={40}/>
@@ -54,7 +56,6 @@ export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth,
                     </div>
                 </section>
 
-                {/* Section 3: Business */}
                 <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-8 items-center">
                     <div className="flex-shrink-0 bg-green-100 p-6 rounded-full text-green-600">
                         <Megaphone size={40}/>
@@ -71,8 +72,76 @@ export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth,
                 </section>
 
                 <div className="text-center pt-8">
-                    <button onClick={()=>setPage('portal')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">
+                    <button onClick={()=>setPage('editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">
                         さっそく診断を作ってみる
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- Quiz Logic Page ---
+export const QuizLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
+    useEffect(() => { document.title = "バズる診断の作り方 | 診断クイズメーカー"; }, []);
+    return (
+        <div className="min-h-screen bg-gray-50 font-sans">
+            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
+            
+            <div className="bg-orange-500 text-white py-16 px-6 text-center">
+                <h1 className="text-3xl font-extrabold mb-4">思わずシェアしたくなる！<br/><span className="text-yellow-200">「売れる診断」</span>の鉄板ロジック</h1>
+                <p className="text-orange-100 max-w-xl mx-auto">
+                    診断クイズは「適当」に作っても効果が出ません。<br/>
+                    人が動く心理トリガーを押さえた構成の作り方を伝授します。
+                </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto py-12 px-4 space-y-12">
+                <button onClick={onBack} className="flex items-center gap-1 text-gray-500 font-bold hover:text-orange-600 mb-4"><ArrowLeft size={16}/> 戻る</button>
+
+                {/* Logic 1: Target */}
+                <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-orange-100 p-3 rounded-full text-orange-600"><Target size={32}/></div>
+                        <h2 className="text-2xl font-bold text-gray-900">1. 「誰の・どんな不安」を解消するか決める</h2>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed mb-6">
+                        人は「自分のこと」にしか興味がありません。「あなたの○○度診断」よりも、「【起業で失敗したくない人へ】あなたの社長適性診断」のように、<strong>ターゲットとベネフィット（不安解消）</strong>を明確にしましょう。
+                    </p>
+                    <div className="bg-gray-50 p-4 rounded-xl space-y-2 text-sm">
+                        <p className="font-bold text-gray-500">❌ 悪い例</p>
+                        <p className="text-gray-800">・マーケティング診断</p>
+                        <p className="font-bold text-gray-500 mt-3">⭕ 良い例</p>
+                        <p className="text-gray-800 font-bold">・集客に疲れた個人事業主のための「自動化レベル」診断</p>
+                    </div>
+                </section>
+
+                {/* Logic 2: Barnum Effect */}
+                <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-pink-100 p-3 rounded-full text-pink-600"><Heart size={32}/></div>
+                        <h2 className="text-2xl font-bold text-gray-900">2. 「バーナム効果」で信頼させる</h2>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed mb-6">
+                        誰にでも当てはまることを「自分のことだ！」と思わせる心理テクニックです。結果ページでは、断定的な表現ではなく、<strong>「一見○○ですが、実は××な一面も持っています」</strong>という多面的な褒め方をすると、納得感とシェア率が高まります。
+                    </p>
+                </section>
+
+                {/* Logic 3: CTA */}
+                <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="bg-green-100 p-3 rounded-full text-green-600"><Megaphone size={32}/></div>
+                        <h2 className="text-2xl font-bold text-gray-900">3. 最後に「次のアクション」を提示する</h2>
+                    </div>
+                    <p className="text-gray-600 leading-relaxed mb-6">
+                        診断結果を見て「へー、面白かった」で終わらせてはいけません。<br/>
+                        診断結果の問題点を解決するための<strong>「具体的な解決策（商品・LINE登録）」</strong>をボタンとして設置しましょう。診断で信頼関係ができているので、クリック率が高くなります。
+                    </p>
+                </section>
+
+                <div className="text-center pt-8">
+                    <button onClick={()=>setPage('editor')} className="bg-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-orange-600 transition-all transform hover:scale-105">
+                        このロジックで作成する
                     </button>
                 </div>
             </div>
@@ -196,74 +265,6 @@ export const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
                             <li><strong>免責事項:</strong> 本ツールの利用によって生じたいかなる損害についても、提供者は一切の責任を負いません。</li>
                         </ul>
                     </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// --- Quiz Logic Page (New!) ---
-export const QuizLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "バズる診断の作り方 | 診断クイズメーカー"; }, []);
-    return (
-        <div className="min-h-screen bg-gray-50 font-sans">
-            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
-            
-            <div className="bg-orange-500 text-white py-16 px-6 text-center">
-                <h1 className="text-3xl font-extrabold mb-4">思わずシェアしたくなる！<br/><span className="text-yellow-200">「売れる診断」</span>の鉄板ロジック</h1>
-                <p className="text-orange-100 max-w-xl mx-auto">
-                    診断クイズは「適当」に作っても効果が出ません。<br/>
-                    人が動く心理トリガーを押さえた構成の作り方を伝授します。
-                </p>
-            </div>
-
-            <div className="max-w-4xl mx-auto py-12 px-4 space-y-12">
-                <button onClick={onBack} className="flex items-center gap-1 text-gray-500 font-bold hover:text-orange-600 mb-4"><ArrowLeft size={16}/> 戻る</button>
-
-                {/* Logic 1: Target */}
-                <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="bg-orange-100 p-3 rounded-full text-orange-600"><Target size={32}/></div>
-                        <h2 className="text-2xl font-bold text-gray-900">1. 「誰の・どんな不安」を解消するか決める</h2>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed mb-6">
-                        人は「自分のこと」にしか興味がありません。「あなたの○○度診断」よりも、「【起業で失敗したくない人へ】あなたの社長適性診断」のように、<strong>ターゲットとベネフィット（不安解消）</strong>を明確にしましょう。
-                    </p>
-                    <div className="bg-gray-50 p-4 rounded-xl space-y-2 text-sm">
-                        <p className="font-bold text-gray-500">❌ 悪い例</p>
-                        <p className="text-gray-800">・マーケティング診断</p>
-                        <p className="font-bold text-gray-500 mt-3">⭕ 良い例</p>
-                        <p className="text-gray-800 font-bold">・集客に疲れた個人事業主のための「自動化レベル」診断</p>
-                    </div>
-                </section>
-
-                {/* Logic 2: Barnum Effect */}
-                <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="bg-pink-100 p-3 rounded-full text-pink-600"><Heart size={32}/></div>
-                        <h2 className="text-2xl font-bold text-gray-900">2. 「バーナム効果」で信頼させる</h2>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed mb-6">
-                        誰にでも当てはまることを「自分のことだ！」と思わせる心理テクニックです。結果ページでは、断定的な表現ではなく、<strong>「一見○○ですが、実は××な一面も持っています」</strong>という多面的な褒め方をすると、納得感とシェア率が高まります。
-                    </p>
-                </section>
-
-                {/* Logic 3: CTA */}
-                <section className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-                    <div className="flex items-center gap-4 mb-4">
-                        <div className="bg-green-100 p-3 rounded-full text-green-600"><Megaphone size={32}/></div>
-                        <h2 className="text-2xl font-bold text-gray-900">3. 最後に「次のアクション」を提示する</h2>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed mb-6">
-                        診断結果を見て「へー、面白かった」で終わらせてはいけません。<br/>
-                        診断結果の問題点を解決するための<strong>「具体的な解決策（商品・LINE登録）」</strong>をボタンとして設置しましょう。診断で信頼関係ができているので、クリック率が高くなります。
-                    </p>
-                </section>
-
-                <div className="text-center pt-8">
-                    <button onClick={()=>setPage('editor')} className="bg-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-orange-600 transition-all transform hover:scale-105">
-                        このロジックで作成する
-                    </button>
                 </div>
             </div>
         </div>
