@@ -9,8 +9,11 @@ import { ADMIN_EMAIL } from '../lib/constants';
 import AuthModal from '../components/AuthModal';
 import Portal from '../components/Portal';
 import Dashboard from '../components/Dashboard';
+import ProfileDashboard from '../components/ProfileDashboard';
 import QuizPlayer from '../components/QuizPlayer';
 import Editor from '../components/Editor';
+import ProfileEditor from '../components/ProfileEditor';
+import LandingPage from '../components/LandingPage';
 import { 
     FaqPage, PricePage, HowToPage, 
     EffectiveUsePage, QuizLogicPage, 
@@ -22,6 +25,7 @@ const App = () => {
   const [view, setView] = useState('loading'); 
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [editingQuiz, setEditingQuiz] = useState(null);
+  const [editingProfileSlug, setEditingProfileSlug] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -81,8 +85,8 @@ const App = () => {
                   setView('portal');
               }
           } else {
-              // 何も指定がなければポータルへ
-              setView('portal');
+              // 何も指定がなければランディングページへ
+              setView('landing');
           }
           await fetchQuizzes();
       };
@@ -205,6 +209,16 @@ const App = () => {
         
         <AuthModal isOpen={showAuth} onClose={()=>setShowAuth(false)} setUser={setUser} />
         
+        {view === 'landing' && (
+            <LandingPage 
+                user={user}
+                setShowAuth={setShowAuth}
+                onNavigateToDashboard={() => {
+                    window.location.href = '/dashboard';
+                }}
+            />
+        )}
+        
         {view === 'portal' && (
             <Portal 
                 quizzes={quizzes} 
@@ -222,13 +236,23 @@ const App = () => {
         )}
         
         {view === 'dashboard' && (
-            <Dashboard 
+            <ProfileDashboard 
                 user={user} 
-                isAdmin={isAdmin} // 管理者権限を渡す
+                isAdmin={isAdmin}
                 setPage={(p) => navigateTo(p)} 
-                onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('portal');}} 
-                onEdit={(q)=>{setEditingQuiz(q); navigateTo('editor');}} 
-                onDelete={handleDelete} 
+                onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing');}} 
+                onEdit={(profile)=>{setEditingProfileSlug(profile.slug); navigateTo('profile-editor');}} 
+                onDelete={async (id) => {
+                    if(!confirm('本当に削除しますか？')) return;
+                    try {
+                        const { error } = await supabase.from('profiles').delete().eq('id', id);
+                        if(error) throw error;
+                        alert('削除しました');
+                    } catch(e) {
+                        alert('削除エラー: ' + e.message);
+                    }
+                }}
+                onCreate={(profile)=>{setEditingProfileSlug(profile.slug); navigateTo('profile-editor');}}
             />
         )}
         
@@ -264,6 +288,18 @@ const App = () => {
                 onBack={()=>{ navigateTo('portal'); setEditingQuiz(null);}} 
                 onSave={handleSave}
                 setShowAuth={setShowAuth}
+            />
+        )}
+        
+        {view === 'profile-editor' && (
+            <ProfileEditor 
+                user={user}
+                initialSlug={editingProfileSlug}
+                setShowAuth={setShowAuth}
+                onBack={()=>{ navigateTo('dashboard'); setEditingProfileSlug(null);}}
+                onSave={(data) => {
+                    console.log('プロフィール保存完了:', data);
+                }}
             />
         )}
     </div>

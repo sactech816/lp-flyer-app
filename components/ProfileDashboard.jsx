@@ -50,66 +50,15 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
         init();
     }, [user]);
 
-    // 新規プロフィール作成
-    const handleCreate = async () => {
-        if (!supabase || !user) {
-            alert('ログインが必要です');
-            return;
-        }
-
-        try {
-            const slug = generateSlug();
-            const defaultContent = [
-                {
-                    type: 'header',
-                    data: {
-                        avatarUrl: '',
-                        name: 'あなたの名前',
-                        tagline: 'キャッチコピーを入力してください'
-                    }
-                },
-                {
-                    type: 'glass_card_text',
-                    data: {
-                        title: 'メインメッセージのタイトル',
-                        text: 'ここにメインメッセージの本文を入力してください。\n改行も可能です。',
-                        alignment: 'center'
-                    }
-                },
-                {
-                    type: 'link_list',
-                    data: {
-                        links: [
-                            { label: 'note', url: 'https://note.com/example', style: '' },
-                            { label: 'X (旧Twitter)', url: 'https://x.com/example', style: '' }
-                        ]
-                    }
-                }
-            ];
-
-            const { data, error } = await supabase
-                .from('profiles')
-                .insert([{
-                    slug,
-                    content: defaultContent,
-                    user_id: user.id
-                }])
-                .select()
-                .single();
-
-            if (error) throw error;
-            
-            // エディタ画面へ遷移
-            if (onEdit && data) {
-                onEdit({ slug: data.slug });
-            } else if (onCreate) {
-                onCreate({ slug: data.slug });
-            }
-        } catch (error) {
-            console.error('プロフィール作成エラー:', error);
-            alert('プロフィールの作成に失敗しました: ' + error.message);
-        }
-    };
+  // 新規プロフィール作成
+  const handleCreate = () => {
+    // エディタ画面へ遷移（新規作成はエディタ側で処理）
+    if (onCreate) {
+      onCreate({});
+    } else if (setPage) {
+      setPage('dashboard/editor/new');
+    }
+  };
 
     // 公開URLのコピー
     const handleCopyUrl = (profile) => {
