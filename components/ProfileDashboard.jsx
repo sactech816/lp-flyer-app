@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { generateSlug } from '../lib/utils';
 import { generateProfileHTML } from '../lib/profileHtmlGenerator';
 import { migrateOldContent } from '../lib/types';
+import { getAnalytics } from '../app/actions/analytics';
 
 const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, onCreate }) => {
     useEffect(() => { 
@@ -42,6 +43,18 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
             setMyProfiles([]);
         } else {
             setMyProfiles(data || []);
+            
+            // 各プロフィールのアナリティクスを取得
+            const analyticsPromises = (data || []).map(async (profile) => {
+                const analyticsData = await getAnalytics(profile.id);
+                return { profileId: profile.id, analytics: analyticsData };
+            });
+            const analyticsResults = await Promise.all(analyticsPromises);
+            const analyticsMapObj = {};
+            analyticsResults.forEach(({ profileId, analytics }) => {
+                analyticsMapObj[profileId] = analytics;
+            });
+            setAnalyticsMap(analyticsMapObj);
         }
     };
 

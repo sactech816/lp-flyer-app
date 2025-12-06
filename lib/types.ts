@@ -10,7 +10,9 @@ export type Block =
   | { id: string; type: 'text_card'; data: { title: string; text: string; align: 'left' | 'center' } }
   | { id: string; type: 'image'; data: { url: string; caption?: string } }
   | { id: string; type: 'youtube'; data: { url: string } }
-  | { id: string; type: 'links'; data: { links: LinkItem[] } };
+  | { id: string; type: 'links'; data: { links: LinkItem[] } }
+  | { id: string; type: 'kindle'; data: { asin: string; imageUrl: string; title: string; description: string } }
+  | { id: string; type: 'lead_form'; data: { title: string; buttonText: string } };
 
 export interface Profile {
   id: string;
@@ -19,6 +21,11 @@ export interface Profile {
   user_id?: string;
   created_at?: string;
   updated_at?: string;
+  settings?: {
+    gtmId?: string;
+    fbPixelId?: string;
+    lineTagId?: string;
+  };
 }
 
 // ユーティリティ関数：一意のIDを生成

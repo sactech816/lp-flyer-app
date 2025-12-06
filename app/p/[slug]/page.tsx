@@ -3,11 +3,18 @@ import { supabase } from '@/lib/supabase';
 import type { Metadata } from 'next';
 import { Block, migrateOldContent } from '@/lib/types';
 import { BlockRenderer } from '@/components/BlockRenderer';
+import { ProfileViewTracker } from '@/components/ProfileViewTracker';
+import { TrackingScripts } from '@/components/TrackingScripts';
 
 interface Profile {
   id: string;
   slug: string;
   content: Block[];
+  settings?: {
+    gtmId?: string;
+    fbPixelId?: string;
+    lineTagId?: string;
+  };
 }
 
 // プロフィールデータを取得
@@ -16,7 +23,7 @@ async function getProfile(slug: string): Promise<Profile | null> {
   
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, slug, content, settings')
     .eq('slug', slug)
     .single();
 
@@ -69,22 +76,26 @@ export default async function ProfilePage({
   const migratedContent = migrateOldContent(profile.content);
 
   return (
-    <div className="container mx-auto max-w-lg p-4 md:p-8">
-      <div className="w-full space-y-6 md:space-y-8">
-        {migratedContent.map((block, index) => (
-          <div key={block.id || index} className={index > 0 ? `delay-${Math.min(index, 10)}` : ''}>
-            <BlockRenderer block={block} />
-          </div>
-        ))}
-        
-        {/* フッター */}
-        <footer className="text-center py-6 animate-fade-in delay-10">
-          <p className="text-sm text-white/90 drop-shadow-md">
-            &copy; {new Date().getFullYear()} All Rights Reserved.
-          </p>
-        </footer>
+    <>
+      <ProfileViewTracker profileId={profile.id} />
+      <TrackingScripts settings={profile.settings} />
+      <div className="container mx-auto max-w-lg p-4 md:p-8">
+        <div className="w-full space-y-6 md:space-y-8">
+          {migratedContent.map((block, index) => (
+            <div key={block.id || index} className={index > 0 ? `delay-${Math.min(index, 10)}` : ''}>
+              <BlockRenderer block={block} profileId={profile.id} />
+            </div>
+          ))}
+          
+          {/* フッター */}
+          <footer className="text-center py-6 animate-fade-in delay-10">
+            <p className="text-sm text-white/90 drop-shadow-md">
+              &copy; {new Date().getFullYear()} All Rights Reserved.
+            </p>
+          </footer>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -5,12 +5,14 @@ import {
     Edit3, Loader2, Save, Share2, ArrowLeft, Plus, Trash2, 
     X, Link, UploadCloud, Eye, User, FileText, GripVertical,
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
-    ChevronRight, Palette, Image as ImageIcon2
+    ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2
 } from 'lucide-react';
 import { generateSlug } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 import { Block, generateBlockId, migrateOldContent } from '../lib/types';
 import { BlockRenderer } from './BlockRenderer';
+import { getAnalytics } from '../app/actions/analytics';
+import { QRCodeSVG } from 'qrcode.react';
 
 // 入力コンポーネント
 const Input = ({label, val, onChange, ph, type = "text"}: {label: string; val: string; onChange: (v: string) => void; ph?: string; type?: string}) => (
@@ -66,6 +68,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
   const [hideLoginBanner, setHideLoginBanner] = useState(false);
+  const [settings, setSettings] = useState<{ gtmId?: string; fbPixelId?: string; lineTagId?: string }>({});
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [analytics, setAnalytics] = useState<{ views: number; clicks: number }>({ views: 0, clicks: 0 });
 
   // デフォルトのプロフィールコンテンツ
   const getDefaultContent = (): Block[] => [
@@ -123,11 +129,29 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
         if (error) throw error;
         
-        if (data && data.content) {
+        if (data) {
           // 後方互換性のため、旧形式のデータをマイグレーション
-          const migratedContent = migrateOldContent(data.content);
-          setBlocks(migratedContent);
+          if (data.content) {
+            const migratedContent = migrateOldContent(data.content);
+            setBlocks(migratedContent);
+          }
           setSavedSlug(data.slug);
+          
+          // テーマ設定を読み込む
+          if (data.theme) {
+            setTheme(data.theme);
+          }
+          
+          // 設定を読み込む
+          if (data.settings) {
+            setSettings(data.settings);
+          }
+          
+          // アナリティクスを取得
+          if (data.id) {
+            const analyticsData = await getAnalytics(data.id);
+            setAnalytics(analyticsData);
+          }
         }
       } catch (error) {
         console.error('プロフィール読み込みエラー:', error);
@@ -173,6 +197,24 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             id: generateBlockId(),
             type: 'links',
             data: { links: [] }
+          };
+        case 'kindle':
+          return {
+            id: generateBlockId(),
+            type: 'kindle',
+            data: { asin: '', imageUrl: '', title: '', description: '' }
+          };
+        case 'lead_form':
+          return {
+            id: generateBlockId(),
+            type: 'lead_form',
+            data: { title: 'メルマガ登録', buttonText: '登録する' }
+          };
+        default:
+          return {
+            id: generateBlockId(),
+            type: 'text_card',
+            data: { title: '', text: '', align: 'center' }
           };
       }
     })();
@@ -431,6 +473,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       if (error) throw error;
       
       setSavedSlug(slug);
+      
+      // アナリティクスを再取得
+      if (data?.id) {
+        const analyticsData = await getAnalytics(data.id);
+        setAnalytics(analyticsData);
+      }
+      
       alert('保存しました！');
       
       if (onSave) {
@@ -610,6 +659,52 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           </div>
         );
 
+      case 'kindle':
+        return (
+          <div className="space-y-4">
+            <Input label="ASINまたはAmazon URL" val={block.data.asin} onChange={v => updateBlock(block.id, { asin: v })} ph="例: B08XXXXXXX または https://amazon.co.jp/dp/B08XXXXXXX" />
+            <Input label="画像URL" val={block.data.imageUrl} onChange={v => updateBlock(block.id, { imageUrl: v })} ph="https://..." type="url" />
+            <Input label="タイトル" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} ph="書籍のタイトル" />
+            <Textarea label="説明" val={block.data.description} onChange={v => updateBlock(block.id, { description: v })} rows={4} ph="書籍の説明文" />
+            {block.data.imageUrl && (
+              <div className="mt-2">
+                <img src={block.data.imageUrl} alt="Preview" className="w-32 h-auto rounded-lg border border-gray-200" />
+              </div>
+            )}
+          </div>
+        );
+
+      case 'lead_form':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} ph="例: メルマガ登録" />
+            <Input label="ボタンテキスト" val={block.data.buttonText} onChange={v => updateBlock(block.id, { buttonText: v })} ph="例: 登録する" />
+          </div>
+        );
+
+      case 'kindle':
+        return (
+          <div className="space-y-4">
+            <Input label="ASINまたはAmazon URL" val={block.data.asin} onChange={v => updateBlock(block.id, { asin: v })} ph="例: B08XXXXXXX または https://amazon.co.jp/dp/B08XXXXXXX" />
+            <Input label="画像URL" val={block.data.imageUrl} onChange={v => updateBlock(block.id, { imageUrl: v })} ph="https://..." type="url" />
+            <Input label="タイトル" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} ph="書籍のタイトル" />
+            <Textarea label="説明" val={block.data.description} onChange={v => updateBlock(block.id, { description: v })} rows={4} ph="書籍の説明文" />
+            {block.data.imageUrl && (
+              <div className="mt-2">
+                <img src={block.data.imageUrl} alt="Preview" className="w-32 h-auto rounded-lg border border-gray-200" />
+              </div>
+            )}
+          </div>
+        );
+
+      case 'lead_form':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} ph="例: メルマガ登録" />
+            <Input label="ボタンテキスト" val={block.data.buttonText} onChange={v => updateBlock(block.id, { buttonText: v })} ph="例: 登録する" />
+          </div>
+        );
+
       default:
         return null;
     }
@@ -666,8 +761,36 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <h2 className="font-bold text-lg text-gray-900">
               {initialSlug ? 'プロフィール編集' : '新規プロフィール作成'}
             </h2>
+            {savedSlug && analytics.views > 0 && (
+              <div className="flex items-center gap-4 ml-4 text-sm text-gray-600">
+                <div className="flex items-center gap-1">
+                  <Eye size={14}/>
+                  <span className="font-bold">{analytics.views}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <BarChart2 size={14}/>
+                  <span className="font-bold">{analytics.clicks}</span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
+            {savedSlug && (
+              <>
+                <button 
+                  onClick={() => setShowQRModal(true)} 
+                  className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-100"
+                >
+                  <QrCode size={18}/> QRコード
+                </button>
+                <button 
+                  onClick={() => setShowSettingsModal(true)} 
+                  className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-gray-100"
+                >
+                  <Settings size={18}/> 設定
+                </button>
+              </>
+            )}
             <button 
               onClick={() => setShowPreview(!showPreview)} 
               className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-purple-100 transition-all"
@@ -803,6 +926,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <button onClick={() => addBlock('links')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
               <Link size={16}/> リンク集
             </button>
+            <button onClick={() => addBlock('kindle')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
+              <BookOpen size={16}/> Kindle書籍
+            </button>
+            <button onClick={() => addBlock('lead_form')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
+              <Mail size={16}/> リード獲得
+            </button>
           </div>
         </div>
 
@@ -832,6 +961,8 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                         {block.type === 'image' && '画像'}
                         {block.type === 'youtube' && 'YouTube'}
                         {block.type === 'links' && 'リンク集'}
+                        {block.type === 'kindle' && 'Kindle書籍'}
+                        {block.type === 'lead_form' && 'リード獲得フォーム'}
                       </span>
                     </button>
                   </div>
@@ -916,7 +1047,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               <div className="w-full space-y-6 md:space-y-8">
                 {blocks.map((block, index) => (
                   <div key={block.id} className={index > 0 ? `delay-${Math.min(index, 10)}` : ''}>
-                    <BlockRenderer block={block} />
+                    <BlockRenderer block={block} profileId={savedSlug || undefined} />
                   </div>
                 ))}
                 <footer className="text-center py-6 animate-fade-in delay-10">
@@ -990,6 +1121,112 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 設定モーダル */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-xl text-gray-900 flex items-center gap-2">
+                <Settings className="text-indigo-600" size={20}/> 計測タグ設定
+              </h3>
+              <button 
+                onClick={() => setShowSettingsModal(false)}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <X size={20}/>
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <Input 
+                label="Google Tag Manager ID" 
+                val={settings.gtmId || ''} 
+                onChange={v => setSettings(prev => ({ ...prev, gtmId: v }))} 
+                ph="例: GTM-XXXXXXX" 
+              />
+              <Input 
+                label="Facebook Pixel ID" 
+                val={settings.fbPixelId || ''} 
+                onChange={v => setSettings(prev => ({ ...prev, fbPixelId: v }))} 
+                ph="例: 123456789012345" 
+              />
+              <Input 
+                label="LINE Tag ID" 
+                val={settings.lineTagId || ''} 
+                onChange={v => setSettings(prev => ({ ...prev, lineTagId: v }))} 
+                ph="例: @xxxxx" 
+              />
+              
+              <div className="flex gap-2 pt-2">
+                <button 
+                  onClick={() => setShowSettingsModal(false)}
+                  className="flex-1 bg-gray-100 text-gray-700 px-4 py-3 rounded-lg font-bold hover:bg-gray-200"
+                >
+                  キャンセル
+                </button>
+                <button 
+                  onClick={async () => {
+                    await handleSave();
+                    setShowSettingsModal(false);
+                  }}
+                  className="flex-1 bg-indigo-600 text-white px-4 py-3 rounded-lg font-bold hover:bg-indigo-700"
+                >
+                  保存
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* QRコードモーダル */}
+      {showQRModal && savedSlug && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-xl text-gray-900 flex items-center gap-2">
+                <QrCode className="text-indigo-600" size={20}/> QRコード
+              </h3>
+              <button 
+                onClick={() => setShowQRModal(false)}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <X size={20}/>
+              </button>
+            </div>
+            
+            <div className="space-y-4 text-center">
+              <div className="bg-white p-4 rounded-lg inline-block">
+                <QRCodeSVG 
+                  value={`https://lp.makers.tokyo/p/${savedSlug}`}
+                  size={256}
+                  level="H"
+                  includeMargin={true}
+                />
+              </div>
+              <p className="text-sm text-gray-600 break-all">
+                https://lp.makers.tokyo/p/{savedSlug}
+              </p>
+              <button
+                onClick={() => {
+                  const canvas = document.querySelector('canvas');
+                  if (canvas) {
+                    const url = canvas.toDataURL('image/png');
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `qr-${savedSlug}.png`;
+                    a.click();
+                  }
+                }}
+                className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg font-bold hover:bg-indigo-700"
+              >
+                QRコードをダウンロード
+              </button>
             </div>
           </div>
         </div>
