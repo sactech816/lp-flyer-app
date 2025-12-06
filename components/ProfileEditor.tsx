@@ -65,6 +65,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [theme, setTheme] = useState<{ gradient?: string; backgroundImage?: string }>({});
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
+  const [hideLoginBanner, setHideLoginBanner] = useState(false);
 
   // デフォルトのプロフィールコンテンツ
   const getDefaultContent = (): Block[] => [
@@ -626,8 +627,38 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     <div className="min-h-screen bg-gray-100 flex font-sans text-gray-900">
       {/* 左側: 編集エリア */}
       <div className={`flex-1 overflow-y-auto transition-all ${showPreview ? 'w-1/2' : 'w-full'}`}>
+        {/* 未ログインユーザー向けバナー */}
+        {!user && !hideLoginBanner && (
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-4 border-b sticky top-0 z-50 shadow-md">
+            <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <Sparkles className="text-yellow-300" size={20}/>
+                <div>
+                  <p className="font-bold text-sm">ログインすると便利な機能が使えます！</p>
+                  <p className="text-xs text-indigo-100 mt-0.5">編集・削除・HTMLダウンロード・埋め込みコードなど</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowAuth?.(true)}
+                  className="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-indigo-50 transition-all flex items-center gap-2"
+                >
+                  <User size={16}/>
+                  ログイン / 新規登録
+                </button>
+                <button 
+                  onClick={() => setHideLoginBanner(true)}
+                  className="text-white/80 hover:text-white px-4 py-2 text-sm font-bold"
+                >
+                  閉じる
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ヘッダー */}
-        <div className="bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-50 shadow-sm">
+        <div className="bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-50 shadow-sm" style={{ top: !user && !hideLoginBanner ? '72px' : '0' }}>
           <div className="flex items-center gap-3">
             <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-700">
               <ArrowLeft/>
@@ -682,7 +713,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                 <button
                   key={preset.id}
                   onClick={() => setTheme(prev => ({ ...prev, gradient: preset.gradient, backgroundImage: undefined }))}
-                  className={`p-3 rounded-lg border-2 transition-all ${
+                  className={`p-3 rounded-lg border-2 transition-all overflow-hidden ${
                     theme.gradient === preset.gradient && !theme.backgroundImage
                       ? 'border-indigo-500 ring-2 ring-indigo-200'
                       : 'border-gray-200 hover:border-gray-300'
@@ -690,8 +721,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                   title={preset.name}
                 >
                   <div 
-                    className="w-full h-12 rounded"
-                    style={{ background: preset.gradient }}
+                    className="w-full h-12 rounded relative"
+                    style={{ 
+                      background: preset.gradient,
+                      backgroundSize: '400% 400%',
+                      animation: 'gradient 15s ease infinite'
+                    }}
                   />
                   <p className="text-xs font-bold text-gray-600 mt-1">{preset.name}</p>
                 </button>

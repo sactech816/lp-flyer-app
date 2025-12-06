@@ -17,7 +17,8 @@ import LandingPage from '../components/LandingPage';
 import { 
     FaqPage, PricePage, HowToPage, 
     EffectiveUsePage, QuizLogicPage, 
-    ContactPage, LegalPage, PrivacyPage 
+    ContactPage, LegalPage, PrivacyPage,
+    ProfileEffectiveUsePage, ProfileHowToPage
 } from '../components/StaticPages';
 import { Loader2 } from 'lucide-react';
 
@@ -261,10 +262,14 @@ const App = () => {
         {view === 'logic' && <QuizLogicPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
         {view === 'howto' && <HowToPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
         
+        {/* プロフィールLP用の静的ページ群 */}
+        {view === 'profile-effective' && <ProfileEffectiveUsePage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
+        {view === 'profile-howto' && <ProfileHowToPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
+        
         {/* お問い合わせ・規約関連 */}
-        {view === 'contact' && <ContactPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
-        {view === 'legal' && <LegalPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
-        {view === 'privacy' && <PrivacyPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        {view === 'contact' && <ContactPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
+        {view === 'legal' && <LegalPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
+        {view === 'privacy' && <PrivacyPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
         
         {/* レガシー互換 */}
         {view === 'faq' && <FaqPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}

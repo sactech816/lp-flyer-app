@@ -32,6 +32,8 @@ const Footer = ({ setPage, onCreate, user, setShowAuth }) => {
                     <ul className="space-y-3 text-sm">
                         <li><button onClick={()=>setPage('dashboard')} className="hover:text-white transition-colors flex items-center gap-2">➤ ダッシュボード</button></li>
                         <li><button onClick={()=>setPage('landing')} className="hover:text-white transition-colors flex items-center gap-2">➤ トップページ</button></li>
+                        <li><button onClick={()=>setPage('profile-howto')} className="hover:text-white transition-colors flex items-center gap-2">➤ 使い方</button></li>
+                        <li><button onClick={()=>setPage('profile-effective')} className="hover:text-white transition-colors flex items-center gap-2">➤ 効果的な利用方法</button></li>
                     </ul>
                 </div>
 

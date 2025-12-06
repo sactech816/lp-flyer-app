@@ -526,3 +526,176 @@ export const PrivacyPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAd
         </div>
     );
 };
+
+// --- Profile LP Maker用のページ ---
+
+// --- Profile Effective Use Page ---
+export const ProfileEffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
+    useEffect(() => { 
+        document.title = "効果的な使い方・メリット | Profile LP Maker"; 
+        window.scrollTo(0, 0);
+    }, []);
+    
+    const tips = [
+        { icon: Share2, color: "text-blue-600", bg: "bg-blue-100", title: "1. SNS拡散（UGC）を狙う", text: "プロフィールページは「自分語り」ができる最高のコンテンツです。美しいデザインのプロフィールはX(Twitter)やInstagramでシェアされやすく、広告費をかけずに認知が広がります。" },
+        { icon: Search, color: "text-purple-600", bg: "bg-purple-100", title: "2. SEO & AI検索対策", text: "プロフィールページに外部サイトへのリンクを設置することで、SEO効果が期待できます。また、構造化データによりChatGPTなどのAI検索からの流入も狙えます。" },
+        { icon: Megaphone, color: "text-green-600", bg: "bg-green-100", title: "3. 自然な集客導線", text: "いきなり売り込むのではなく、「プロフィールを見る」という自然な流れで、あなたのサービスや作品への導線を強化できます。" },
+        { icon: Target, color: "text-red-600", bg: "bg-red-100", title: "4. あなたのサービスを告知できる", text: "プロフィールページに「note」「X (旧Twitter)」「予約サイト」などのリンクを設置できます。プロフィールを通じて興味を持った見込み客に、自然な流れでサービスを紹介できます。" },
+        { icon: TrendingUp, color: "text-yellow-600", bg: "bg-yellow-100", title: "5. 集客のテストができる", text: "どんなプロフィールが人気なのか、どんな導線でクリック率が高いのかをリアルタイムに分析できます。本格的な広告投資の前に、低コストで顧客の反応をテストしましょう。" },
+        { icon: QrCode, color: "text-gray-800", bg: "bg-gray-100", title: "6. リアル店舗・イベントでの活用", text: "QRコードを発行してチラシや店頭に掲示しましょう。「待ち時間の暇つぶし」としてプロフィールを見てもらいつつ、会員登録や予約へ誘導できます。" },
+        { icon: Users, color: "text-indigo-600", bg: "bg-indigo-100", title: "7. Kindle作家の集客に", text: "読者を集めるためのプロフィールや、他の作品への導線を強化。noteやXのリンクを設置して、自然な流れで作品を紹介できます。" },
+        { icon: GraduationCap, color: "text-orange-600", bg: "bg-orange-100", title: "8. 店舗のリンク集に", text: "SNS、予約サイト、メニューなど、必要な情報を一つに集約。顧客が迷わず必要な情報にアクセスできます。" },
+        { icon: Repeat, color: "text-pink-600", bg: "bg-pink-100", title: "9. フリーランスの名刺代わりに", text: "実績やスキル、連絡先を魅力的に提示し、仕事の依頼を増やす。プロフィールページを名刺代わりに使うことで、印象を残せます。" }
+    ];
+
+    return (
+        <div className="min-h-screen bg-gray-50 font-sans">
+            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
+            <div className="bg-indigo-900 text-white py-16 px-6 text-center">
+                <h1 className="text-3xl font-extrabold mb-4">プロフィールLPの<span className="text-yellow-300">効果的な活用法 9選</span></h1>
+                <p className="text-indigo-200 max-w-xl mx-auto">作成したコンテンツを最大限に活かし、集客と売上につなげるための具体的なアイデアをご紹介します。あなたのビジネスを加速させるヒントが満載です。</p>
+            </div>
+            <div className="max-w-4xl mx-auto py-12 px-4 space-y-6">
+                <button onClick={onBack} className="flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600 mb-4"><ArrowLeft size={16}/> 戻る</button>
+                <div className="grid md:grid-cols-2 gap-6">
+                    {tips.map((tip, i) => (
+                        <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                            <div className="flex items-start gap-4">
+                                <div className={`flex-shrink-0 p-3 rounded-full ${tip.bg} ${tip.color}`}><tip.icon size={24}/></div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-2">{tip.title}</h3>
+                                    <p className="text-sm text-gray-600 leading-relaxed">{tip.text}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-8 rounded-2xl border border-indigo-100 mt-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <Sparkles className="text-yellow-500"/> このプラットフォームでプロフィールを作るメリット
+                    </h3>
+                    <ul className="space-y-3 text-sm text-gray-700">
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>無料で始められる:</strong> アカウント登録なしで、すぐに美しいプロフィールページを作成できます。</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>即座にシェア可能:</strong> 作成したプロフィールは自動的に公開され、URLが発行されます。SNSで即座にシェアして拡散できます。</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>AIアシスタント:</strong> 職業・ターゲット・強みを入力するだけで、キャッチコピーや自己紹介文、リンク構成を自動生成します。</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>被リンク効果:</strong> プロフィールページから外部サイトへのリンクを設置できるため、SEO効果も期待できます。</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>HTMLダウンロード:</strong> ログインして寄付（購入）することで、HTMLファイルをダウンロードして自社サーバーに設置できます。</span>
+                        </li>
+                    </ul>
+                </div>
+                <div className="text-center pt-8">
+                    <button onClick={()=>setPage('profile-editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそくプロフィールを作ってみる</button>
+                </div>
+            </div>
+            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} />
+        </div>
+    );
+};
+
+// --- Profile HowTo Page ---
+export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
+    useEffect(() => { 
+        document.title = "使い方・機能一覧 | Profile LP Maker"; 
+        window.scrollTo(0, 0);
+    }, []);
+    return (
+        <div className="min-h-screen bg-white font-sans">
+            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
+            <div className="py-12 px-4 max-w-4xl mx-auto">
+                <button onClick={onBack} className="mb-6 flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600"><ArrowLeft size={16}/> 戻る</button>
+                <h1 className="text-3xl font-extrabold text-gray-900 mb-8 border-b pb-4">機能一覧・使い方ガイド</h1>
+                
+                <div className="grid md:grid-cols-2 gap-8 mb-12">
+                    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                        <div className="flex items-center gap-2 mb-4 text-gray-700 font-bold text-xl">
+                            <Unlock size={24} className="text-blue-500"/> 基本機能 (無料)
+                        </div>
+                        <ul className="space-y-4 text-sm text-gray-800">
+                            <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><Zap size={16}/></span><span><strong>ブロック形式エディタ:</strong> ヘッダー・テキスト・画像・YouTube・リンク集を自由に配置</span></li>
+                            <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><Sparkles size={16}/></span><span><strong>AI自動生成:</strong> 職業・ターゲット・強みから自動でコンテンツ生成</span></li>
+                            <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><FileText size={16}/></span><span><strong>背景カスタマイズ:</strong> 5種類の動くグラデーション or カスタム画像</span></li>
+                            <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><ImageIcon size={16}/></span><span><strong>画像アップロード:</strong> Supabase Storageで安全に画像を管理</span></li>
+                            <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><Eye size={16}/></span><span><strong>リアルタイムプレビュー:</strong> 作成中に見た目を確認</span></li>
+                            <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><Smartphone size={16}/></span><span><strong>完全レスポンシブ:</strong> スマホ・PCどちらでも美しく表示</span></li>
+                            <li className="flex gap-3"><span className="bg-blue-100 text-blue-600 p-1 rounded"><Share2 size={16}/></span><span><strong>即座に公開:</strong> URLが自動発行され、すぐにシェア可能</span></li>
+                        </ul>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-bl-lg">DONATION</div>
+                        <div className="flex items-center gap-2 mb-4 text-indigo-900 font-bold text-xl">
+                            <Lock size={24} className="text-orange-500"/> Pro機能 (寄付で開放)
+                        </div>
+                        <p className="text-xs text-indigo-700 mb-4">※プロフィールごとに任意の金額(500円〜)を寄付いただくと開放されます。</p>
+                        <ul className="space-y-4 text-sm text-gray-800">
+                            <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Download size={16}/></span><span><strong>HTML書き出し:</strong> 自社サーバーに設置可能なファイルをDL</span></li>
+                            <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Code size={16}/></span><span><strong>埋め込みタグ発行:</strong> ブログやHPにプロフィールを埋め込み</span></li>
+                            <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Heart size={16}/></span><span><strong>開発者支援:</strong> ツールの継続的なアップデートを支援</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div className="space-y-8 text-gray-800 leading-relaxed border-t pt-8">
+                    <section>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                            <Zap className="text-indigo-600"/> プロフィール作成の流れ
+                        </h2>
+                        <div className="space-y-4">
+                            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-200">
+                                <h3 className="font-bold text-lg mb-3 text-indigo-900">ステップ1: ブロックを追加</h3>
+                                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                                    <li><strong>ヘッダー:</strong> プロフィール画像・名前・キャッチコピー</li>
+                                    <li><strong>テキストカード:</strong> 自己紹介やメインメッセージ</li>
+                                    <li><strong>画像:</strong> 作品や実績の画像</li>
+                                    <li><strong>YouTube:</strong> 動画コンテンツの埋め込み</li>
+                                    <li><strong>リンク集:</strong> SNSや外部サイトへのリンク</li>
+                                </ul>
+                                <p className="mt-3 text-sm text-indigo-700">💡 AIで自動生成ボタンから、職業・ターゲット・強みを入力するだけで自動でコンテンツが生成されます</p>
+                            </div>
+                            
+                            <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                                <h3 className="font-bold text-lg mb-3 text-blue-900">ステップ2: 背景をカスタマイズ</h3>
+                                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                                    <li><strong>背景パターン:</strong> 5種類の動くグラデーションから選択</li>
+                                    <li><strong>背景画像:</strong> カスタム画像をアップロード</li>
+                                </ul>
+                            </div>
+                            
+                            <div className="bg-green-50 p-6 rounded-xl border border-green-200">
+                                <h3 className="font-bold text-lg mb-3 text-green-900">ステップ3: プレビューで確認</h3>
+                                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                                    <li><strong>リアルタイムプレビュー:</strong> 作成中に見た目を確認</li>
+                                    <li><strong>スマホ・PC表示:</strong> レスポンシブデザインで自動調整</li>
+                                </ul>
+                            </div>
+                            
+                            <div className="bg-orange-50 p-6 rounded-xl border border-orange-200">
+                                <h3 className="font-bold text-lg mb-3 text-orange-900">ステップ4: 保存・公開</h3>
+                                <ul className="list-disc pl-5 space-y-2 text-sm text-gray-700">
+                                    <li><strong>保存:</strong> プロフィールを保存するとURLが自動発行</li>
+                                    <li><strong>公開URL:</strong> コピーしてSNSでシェア</li>
+                                    <li><strong>ログイン:</strong> ログインすると編集・削除・HTMLダウンロードが可能</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} />
+        </div>
+    );
+};
