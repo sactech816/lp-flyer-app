@@ -191,12 +191,16 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   };
 
   // ブロックの更新
-  const updateBlock = (blockId: string, updates: Partial<Block['data']>) => {
-    setBlocks(prev => prev.map(block => 
-      block.id === blockId 
-        ? { ...block, data: { ...block.data, ...updates } }
-        : block
-    ));
+  const updateBlock = (blockId: string, updates: any) => {
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId) {
+        return {
+          ...block,
+          data: { ...block.data, ...updates } as any
+        };
+      }
+      return block;
+    }));
   };
 
   // リンクの追加（linksブロック内）
