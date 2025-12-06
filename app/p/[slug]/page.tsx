@@ -21,6 +21,59 @@ interface Profile {
 async function getProfile(slug: string): Promise<Profile | null> {
   if (!supabase) return null;
   
+  // デモページの場合はランダムテンプレートを返す
+  if (slug === 'demo-user') {
+    const { templates } = await import('@/constants/templates');
+    const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+    
+    // テンプレートのブロックをコピーしてIDを再生成
+    const { generateBlockId } = await import('@/lib/types');
+    const demoBlocks = randomTemplate.blocks.map(block => ({
+      ...block,
+      id: generateBlockId()
+    })).map(block => {
+      if (block.type === 'faq') {
+        return {
+          ...block,
+          data: {
+            items: block.data.items.map((item: any) => ({
+              ...item,
+              id: generateBlockId()
+            }))
+          }
+        };
+      } else if (block.type === 'pricing') {
+        return {
+          ...block,
+          data: {
+            plans: block.data.plans.map((plan: any) => ({
+              ...plan,
+              id: generateBlockId()
+            }))
+          }
+        };
+      } else if (block.type === 'testimonial') {
+        return {
+          ...block,
+          data: {
+            items: block.data.items.map((item: any) => ({
+              ...item,
+              id: generateBlockId()
+            }))
+          }
+        };
+      }
+      return block;
+    });
+    
+    return {
+      id: 'demo',
+      slug: 'demo-user',
+      content: demoBlocks,
+      settings: {}
+    } as Profile;
+  }
+  
   const { data, error } = await supabase
     .from('profiles')
     .select('id, slug, content, settings')

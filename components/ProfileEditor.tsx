@@ -1064,12 +1064,25 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         {/* 未ログインユーザー向けバナー */}
         {!user && !hideLoginBanner && (
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-4 border-b sticky top-0 z-50 shadow-md">
-            <div className="max-w-6xl mx-auto flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 flex-1">
-                <Sparkles className="text-yellow-300" size={20}/>
-                <div>
-                  <p className="font-bold text-sm">ログインすると便利な機能が使えます！</p>
-                  <p className="text-xs text-indigo-100 mt-0.5">編集・削除・HTMLダウンロード・埋め込みコードなど</p>
+            <div className="max-w-6xl mx-auto">
+              <div className="flex items-start gap-3 mb-3">
+                <Sparkles className="text-yellow-300 flex-shrink-0 mt-0.5" size={20}/>
+                <div className="flex-1">
+                  <p className="font-bold text-sm mb-2">ログインすると便利な機能が使えます！</p>
+                  <ul className="space-y-1 text-xs text-indigo-100">
+                    <li className="flex items-center gap-1">
+                      <span className="text-green-300">✓</span>
+                      <span>作成した診断の編集・削除が可能</span>
+                    </li>
+                    <li className="flex items-center gap-1">
+                      <span className="text-green-300">✓</span>
+                      <span>マイページでアクセス解析を確認</span>
+                    </li>
+                    <li className="flex items-center gap-1">
+                      <span className="text-green-300">✓</span>
+                      <span>HTMLダウンロード・埋め込みコードなどの追加オプションが利用可能</span>
+                    </li>
+                  </ul>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -1092,7 +1105,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         )}
 
         {/* ヘッダー */}
-        <div className="bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-50 shadow-sm" style={{ top: !user && !hideLoginBanner ? '72px' : '0' }}>
+        <div className="bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-50 shadow-sm" style={{ top: !user && !hideLoginBanner ? '120px' : '0' }}>
           <div className="flex items-center gap-3">
             <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-700">
               <ArrowLeft/>

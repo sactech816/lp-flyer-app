@@ -27,7 +27,7 @@ export const templates: Template[] = [
         id: generateBlockId(),
         type: 'header',
         data: {
-          avatar: '',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=faces',
           name: '田中 誠',
           title: '経営戦略パートナー｜年商10億企業の裏方'
         }
@@ -97,14 +97,14 @@ export const templates: Template[] = [
               name: '山田 太郎',
               role: 'IT企業 代表取締役',
               comment: '田中さんのおかげで過去最高益を達成しました。戦略の見直しと組織改革により、売上が前年比150%に。本当に感謝しています。',
-              imageUrl: ''
+              imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces'
             },
             {
               id: generateBlockId(),
               name: '佐藤 花子',
               role: '製造業 社長',
               comment: '月額顧問としてお願いしてから、社員のモチベーションが劇的に向上。離職率も下がり、安定した成長を実現できています。',
-              imageUrl: ''
+              imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces'
             }
           ]
         }
@@ -135,7 +135,7 @@ export const templates: Template[] = [
         id: generateBlockId(),
         type: 'header',
         data: {
-          avatar: '',
+          avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=faces',
           name: '佐藤 みらい',
           title: 'ベストセラー作家｜累計3万部突破'
         }
@@ -145,7 +145,7 @@ export const templates: Template[] = [
         type: 'kindle',
         data: {
           asin: 'B08XXXXXXX',
-          imageUrl: '',
+          imageUrl: 'https://images-na.ssl-images-amazon.com/images/I/51aHbX9Q9zL._SX331_BO1,204,203,200_.jpg',
           title: '1週間で変わる文章術',
           description: '文章が苦手だった私が、たった1週間で読者に響く文章を書けるようになった方法を公開。\n\n・読みやすい文章の基本構造\n・共感を生む言葉の選び方\n・読者の心を動かすストーリー術\n\nKindle Unlimited会員なら無料で読めます！'
         }
@@ -193,7 +193,7 @@ export const templates: Template[] = [
         id: generateBlockId(),
         type: 'header',
         data: {
-          avatar: '',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=faces',
           name: '鈴木 陽子',
           title: 'ライフコーチ｜あなたらしい生き方をサポート'
         }

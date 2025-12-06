@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 
 const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [createClickCount, setCreateClickCount] = useState(0);
 
   useEffect(() => {
     setIsLoading(false);
@@ -18,9 +19,20 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         onNavigateToDashboard();
       }
     } else {
-      // 未ログインでもエディタページに直接遷移
-      if (onCreate) {
-        onCreate();
+      // 未ログインの場合
+      setCreateClickCount(prev => prev + 1);
+      
+      // 3回以上クリックしたらログイン画面を表示
+      if (createClickCount >= 2) {
+        if (setShowAuth) {
+          setShowAuth(true);
+        }
+        setCreateClickCount(0); // リセット
+      } else {
+        // それ以外はエディタページに直接遷移
+        if (onCreate) {
+          onCreate();
+        }
       }
     }
   };

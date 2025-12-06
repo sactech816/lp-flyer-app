@@ -25,7 +25,12 @@ export default async function ProfileLayout({
   
   let theme: { gradient?: string; backgroundImage?: string } = {};
   
-  if (supabase) {
+  // デモページの場合はランダムテンプレートのテーマを使用
+  if (slug === 'demo-user') {
+    const { templates } = await import('@/constants/templates');
+    const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+    theme = randomTemplate.theme;
+  } else if (supabase) {
     const { data } = await supabase
       .from('profiles')
       .select('theme')
