@@ -5,7 +5,8 @@ import {
     Edit3, Loader2, Save, Share2, ArrowLeft, Plus, Trash2, 
     X, Link, UploadCloud, Eye, User, FileText, GripVertical,
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
-    ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2
+    ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
+    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star
 } from 'lucide-react';
 import { generateSlug } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -209,6 +210,24 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             id: generateBlockId(),
             type: 'lead_form',
             data: { title: 'メルマガ登録', buttonText: '登録する' }
+          };
+        case 'faq':
+          return {
+            id: generateBlockId(),
+            type: 'faq',
+            data: { items: [] }
+          };
+        case 'pricing':
+          return {
+            id: generateBlockId(),
+            type: 'pricing',
+            data: { plans: [] }
+          };
+        case 'testimonial':
+          return {
+            id: generateBlockId(),
+            type: 'testimonial',
+            data: { items: [] }
           };
         default:
           return {
@@ -682,29 +701,6 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           </div>
         );
 
-      case 'kindle':
-        return (
-          <div className="space-y-4">
-            <Input label="ASINまたはAmazon URL" val={block.data.asin} onChange={v => updateBlock(block.id, { asin: v })} ph="例: B08XXXXXXX または https://amazon.co.jp/dp/B08XXXXXXX" />
-            <Input label="画像URL" val={block.data.imageUrl} onChange={v => updateBlock(block.id, { imageUrl: v })} ph="https://..." type="url" />
-            <Input label="タイトル" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} ph="書籍のタイトル" />
-            <Textarea label="説明" val={block.data.description} onChange={v => updateBlock(block.id, { description: v })} rows={4} ph="書籍の説明文" />
-            {block.data.imageUrl && (
-              <div className="mt-2">
-                <img src={block.data.imageUrl} alt="Preview" className="w-32 h-auto rounded-lg border border-gray-200" />
-              </div>
-            )}
-          </div>
-        );
-
-      case 'lead_form':
-        return (
-          <div className="space-y-4">
-            <Input label="タイトル" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} ph="例: メルマガ登録" />
-            <Input label="ボタンテキスト" val={block.data.buttonText} onChange={v => updateBlock(block.id, { buttonText: v })} ph="例: 登録する" />
-          </div>
-        );
-
       default:
         return null;
     }
@@ -963,6 +959,9 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                         {block.type === 'links' && 'リンク集'}
                         {block.type === 'kindle' && 'Kindle書籍'}
                         {block.type === 'lead_form' && 'リード獲得フォーム'}
+                        {block.type === 'faq' && 'FAQ'}
+                        {block.type === 'pricing' && '料金表'}
+                        {block.type === 'testimonial' && 'お客様の声'}
                       </span>
                     </button>
                   </div>
