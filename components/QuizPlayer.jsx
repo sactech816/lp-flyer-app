@@ -140,7 +140,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
           setTimeout(() => {
               setIsTyping(false);
               setChatHistory([{ type: 'bot', text: playableQuestions[0].text, qNum: 1 }]);
-          }, 1500);
+          }, 800);
       }
   }, [playableQuestions, quiz.layout]);
 
@@ -158,7 +158,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
           if (quiz.layout === 'chat') {
               setTimeout(() => {
                   setChatHistory(prev => [...prev, { type: 'bot', text: "診断結果が出ました！\n結果を受け取るメールアドレスを入力してください。" }]);
-              }, 500);
+              }, 300);
           }
       } else {
           setResult(calculateResult(finalAnswers, results, quiz.mode));
@@ -179,7 +179,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
                   setIsTyping(false);
                   setChatHistory(prev => [...prev, { type: 'bot', text: playableQuestions[currentStep + 1].text, qNum: currentStep + 2 }]);
                   setCurrentStep(currentStep + 1);
-              }, 1000);
+              }, 600);
           } else {
               setCurrentStep(currentStep + 1);
           }
@@ -191,8 +191,8 @@ const QuizPlayer = ({ quiz, onBack }) => {
                   setChatHistory(prev => [...prev, { type: 'bot', text: "お疲れ様でした！\n結果を集計しています..." }]);
                   setTimeout(() => {
                       showResultOrEmail(newAnswers);
-                  }, 2000);
-              }, 1500);
+                  }, 1000);
+              }, 800);
           } else {
               showResultOrEmail(newAnswers);
           }
@@ -217,7 +217,7 @@ const QuizPlayer = ({ quiz, onBack }) => {
         nextActionRef.current = () => proceedToNext(newAnswers);
         timerRef.current = setTimeout(() => {
             if (nextActionRef.current) nextActionRef.current();
-        }, 1500);
+        }, 1200);
     } else {
         proceedToNext(newAnswers);
     }
