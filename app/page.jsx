@@ -262,7 +262,8 @@ const App = () => {
                 initialData={editingQuiz}
                 setPage={(p) => navigateTo(p)}
                 onBack={()=>{ navigateTo('portal'); setEditingQuiz(null);}} 
-                onSave={handleSave} 
+                onSave={handleSave}
+                setShowAuth={setShowAuth}
             />
         )}
     </div>

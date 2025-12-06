@@ -13,7 +13,10 @@ import SEO from './SEO';
 
 // --- Effective Use Page ---
 export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "効果的な使い方・メリット | 診断クイズメーカー"; }, []);
+    useEffect(() => { 
+        document.title = "効果的な使い方・メリット | 診断クイズメーカー"; 
+        window.scrollTo(0, 0);
+    }, []);
     
     const tips = [
         { icon: Share2, color: "text-blue-600", bg: "bg-blue-100", title: "1. SNS拡散（UGC）を狙う", text: "診断結果は「自分語り」ができる最高のコンテンツです。面白い結果はX(Twitter)やInstagramでシェアされやすく、広告費をかけずに認知が広がります。" },
@@ -80,14 +83,17 @@ export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth,
                     <button onClick={()=>setPage('editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそく診断を作ってみる</button>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
         </div>
     );
 };
 
 // --- Quiz Logic Page ---
 export const QuizLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "バズる診断の作り方 | 診断クイズメーカー"; }, []);
+    useEffect(() => { 
+        document.title = "バズる診断の作り方 | 診断クイズメーカー"; 
+        window.scrollTo(0, 0);
+    }, []);
     
     const logics = [
         { icon: Target, title: "1. ターゲットの「不安」を特定する", text: "「誰の、どんな悩みを解決するか」を明確にします。単なる「性格診断」ではなく、「起業に失敗したくない人のための適性診断」のようにベネフィットを提示しましょう。" },
@@ -123,14 +129,17 @@ export const QuizLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, is
                     <button onClick={()=>setPage('editor')} className="bg-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-orange-600 transition-all transform hover:scale-105">このロジックで作ってみる</button>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
         </div>
     );
 };
 
 // --- HowTo Page (Updated) ---
 export const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "使い方・機能一覧 | 診断クイズメーカー"; }, []);
+    useEffect(() => { 
+        document.title = "使い方・機能一覧 | 診断クイズメーカー"; 
+        window.scrollTo(0, 0);
+    }, []);
     return (
         <div className="min-h-screen bg-white font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
@@ -335,14 +344,17 @@ export const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
                     </div>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
         </div>
     );
 };
 
 // --- FAQ Page ---
 export const FaqPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "よくある質問 | 診断クイズメーカー"; }, []);
+    useEffect(() => { 
+        document.title = "よくある質問 | 診断クイズメーカー"; 
+        window.scrollTo(0, 0);
+    }, []);
     const [openIndex, setOpenIndex] = useState(null);
     const faqs = [
         { category: "一般", q: "無料で使えますか？", a: "はい、作成・公開・分析の基本機能はすべて無料でご利用いただけます。ステップ形式エディタ、AI自動生成、テンプレート、プレビュー、アクセス解析、人気ランキングなど、すべて無料です。" },
@@ -375,7 +387,7 @@ export const FaqPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin 
                     ))}
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
         </div>
     );
 };
@@ -386,7 +398,10 @@ export const PricePage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
 
 // --- Contact Page ---
 export const ContactPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "お問い合わせ | 診断クイズメーカー"; }, []);
+    useEffect(() => { 
+        document.title = "お問い合わせ | 診断クイズメーカー"; 
+        window.scrollTo(0, 0);
+    }, []);
     return (
         <div className="min-h-screen bg-white font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
@@ -401,14 +416,17 @@ export const ContactPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAd
                     <Mail size={20}/> お問い合わせフォームを開く
                 </a>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
         </div>
     );
 };
 
 // --- Legal Page ---
 export const LegalPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "特定商取引法に基づく表記 | 診断クイズメーカー"; }, []);
+    useEffect(() => { 
+        document.title = "特定商取引法に基づく表記 | 診断クイズメーカー"; 
+        window.scrollTo(0, 0);
+    }, []);
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
@@ -464,7 +482,10 @@ export const LegalPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
 
 // --- Privacy Page ---
 export const PrivacyPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
-    useEffect(() => { document.title = "プライバシーポリシー | 診断クイズメーカー"; }, []);
+    useEffect(() => { 
+        document.title = "プライバシーポリシー | 診断クイズメーカー"; 
+        window.scrollTo(0, 0);
+    }, []);
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
@@ -500,7 +521,173 @@ export const PrivacyPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAd
                     </section>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
         </div>
     );
+};
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4">
+
+                        <div className="font-bold text-gray-500">代表者または運営統括責任者</div>
+
+                        <div className="md:col-span-2 text-gray-900">[代表者氏名]</div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4">
+
+                        <div className="font-bold text-gray-500">所在地</div>
+
+                        <div className="md:col-span-2 text-gray-900">[住所]</div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4">
+
+                        <div className="font-bold text-gray-500">お問い合わせ先</div>
+
+                        <div className="md:col-span-2 text-gray-900">
+
+                            [電話番号]<br/>
+
+                            [メールアドレス]<br/>
+
+                            またはお問い合わせフォームよりご連絡ください。
+
+                        </div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4">
+
+                        <div className="font-bold text-gray-500">販売価格</div>
+
+                        <div className="md:col-span-2 text-gray-900">各決済画面に表示された金額（寄付形式のため任意設定可能）</div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4">
+
+                        <div className="font-bold text-gray-500">商品代金以外の必要料金</div>
+
+                        <div className="md:col-span-2 text-gray-900">インターネット接続料金、通信料金</div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4">
+
+                        <div className="font-bold text-gray-500">代金の支払時期および方法</div>
+
+                        <div className="md:col-span-2 text-gray-900">クレジットカード決済（Stripe）。購入時即時に決済されます。</div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-b pb-4">
+
+                        <div className="font-bold text-gray-500">商品の引渡時期</div>
+
+                        <div className="md:col-span-2 text-gray-900">決済完了後、即時にダウンロードまたは機能が有効化されます。</div>
+
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                        <div className="font-bold text-gray-500">返品・キャンセルについて</div>
+
+                        <div className="md:col-span-2 text-gray-900">デジタルコンテンツの性質上、決済完了後の返品・キャンセルはお受けできません。</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    );
+
+};
+
+
+
+// --- Privacy Page ---
+
+export const PrivacyPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
+
+    useEffect(() => { document.title = "プライバシーポリシー | 診断クイズメーカー"; }, []);
+
+    return (
+
+        <div className="min-h-screen bg-gray-50 font-sans">
+
+            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
+
+            <div className="py-12 px-4 max-w-3xl mx-auto">
+
+                <button onClick={onBack} className="mb-6 flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600"><ArrowLeft size={16}/> 戻る</button>
+
+                <h1 className="text-2xl font-extrabold text-gray-900 mb-8 flex items-center gap-2"><Shield className="text-gray-400"/> プライバシーポリシー</h1>
+
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-sm leading-relaxed space-y-6 text-gray-700">
+
+                    <p>診断クイズメーカー（以下、「当サービス」）は、ユーザーの個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下、「本ポリシー」）を定めます。</p>
+
+                    
+
+                    <section>
+
+                        <h3 className="font-bold text-gray-900 mb-2">1. 個人情報の収集</h3>
+
+                        <p>当サービスは、ユーザー登録時や決済時に、メールアドレス、クレジットカード情報（決済代行会社が管理）等の情報を収集する場合があります。また、作成されたクイズを通じて収集される回答者のメールアドレス等の情報は、クイズ作成者の責任において管理されます。</p>
+
+                    </section>
+
+
+
+                    <section>
+
+                        <h3 className="font-bold text-gray-900 mb-2">2. 利用目的</h3>
+
+                        <p>収集した情報は、サービスの提供、本人確認、決済処理、お問い合わせ対応、およびサービスの改善のために利用します。</p>
+
+                    </section>
+
+
+
+                    <section>
+
+                        <h3 className="font-bold text-gray-900 mb-2">3. 第三者への提供</h3>
+
+                        <p>当サービスは、法令に基づく場合を除き、あらかじめユーザーの同意を得ることなく、個人情報を第三者に提供しません。</p>
+
+                    </section>
+
+
+
+                    <section>
+
+                        <h3 className="font-bold text-gray-900 mb-2">4. 決済情報の取扱い</h3>
+
+                        <p>クレジットカード決済には「Stripe」を使用しており、当サービスがカード情報を直接保持することはありません。</p>
+
+                    </section>
+
+
+
+                    <section>
+
+                        <h3 className="font-bold text-gray-900 mb-2">5. お問い合わせ</h3>
+
+                        <p>本ポリシーに関するお問い合わせは、お問い合わせフォームよりお願いいたします。</p>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} />
+        </div>
+
+    );
+
 };

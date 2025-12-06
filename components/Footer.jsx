@@ -1,7 +1,12 @@
 import React from 'react';
 import { Sparkles } from 'lucide-react';
 
-const Footer = ({ setPage, onCreate }) => {
+const Footer = ({ setPage, onCreate, user, setShowAuth }) => {
+    // ★修正: 未ログインユーザーも作成可能（エディタでログインを促す）
+    const handleCreate = () => {
+        onCreate(); // エディタへ遷移（ログイン状態に関わらず）
+    };
+
     return (
         <footer className="bg-gray-900 text-gray-400 py-12 mt-12 border-t border-gray-800">
             <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-8">
@@ -14,7 +19,7 @@ const Footer = ({ setPage, onCreate }) => {
                         AIの力で誰でも簡単に作成・公開できるプラットフォーム。<br/>
                         あなたのビジネスを「診断」で加速させます。
                     </p>
-                    <button onClick={onCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors">
+                    <button onClick={handleCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors">
                         無料で作成をはじめる
                     </button>
                 </div>
