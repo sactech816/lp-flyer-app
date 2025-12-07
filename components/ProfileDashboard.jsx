@@ -406,10 +406,30 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                                     const headerBlock = profile.content?.find(b => b.type === 'header');
                                     const avatarUrl = headerBlock?.data?.avatarUrl || '';
                                     
+                                    // 背景色設定の取得
+                                    const gradient = profile.settings?.theme?.gradient;
+                                    const backgroundImage = profile.settings?.theme?.backgroundImage;
+                                    
+                                    // サムネイル用のスタイルを動的に生成
+                                    const thumbnailStyle = {};
+                                    if (backgroundImage) {
+                                        thumbnailStyle.backgroundImage = `url(${backgroundImage})`;
+                                        thumbnailStyle.backgroundSize = 'cover';
+                                        thumbnailStyle.backgroundPosition = 'center';
+                                    } else if (gradient) {
+                                        thumbnailStyle.background = gradient;
+                                    }
+                                    
+                                    // デフォルトのクラス（背景色が設定されていない場合）
+                                    const defaultBgClass = !gradient && !backgroundImage ? 'bg-gradient-to-br from-indigo-500 to-purple-600' : '';
+                                    
                                     return (
                                         <div key={profile.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow relative group">
                                             {/* ヘッダー画像エリア */}
-                                            <div className="h-32 w-full overflow-hidden relative bg-gradient-to-br from-indigo-500 to-purple-600">
+                                            <div 
+                                                className={`h-32 w-full overflow-hidden relative ${defaultBgClass}`}
+                                                style={Object.keys(thumbnailStyle).length > 0 ? thumbnailStyle : undefined}
+                                            >
                                                 {avatarUrl && (
                                                     <img 
                                                         src={avatarUrl} 
