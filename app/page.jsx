@@ -209,6 +209,7 @@ const App = () => {
   const handleProfileDelete = async (id, refetch) => {
       if(!confirm('本当に削除しますか？')) return;
       if(!supabase) return;
+      
       try {
           console.log('[CLIENT] 削除処理開始:', { id });
           
@@ -236,15 +237,27 @@ const App = () => {
           });
           
           console.log('[CLIENT] APIレスポンス:', { status: res.status, ok: res.ok });
-          const result = await res.json().catch(() => ({}));
+          
+          let result = {};
+          try {
+              const text = await res.text();
+              if (text) {
+                  result = JSON.parse(text);
+              }
+          } catch (parseError) {
+              console.error('[CLIENT] JSON解析エラー:', parseError);
+          }
+          
           console.log('[CLIENT] レスポンスデータ:', result);
           
-          if (!res.ok) throw new Error(result?.error || '削除に失敗しました');
+          if (!res.ok) {
+              throw new Error(result?.error || '削除に失敗しました');
+          }
 
           alert('削除しました');
           
           console.log('[CLIENT] refetch実行:', { hasRefetch: !!refetch, refetchType: typeof refetch });
-          if (refetch) {
+          if (refetch && typeof refetch === 'function') {
               await refetch();
               console.log('[CLIENT] refetch完了');
           } else {
@@ -302,7 +315,17 @@ const App = () => {
                 isLoading={isLoading} 
                 user={user} 
                 setShowAuth={setShowAuth} 
-                onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} 
+                onLogout={async ()=>{ 
+                    if(!supabase) return;
+                    try {
+                        await supabase.auth.signOut(); 
+                        setUser(null);
+                        alert('ログアウトしました');
+                    } catch(e) {
+                        console.error('ログアウトエラー:', e);
+                        alert('ログアウトに失敗しました');
+                    }
+                }} 
                 onPlay={(q)=>{ setSelectedQuiz(q); navigateTo('quiz', { id: q.slug || q.id }); }} 
                 onCreate={()=>{ setEditingQuiz(null); navigateTo('editor'); }} 
                 setPage={(p) => navigateTo(p)} 
@@ -317,30 +340,146 @@ const App = () => {
                 user={user} 
                 isAdmin={isAdmin}
                 setPage={(p) => navigateTo(p)} 
-                onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing');}} 
+                onLogout={async ()=>{ 
+                    if(!supabase) return;
+                    try {
+                        await supabase.auth.signOut(); 
+                        setUser(null);
+                        alert('ログアウトしました');
+                        navigateTo('landing');
+                    } catch(e) {
+                        console.error('ログアウトエラー:', e);
+                        alert('ログアウトに失敗しました');
+                    }
+                }} 
                 onEdit={(profile)=>{setEditingProfileSlug(profile.slug); navigateTo('profile-editor');}} 
-                    onDelete={(id, refetch) => handleProfileDelete(id, refetch)}
+                onDelete={(id, refetch) => handleProfileDelete(id, refetch)}
                 onCreate={()=>{setEditingProfileSlug(null); navigateTo('profile-editor');}}
             />
         )}
         
         {/* 静的ページ群 */}
-        {view === 'effective' && <EffectiveUsePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
-        {view === 'logic' && <QuizLogicPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
-        {view === 'howto' && <HowToPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        {view === 'effective' && <EffectiveUsePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
+        {view === 'logic' && <QuizLogicPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
+        {view === 'howto' && <HowToPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
         
         {/* プロフィールLP用の静的ページ群 */}
-        {view === 'profile-effective' && <ProfileEffectiveUsePage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
-        {view === 'profile-howto' && <ProfileHowToPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
+        {view === 'profile-effective' && <ProfileEffectiveUsePage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+                navigateTo('landing');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
+        {view === 'profile-howto' && <ProfileHowToPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+                navigateTo('landing');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
         
         {/* お問い合わせ・規約関連 */}
-        {view === 'contact' && <ContactPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
-        {view === 'legal' && <LegalPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
-        {view === 'privacy' && <PrivacyPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing'); }} setShowAuth={setShowAuth} />}
+        {view === 'contact' && <ContactPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+                navigateTo('landing');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
+        {view === 'legal' && <LegalPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+                navigateTo('landing');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
+        {view === 'privacy' && <PrivacyPage onBack={()=>navigateTo('landing')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+                navigateTo('landing');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
         
         {/* レガシー互換 */}
-        {view === 'faq' && <FaqPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
-        {view === 'price' && <PricePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ await supabase.auth.signOut(); alert('ログアウトしました'); }} setShowAuth={setShowAuth} />}
+        {view === 'faq' && <FaqPage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
+        {view === 'price' && <PricePage onBack={()=>navigateTo('portal')} isAdmin={isAdmin} setPage={(p) => navigateTo(p)} user={user} onLogout={async ()=>{ 
+            if(!supabase) return;
+            try {
+                await supabase.auth.signOut(); 
+                setUser(null);
+                alert('ログアウトしました');
+            } catch(e) {
+                console.error('ログアウトエラー:', e);
+                alert('ログアウトに失敗しました');
+            }
+        }} setShowAuth={setShowAuth} />}
         
         {view === 'quiz' && (
             <QuizPlayer 

@@ -65,12 +65,24 @@ export default function DashboardPage() {
         headers,
         body: JSON.stringify({ id, anonymousId }),
       });
-      const result = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(result?.error || '削除に失敗しました');
+      
+      let result: any = {};
+      try {
+        const text = await res.text();
+        if (text) {
+          result = JSON.parse(text);
+        }
+      } catch (parseError) {
+        console.error('JSON解析エラー:', parseError);
+      }
+      
+      if (!res.ok) {
+        throw new Error(result?.error || '削除に失敗しました');
+      }
 
       alert('削除しました');
       // 可能なら一覧を再取得（フォールバックとしてリロード）
-      if (refetch) {
+      if (refetch && typeof refetch === 'function') {
         await refetch();
       } else {
         window.location.reload();
@@ -90,8 +102,20 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     if (!supabase) return;
-    await supabase.auth.signOut();
-    router.push('/');
+    
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('ログアウトエラー:', error);
+        throw error;
+      }
+      setUser(null);
+      alert('ログアウトしました');
+      router.push('/');
+    } catch (e: any) {
+      console.error('ログアウトに失敗:', e);
+      alert('ログアウトに失敗しました: ' + e.message);
+    }
   };
 
   if (isLoading) {
