@@ -13,6 +13,7 @@ import { supabase } from '../lib/supabase';
 import { Block, generateBlockId, migrateOldContent } from '../lib/types';
 import { BlockRenderer } from './BlockRenderer';
 import { getAnalytics } from '../app/actions/analytics';
+import { saveProfile } from '../app/actions/profiles';
 import { QRCodeSVG } from 'qrcode.react';
 import { templates, Template } from '../constants/templates';
 
@@ -569,11 +570,6 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
   // 保存処理
   const handleSave = async () => {
-    if (!supabase) {
-      alert('データベースに接続されていません');
-      return;
-    }
-
     setIsSaving(true);
     try {
       const slug = savedSlug || generateSlug();
@@ -589,27 +585,23 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       // ログインユーザーの場合のみuser_idを設定、未ログインの場合はnullにする
       const userId = user?.id || null;
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .upsert({
-          slug,
-          content: blocks,
-          settings: settingsWithTheme,
-          user_id: userId,
-          updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'slug'
-        })
-        .select()
-        .single();
+      // Server Action経由で保存
+      const result = await saveProfile({
+        slug,
+        content: blocks,
+        settings: settingsWithTheme,
+        userId
+      });
 
-      if (error) throw error;
+      if (result.error) {
+        throw new Error(result.error);
+      }
       
       setSavedSlug(slug);
       
       // アナリティクスを再取得
-      if (data?.id) {
-        const analyticsData = await getAnalytics(data.id);
+      if (result.data?.id) {
+        const analyticsData = await getAnalytics(result.data.id);
         setAnalytics(analyticsData);
       }
       
