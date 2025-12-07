@@ -1,16 +1,72 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Smartphone, Code, Share2, ArrowRight, CheckCircle, Eye, Wand2, BookOpen, Store, Briefcase } from 'lucide-react';
+import { Sparkles, Smartphone, Code, Share2, ArrowRight, CheckCircle, Eye, Wand2, BookOpen, Store, Briefcase, ExternalLink, Heart } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import Header from './Header';
 
 const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [createClickCount, setCreateClickCount] = useState(0);
+  const [publicProfiles, setPublicProfiles] = useState([]);
 
   useEffect(() => {
     setIsLoading(false);
+    // 公開されているプロフィールを取得
+    fetchPublicProfiles();
   }, []);
+
+  const fetchPublicProfiles = async () => {
+    if (!supabase) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('is_public', true)
+        .order('created_at', { ascending: false })
+        .limit(6);
+      
+      if (!error && data) {
+        setPublicProfiles(data);
+      }
+    } catch (e) {
+      console.error('プロフィール取得エラー:', e);
+    }
+  };
+
+  // プロフィール名を取得
+  const getProfileName = (profile) => {
+    if (!profile.content || !Array.isArray(profile.content)) return '無題のプロフィール';
+    const headerBlock = profile.content.find(b => b.type === 'header');
+    return headerBlock?.data?.name || '無題のプロフィール';
+  };
+
+  // プロフィールの説明を取得
+  const getProfileDescription = (profile) => {
+    if (!profile.content || !Array.isArray(profile.content)) return '';
+    const textBlock = profile.content.find(b => b.type === 'text');
+    const description = textBlock?.data?.text || '';
+    // 最初の100文字まで表示
+    return description.length > 100 ? description.substring(0, 100) + '...' : description;
+  };
+
+  // プロフィールのカテゴリーを取得
+  const getProfileCategory = (profile) => {
+    if (!profile.content || !Array.isArray(profile.content)) return null;
+    const headerBlock = profile.content.find(b => b.type === 'header');
+    return headerBlock?.data?.category || null;
+  };
+
+  // カテゴリーの表示名とスタイルを取得
+  const getCategoryInfo = (category) => {
+    const categories = {
+      fortune: { label: '占い', color: 'bg-purple-100 text-purple-700' },
+      business: { label: 'ビジネス', color: 'bg-blue-100 text-blue-700' },
+      study: { label: '学習', color: 'bg-green-100 text-green-700' },
+      other: { label: 'その他', color: 'bg-gray-100 text-gray-700' }
+    };
+    return categories[category] || categories.other;
+  };
 
   const handleGetStarted = () => {
     if (user) {
@@ -37,14 +93,38 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
     }
   };
 
+  const handleLogout = async () => {
+    if (!supabase) return;
+    try {
+      await supabase.auth.signOut();
+      alert('ログアウトしました');
+      window.location.reload();
+    } catch (e) {
+      console.error('ログアウトエラー:', e);
+      alert('ログアウトに失敗しました');
+    }
+  };
+
+  const handleSetPage = (page) => {
+    window.location.href = `?page=${page}`;
+  };
+
   return (
     <div className="profile-page-wrapper min-h-screen">
+      {/* ヘッダーを追加 */}
+      <Header 
+        setPage={handleSetPage}
+        user={user}
+        onLogout={handleLogout}
+        setShowAuth={setShowAuth}
+      />
+      
       <div className="container mx-auto max-w-6xl px-4 py-12 md:py-20">
         {/* ヒーローセクション */}
         <section className="text-center mb-20 md:mb-32 animate-fade-in">
           <div className="mb-8">
             <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
-              世界一美しいプロフィールを、<br className="md:hidden"/>3分で。
+              あなたらしいプロフィールを、<br className="md:hidden"/>3分で。
             </h1>
             <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-8 leading-relaxed">
               エンジニアでなくても、スマホだけで。<br className="md:hidden"/>
@@ -86,7 +166,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* 特徴セクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-2">
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12 drop-shadow-lg">
-            こんなに簡単、こんなに美しい
+            こんなに簡単、こんなにあなたらしい
           </h2>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
@@ -178,6 +258,77 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             </div>
           </div>
         </section>
+
+        {/* プロフィールLP一覧セクション */}
+        {publicProfiles.length > 0 && (
+          <section className="mb-20 md:mb-32 animate-fade-in delay-5">
+            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg flex items-center justify-center gap-2">
+              <Sparkles className="text-yellow-400" size={32}/>
+              作成されたプロフィールLP一覧
+            </h2>
+            <p className="text-white text-center mb-12 drop-shadow-md">
+              気になるプロフィールをプレイしてみましょう
+            </p>
+            
+            <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+              {publicProfiles.map((profile) => {
+                const category = getProfileCategory(profile);
+                const categoryInfo = getCategoryInfo(category);
+                const profileName = getProfileName(profile);
+                const description = getProfileDescription(profile);
+                
+                return (
+                  <a
+                    key={profile.id}
+                    href={`/p/${profile.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer group"
+                  >
+                    {/* カードヘッダー（グラデーション背景） */}
+                    <div className={`relative h-32 flex items-center justify-center ${
+                      category === 'fortune' ? 'bg-gradient-to-br from-purple-400 to-pink-500' :
+                      category === 'business' ? 'bg-gradient-to-br from-blue-400 to-indigo-500' :
+                      category === 'study' ? 'bg-gradient-to-br from-green-400 to-teal-500' :
+                      'bg-gradient-to-br from-gray-400 to-gray-500'
+                    }`}>
+                      <div className="absolute top-4 right-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${categoryInfo.color}`}>
+                          {categoryInfo.label}
+                        </span>
+                      </div>
+                      <Sparkles className="text-white opacity-50" size={48}/>
+                    </div>
+                    
+                    {/* カードコンテンツ */}
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 flex-1">
+                          {profileName}
+                        </h3>
+                        <ExternalLink className="text-indigo-600 flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" size={20}/>
+                      </div>
+                      
+                      {description && (
+                        <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                          {description}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                        <div className="flex items-center gap-2 text-indigo-600 font-bold text-sm">
+                          <Eye size={16}/>
+                          プロフィールを見る
+                        </div>
+                        <ArrowRight className="text-indigo-600 group-hover:translate-x-1 transition-transform" size={20}/>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* CTAセクション */}
         <section className="mt-20 md:mt-32 text-center animate-fade-in delay-6">
