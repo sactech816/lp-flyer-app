@@ -6,6 +6,13 @@ function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  console.log('Upload API - Environment Check:', {
+    hasSupabaseUrl: !!supabaseUrl,
+    hasServiceRoleKey: !!serviceRoleKey,
+    urlPrefix: supabaseUrl?.substring(0, 30),
+    keyPrefix: serviceRoleKey?.substring(0, 20)
+  });
+
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error('Supabaseのサービスロールキーが設定されていません。');
   }
