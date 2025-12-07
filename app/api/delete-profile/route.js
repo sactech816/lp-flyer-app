@@ -26,34 +26,49 @@ function getSupabaseAdmin() {
 
 export async function POST(req) {
   try {
+    console.log('[DELETE-PROFILE] リクエスト開始');
+    
     const { id, anonymousId } = await req.json();
+    console.log('[DELETE-PROFILE] リクエストデータ:', { id, anonymousId });
+    
     if (!id) {
+      console.log('[DELETE-PROFILE] エラー: IDがありません');
       return NextResponse.json({ error: 'プロフィールIDがありません' }, { status: 400 });
     }
 
+    console.log('[DELETE-PROFILE] Supabaseクライアント取得中...');
     const supabaseAdmin = getSupabaseAdmin();
+    console.log('[DELETE-PROFILE] Supabaseクライアント取得成功');
     
     // プロフィール情報を取得
+    console.log('[DELETE-PROFILE] プロフィール情報取得中... ID:', id);
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('id, user_id')
       .eq('id', id)
       .single();
 
+    console.log('[DELETE-PROFILE] プロフィール情報:', profile, 'エラー:', profileError);
+
     if (profileError || !profile) {
+      console.log('[DELETE-PROFILE] エラー: プロフィールが見つかりません');
       return NextResponse.json({ error: 'プロフィールが見つかりませんでした' }, { status: 404 });
     }
 
     // 認証トークンをチェック
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
+    console.log('[DELETE-PROFILE] 認証トークン:', token ? 'あり' : 'なし');
     
     let user = null;
     let isAdmin = false;
 
     if (token) {
       // ログインユーザーの場合
+      console.log('[DELETE-PROFILE] ユーザー情報取得中...');
       const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
+      console.log('[DELETE-PROFILE] ユーザー情報:', userData?.user?.id, 'エラー:', userError);
+      
       if (!userError && userData?.user) {
         user = userData.user;
         isAdmin = user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -64,17 +79,33 @@ export async function POST(req) {
     const isOwner = user && profile.user_id === user.id;
     const isAnonymousOwner = !profile.user_id || (anonymousId && profile.user_id === anonymousId);
 
+    console.log('[DELETE-PROFILE] 権限チェック:', {
+      isOwner,
+      isAnonymousOwner,
+      isAdmin,
+      profileUserId: profile.user_id,
+      userId: user?.id,
+      anonymousId
+    });
+
     if (!isOwner && !isAdmin && !isAnonymousOwner) {
+      console.log('[DELETE-PROFILE] エラー: 権限なし');
       return NextResponse.json({ error: '削除権限がありません' }, { status: 403 });
     }
 
     // 削除実行
+    console.log('[DELETE-PROFILE] 削除実行中...');
     const { error: deleteError } = await supabaseAdmin.from('profiles').delete().eq('id', id);
-    if (deleteError) throw deleteError;
+    
+    if (deleteError) {
+      console.log('[DELETE-PROFILE] 削除エラー:', deleteError);
+      throw deleteError;
+    }
 
+    console.log('[DELETE-PROFILE] 削除成功');
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('delete-profile error:', err);
+    console.error('[DELETE-PROFILE] キャッチされたエラー:', err);
     
     // エラーメッセージをより詳細に
     let errorMessage = err.message || '削除に失敗しました';
