@@ -1654,13 +1654,20 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           </div>
           <div 
             className="profile-page-wrapper min-h-screen"
-            style={{
-              background: theme.backgroundImage 
-                ? `url(${theme.backgroundImage}) center/cover no-repeat`
-                : theme.gradient || 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
-              backgroundSize: theme.backgroundImage ? 'cover' : '400% 400%',
-              animation: theme.backgroundImage ? 'none' : 'gradient 15s ease infinite'
-            }}
+            style={
+              theme.backgroundImage 
+                ? {
+                    backgroundImage: `url(${theme.backgroundImage})`,
+                    backgroundPosition: 'center',
+                    backgroundSize: 'cover',
+                    backgroundRepeat: 'no-repeat'
+                  }
+                : {
+                    background: theme.gradient || 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+                    backgroundSize: '400% 400%',
+                    animation: 'gradient 15s ease infinite'
+                  }
+            }
           >
             <div className="container mx-auto max-w-lg p-4 md:p-8">
               <div className="w-full space-y-6 md:space-y-8">
