@@ -361,12 +361,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage.from('images').upload(filePath, file, {
+      const { error: uploadError } = await supabase.storage.from('profile-uploads').upload(filePath, file, {
         upsert: true
       });
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+      const { data } = supabase.storage.from('profile-uploads').getPublicUrl(filePath);
       
       // ブロックタイプに応じて更新
       const block = blocks.find(b => b.id === blockId);
@@ -397,12 +397,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       const fileName = `bg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
       const filePath = `${user.id}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage.from('images').upload(filePath, file, {
+      const { error: uploadError } = await supabase.storage.from('profile-uploads').upload(filePath, file, {
         upsert: true
       });
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+      const { data } = supabase.storage.from('profile-uploads').getPublicUrl(filePath);
       setTheme(prev => ({ ...prev, backgroundImage: data.publicUrl }));
     } catch (error: any) {
       alert('背景画像のアップロードエラー: ' + error.message);
@@ -439,7 +439,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         body: JSON.stringify(aiForm),
       });
 
-      if (!res.ok) throw new Error('AI生成に失敗しました');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || `AI生成に失敗しました (ステータス: ${res.status})`);
+      }
 
       const data = await res.json();
 
@@ -788,10 +791,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                       const fileExt = file.name.split('.').pop();
                       const fileName = `kindle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
                       const filePath = `${user.id}/${fileName}`;
-                      supabase.storage.from('images').upload(filePath, file, { upsert: true })
+                      supabase.storage.from('profile-uploads').upload(filePath, file, { upsert: true })
                         .then(({ error: uploadError }) => {
                           if (uploadError) throw uploadError;
-                          const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+                          const { data } = supabase.storage.from('profile-uploads').getPublicUrl(filePath);
                           updateBlock(block.id, { imageUrl: data.publicUrl });
                         })
                         .catch((error: any) => alert('アップロードエラー: ' + error.message))
@@ -1088,10 +1091,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                             const fileExt = file.name.split('.').pop();
                             const fileName = `testimonial_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
                             const filePath = `${user.id}/${fileName}`;
-                            supabase.storage.from('images').upload(filePath, file, { upsert: true })
+                            supabase.storage.from('profile-uploads').upload(filePath, file, { upsert: true })
                               .then(({ error: uploadError }) => {
                                 if (uploadError) throw uploadError;
-                                const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+                                const { data } = supabase.storage.from('profile-uploads').getPublicUrl(filePath);
                                 setBlocks(prev => prev.map(b => 
                                   b.id === block.id && b.type === 'testimonial'
                                     ? { ...b, data: { items: b.data.items.map((it, i) => i === index ? { ...it, imageUrl: data.publicUrl } : it) } }
@@ -1109,12 +1112,14 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                       <label className="text-xs font-bold text-gray-700 block mb-1">プリセット画像から選択</label>
                       <div className="flex flex-wrap gap-2">
                         {[
-                          'https://ui-avatars.com/api/?name=Male+1&background=6366f1&color=fff&size=128&bold=true',
-                          'https://ui-avatars.com/api/?name=Male+2&background=3b82f6&color=fff&size=128&bold=true',
-                          'https://ui-avatars.com/api/?name=Male+3&background=8b5cf6&color=fff&size=128&bold=true',
-                          'https://ui-avatars.com/api/?name=Female+1&background=ec4899&color=fff&size=128&bold=true',
-                          'https://ui-avatars.com/api/?name=Female+2&background=f43f5e&color=fff&size=128&bold=true',
-                          'https://ui-avatars.com/api/?name=Female+3&background=14b8a6&color=fff&size=128&bold=true',
+                          // 男性イラスト3枚
+                          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=faces&auto=format',
+                          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=faces&auto=format',
+                          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=faces&auto=format',
+                          // 女性イラスト3枚
+                          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=faces&auto=format',
+                          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=faces&auto=format',
+                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop&crop=faces&auto=format',
                         ].map((preset, idx) => (
                           <button
                             key={idx}

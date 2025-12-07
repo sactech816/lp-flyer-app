@@ -5,7 +5,6 @@ import { Block, migrateOldContent } from '@/lib/types';
 import { BlockRenderer } from '@/components/BlockRenderer';
 import { ProfileViewTracker } from '@/components/ProfileViewTracker';
 import { TrackingScripts } from '@/components/TrackingScripts';
-import Footer from '@/components/Footer';
 
 interface Profile {
   id: string;
@@ -142,12 +141,21 @@ export default async function ProfilePage({
           ))}
         </div>
       </div>
-      <Footer 
-        setPage={null} 
-        onCreate={null} 
-        user={null} 
-        setShowAuth={null} 
-      />
+      
+      {/* コピーライトとリンク */}
+      <footer className="text-center py-6 animate-fade-in delay-10">
+        <p className="text-sm text-white/90 drop-shadow-md mb-2">
+          &copy; {new Date().getFullYear()} Profile LP Maker. All rights reserved.
+        </p>
+        <a 
+          href="https://lp.makers.tokyo/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-sm text-white/80 hover:text-white/100 drop-shadow-md transition-colors underline"
+        >
+          https://lp.makers.tokyo/
+        </a>
+      </footer>
     </>
   );
 }

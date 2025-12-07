@@ -55,6 +55,13 @@ export async function POST(req) {
 
     const content = completion.choices[0]?.message?.content || '';
     
+    if (!content) {
+      return NextResponse.json(
+        { error: 'AIからの応答が空でした。もう一度お試しください。' },
+        { status: 500 }
+      );
+    }
+    
     // JSONを抽出（```json で囲まれている場合がある）
     let jsonStr = content.trim();
     if (jsonStr.startsWith('```json')) {
@@ -63,7 +70,17 @@ export async function POST(req) {
       jsonStr = jsonStr.replace(/```\n?/g, '');
     }
 
-    const result = JSON.parse(jsonStr);
+    let result;
+    try {
+      result = JSON.parse(jsonStr);
+    } catch (parseError) {
+      console.error('JSON Parse Error:', parseError);
+      console.error('Content:', content);
+      return NextResponse.json(
+        { error: 'AIからの応答の解析に失敗しました。もう一度お試しください。' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       catchphrase: result.catchphrase || '',
@@ -72,8 +89,19 @@ export async function POST(req) {
     });
   } catch (err) {
     console.error('OpenAI API Error:', err);
+    
+    // エラータイプに応じたメッセージを返す
+    let errorMessage = 'AI生成に失敗しました';
+    if (err.message?.includes('API key')) {
+      errorMessage = 'OpenAI APIキーが設定されていません。管理者にお問い合わせください。';
+    } else if (err.message?.includes('rate limit')) {
+      errorMessage = 'APIの利用制限に達しました。しばらく待ってから再度お試しください。';
+    } else if (err.message) {
+      errorMessage = err.message;
+    }
+    
     return NextResponse.json(
-      { error: err.message || 'AI生成に失敗しました' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
