@@ -205,6 +205,37 @@ const App = () => {
       }
   };
 
+  // プロフィール削除処理（サービスロールAPI経由）
+  const handleProfileDelete = async (id, refetch) => {
+      if(!confirm('本当に削除しますか？')) return;
+      if(!supabase) return;
+      try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const token = session?.access_token;
+          if (!token) throw new Error('ログインが必要です');
+
+          const res = await fetch('/api/delete-profile', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ id })
+          });
+          const result = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(result?.error || '削除に失敗しました');
+
+          alert('削除しました');
+          if (refetch) {
+              await refetch();
+          } else {
+              window.location.reload();
+          }
+      } catch(e) {
+          alert('削除エラー: ' + e.message);
+      }
+  };
+
   // ローディング画面
   if (view === 'loading') {
       return (
@@ -267,20 +298,7 @@ const App = () => {
                 setPage={(p) => navigateTo(p)} 
                 onLogout={async ()=>{ await supabase.auth.signOut(); navigateTo('landing');}} 
                 onEdit={(profile)=>{setEditingProfileSlug(profile.slug); navigateTo('profile-editor');}} 
-                onDelete={async (id, refetch) => {
-                    if(!confirm('本当に削除しますか？')) return;
-                    try {
-                        const { error } = await supabase.from('profiles').delete().eq('id', id);
-                        if(error) throw error;
-                        alert('削除しました');
-                        // 削除後に再取得
-                        if (refetch) {
-                            await refetch();
-                        }
-                    } catch(e) {
-                        alert('削除エラー: ' + e.message);
-                    }
-                }}
+                    onDelete={(id, refetch) => handleProfileDelete(id, refetch)}
                 onCreate={()=>{setEditingProfileSlug(null); navigateTo('profile-editor');}}
             />
         )}

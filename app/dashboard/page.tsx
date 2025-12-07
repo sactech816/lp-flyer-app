@@ -46,8 +46,21 @@ export default function DashboardPage() {
     if (!supabase) return;
     
     try {
-      const { error } = await supabase.from('profiles').delete().eq('id', id);
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('ログインが必要です');
+
+      const res = await fetch('/api/delete-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id }),
+      });
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(result?.error || '削除に失敗しました');
+
       alert('削除しました');
       // 可能なら一覧を再取得（フォールバックとしてリロード）
       if (refetch) {
