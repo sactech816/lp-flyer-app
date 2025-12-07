@@ -3,9 +3,9 @@ import OpenAI from 'openai';
 
 // OpenAIインスタンスを遅延初期化（ビルド時エラーを防ぐ）
 function getOpenAI() {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY || process.env.NEXT_PUBLIC_OPENAI_API_KEY;
   if (!apiKey) {
-    throw new Error("❌ OpenAI API Key is missing!");
+    throw new Error('OpenAI APIキーが設定されていません。環境変数 OPENAI_API_KEY を設定してください。');
   }
   return new OpenAI({
     apiKey: apiKey,
@@ -92,7 +92,7 @@ export async function POST(req) {
     
     // エラータイプに応じたメッセージを返す
     let errorMessage = 'AI生成に失敗しました';
-    if (err.message?.includes('API key')) {
+    if (err.message?.includes('API key') || err.message?.includes('APIキーが設定されていません')) {
       errorMessage = 'OpenAI APIキーが設定されていません。管理者にお問い合わせください。';
     } else if (err.message?.includes('rate limit')) {
       errorMessage = 'APIの利用制限に達しました。しばらく待ってから再度お試しください。';

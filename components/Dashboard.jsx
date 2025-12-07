@@ -364,7 +364,7 @@ const Dashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin }) => {
                     )}
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={()=>{}} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={()=>{}} variant="light" />
         </div>
     );
 };

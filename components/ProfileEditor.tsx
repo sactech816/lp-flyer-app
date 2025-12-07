@@ -93,15 +93,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     clickRate: 0 
   });
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const uploadOwnerId = user?.id || 'public';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleResize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      if (mobile) {
-        setShowPreview(false);
-      }
     };
 
     handleResize();
@@ -369,16 +367,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const handleImageUpload = async (blockId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !supabase) return;
-    if (!user) {
-      alert('画像をアップロードするにはログインが必要です');
-      return;
-    }
 
     setIsUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
+      const filePath = `${uploadOwnerId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage.from('profile-uploads').upload(filePath, file, {
         upsert: true
@@ -414,16 +408,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const handleBackgroundImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !supabase) return;
-    if (!user) {
-      alert('画像をアップロードするにはログインが必要です');
-      return;
-    }
 
     setIsUploadingBackground(true);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `bg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
+      const filePath = `${uploadOwnerId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage.from('profile-uploads').upload(filePath, file, {
         upsert: true
@@ -832,14 +822,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file || !supabase) return;
-                      if (!user) {
-                        alert('画像をアップロードするにはログインが必要です');
-                        return;
-                      }
                       setIsUploading(true);
                       const fileExt = file.name.split('.').pop();
                       const fileName = `kindle_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-                      const filePath = `${user.id}/${fileName}`;
+                    const filePath = `${uploadOwnerId}/${fileName}`;
                       supabase.storage.from('profile-uploads').upload(filePath, file, { upsert: true })
                         .then(({ error: uploadError }) => {
                           if (uploadError) {
@@ -930,15 +916,11 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     onChange={async (e) => {
                       const file = e.target.files?.[0];
                       if (!file || !supabase) return;
-                      if (!user) {
-                        alert('画像をアップロードするにはログインが必要です');
-                        return;
-                      }
                       setIsUploading(true);
                       try {
                         const fileExt = file.name.split('.').pop();
                         const fileName = `line_qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-                        const filePath = `${user.id}/${fileName}`;
+                      const filePath = `${uploadOwnerId}/${fileName}`;
                         const { error: uploadError } = await supabase.storage.from('profile-uploads').upload(filePath, file, { upsert: true });
                         if (uploadError) {
                           console.error('LINE QR upload error:', uploadError);
@@ -1208,14 +1190,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (!file || !supabase) return;
-                            if (!user) {
-                              alert('画像をアップロードするにはログインが必要です');
-                              return;
-                            }
                             setIsUploading(true);
                             const fileExt = file.name.split('.').pop();
                             const fileName = `testimonial_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-                            const filePath = `${user.id}/${fileName}`;
+                            const filePath = `${uploadOwnerId}/${fileName}`;
                             supabase.storage.from('profile-uploads').upload(filePath, file, { upsert: true })
                               .then(({ error: uploadError }) => {
                                 if (uploadError) {

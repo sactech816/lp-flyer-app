@@ -527,6 +527,7 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                 onCreate={handleCreate} 
                 user={user} 
                 setShowAuth={()=>{}} 
+                variant="light"
             />
         </div>
     );
