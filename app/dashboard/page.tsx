@@ -41,7 +41,7 @@ export default function DashboardPage() {
     router.push(`/dashboard/editor/${profile.slug}`);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, refetch?: () => Promise<void>) => {
     if (!confirm('本当に削除しますか？')) return;
     if (!supabase) return;
     
@@ -49,8 +49,12 @@ export default function DashboardPage() {
       const { error } = await supabase.from('profiles').delete().eq('id', id);
       if (error) throw error;
       alert('削除しました');
-      // ページをリロードして一覧を更新
-      window.location.reload();
+      // 可能なら一覧を再取得（フォールバックとしてリロード）
+      if (refetch) {
+        await refetch();
+      } else {
+        window.location.reload();
+      }
     } catch (e: any) {
       alert('削除エラー: ' + e.message);
     }

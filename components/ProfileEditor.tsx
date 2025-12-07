@@ -61,7 +61,11 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [isLoading, setIsLoading] = useState(false);
   const [savedSlug, setSavedSlug] = useState<string | null>(initialSlug || null);
   const [isUploading, setIsUploading] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
+  const [showPreview, setShowPreview] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return window.innerWidth >= 1024;
+  });
+  const [isMobile, setIsMobile] = useState(false);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [showAIModal, setShowAIModal] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -89,6 +93,21 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     clickRate: 0 
   });
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) {
+        setShowPreview(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // デフォルトのプロフィールコンテンツ
   const getDefaultContent = (): Block[] => [
@@ -1213,9 +1232,9 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-100 flex flex-col lg:flex-row font-sans text-gray-900">
       {/* 左側: 編集エリア */}
-      <div className={`flex-1 overflow-y-auto transition-all ${showPreview ? 'w-1/2' : 'w-full'}`}>
+      <div className={`flex-1 overflow-y-auto transition-all ${showPreview && !isMobile ? 'lg:w-1/2' : 'w-full'}`}>
         {/* 未ログインユーザー向けバナー */}
         {!user && !hideLoginBanner && (
           <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-4 border-b sticky top-0 z-50 shadow-md">
@@ -1573,7 +1592,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
       {/* 右側: プレビューエリア */}
       {showPreview && (
-        <div className="w-1/2 border-l bg-gray-50 overflow-y-auto">
+        <div className="w-full lg:w-1/2 border-t lg:border-t-0 lg:border-l bg-gray-50 overflow-y-auto">
           <div className="sticky top-0 bg-white border-b px-4 py-2 z-10">
             <h3 className="font-bold text-sm text-gray-700 flex items-center gap-2">
               <Eye size={16} className="text-purple-600"/> プレビュー

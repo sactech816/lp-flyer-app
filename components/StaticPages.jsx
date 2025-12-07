@@ -83,7 +83,7 @@ export const EffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth,
                     <button onClick={()=>setPage('editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそく診断を作ってみる</button>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -129,7 +129,7 @@ export const QuizLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, is
                     <button onClick={()=>setPage('editor')} className="bg-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-orange-600 transition-all transform hover:scale-105">このロジックで作ってみる</button>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -344,7 +344,7 @@ export const HowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
                     </div>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -387,7 +387,7 @@ export const FaqPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin 
                     ))}
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -416,7 +416,7 @@ export const ContactPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAd
                     <Mail size={20}/> お問い合わせフォームを開く
                 </a>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -476,7 +476,7 @@ export const LegalPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmi
                     </div>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -522,7 +522,7 @@ export const PrivacyPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAd
                     </section>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -601,7 +601,7 @@ export const ProfileEffectiveUsePage = ({ onBack, setPage, user, onLogout, setSh
                     <button onClick={()=>setPage('profile-editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそくプロフィールを作ってみる</button>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -695,7 +695,7 @@ export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth,
                     </section>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} />
+            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
