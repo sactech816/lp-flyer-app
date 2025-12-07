@@ -1165,13 +1165,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                       <div className="flex flex-wrap gap-2">
                         {[
                           // 男性イラスト3枚
-                          'https://i.pravatar.cc/150?img=12',
-                          'https://i.pravatar.cc/150?img=33',
-                          'https://i.pravatar.cc/150?img=47',
+                          'https://api.dicebear.com/7.x/adventurer/png?seed=male1&size=200&backgroundColor=transparent',
+                          'https://api.dicebear.com/7.x/adventurer/png?seed=male2&size=200&backgroundColor=transparent',
+                          'https://api.dicebear.com/7.x/adventurer/png?seed=male3&size=200&backgroundColor=transparent',
                           // 女性イラスト3枚
-                          'https://i.pravatar.cc/150?img=5',
-                          'https://i.pravatar.cc/150?img=20',
-                          'https://i.pravatar.cc/150?img=32',
+                          'https://api.dicebear.com/7.x/adventurer/png?seed=female1&size=200&backgroundColor=transparent',
+                          'https://api.dicebear.com/7.x/adventurer/png?seed=female2&size=200&backgroundColor=transparent',
+                          'https://api.dicebear.com/7.x/adventurer/png?seed=female3&size=200&backgroundColor=transparent',
                         ].map((preset, idx) => (
                           <button
                             key={idx}
