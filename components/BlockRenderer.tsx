@@ -115,25 +115,27 @@ export function BlockRenderer({ block, profileId }: { block: Block; profileId?: 
           <h3 className="text-center font-bold text-white drop-shadow-md mb-4">Follow Me & More Info</h3>
           {block.data.links.map((link, index) => {
             const isLine = link.url?.includes('lin.ee') || link.label?.includes('LINE');
-            
-            // スタイルに基づいてクラスを決定
-            let styleClass = 'bg-white/90 border-gray-200 text-gray-900';
-            if (link.style === 'orange') {
-              styleClass = 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500';
-            } else if (link.style === 'blue') {
-              styleClass = 'bg-blue-500 hover:bg-blue-600 text-white border-blue-500';
-            } else if (link.style === 'green') {
-              styleClass = 'bg-green-500 hover:bg-green-600 text-white border-green-500';
-            } else if (link.style === 'purple') {
-              styleClass = 'bg-purple-500 hover:bg-purple-600 text-white border-purple-500';
-            }
-            
+
+            // 背景/文字色のパレット（リンクスタイルが反映されない問題を解消）
+            const palette: Record<string, { bg: string; text: string; border: string }> = {
+              default: { bg: 'rgba(255,255,255,0.95)', text: '#111827', border: 'rgba(229,231,235,0.8)' },
+              orange: { bg: '#f97316', text: '#fff', border: '#ea580c' },
+              blue: { bg: '#3b82f6', text: '#fff', border: '#2563eb' },
+              green: { bg: '#22c55e', text: '#fff', border: '#16a34a' },
+              purple: { bg: '#a855f7', text: '#fff', border: '#9333ea' },
+              line: { bg: '#06C755', text: '#fff', border: '#05b34c' },
+            };
+
+            const activePalette = isLine
+              ? palette.line
+              : palette[link.style] || palette.default;
+
             const handleClick = async () => {
               if (profileId) {
                 await saveAnalytics(profileId, 'click', { url: link.url });
               }
             };
-            
+
             return (
               <a
                 key={index}
@@ -141,7 +143,12 @@ export function BlockRenderer({ block, profileId }: { block: Block; profileId?: 
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClick}
-                className={`link-button ${styleClass} ${isLine ? 'bg-[#06C755] hover:bg-[#05b34c] text-white border-[#06C755]' : ''}`}
+                className="link-button"
+                style={{
+                  backgroundColor: activePalette.bg,
+                  color: activePalette.text,
+                  borderColor: activePalette.border,
+                }}
               >
                 {link.label?.includes('note') && <span className="mr-3 text-2xl">📓</span>}
                 {link.label?.includes('X') || link.label?.includes('Twitter') ? (
@@ -415,8 +422,18 @@ function LineCardBlock({ block, profileId }: { block: Extract<Block, { type: 'li
           <h3 className="text-2xl font-bold mb-2">{block.data.title || 'LINE公式アカウント'}</h3>
           <p className="text-white/90 mb-4">{block.data.description || '最新情報をお届けします'}</p>
           
-          {/* QRコード表示 */}
-          {block.data.url && (
+          {/* QRコード表示（画像が指定されている場合はそれを使用） */}
+          {block.data.qrImageUrl ? (
+            <div className="mb-4 flex justify-center">
+              <div className="bg-white p-3 rounded-lg inline-block">
+                <img 
+                  src={block.data.qrImageUrl} 
+                  alt="QRコード" 
+                  className="w-32 h-32 object-contain"
+                />
+              </div>
+            </div>
+          ) : block.data.url ? (
             <div className="mb-4 flex justify-center">
               <div className="bg-white p-3 rounded-lg inline-block">
                 <QRCodeSVG 
@@ -427,7 +444,7 @@ function LineCardBlock({ block, profileId }: { block: Extract<Block, { type: 'li
                 />
               </div>
             </div>
-          )}
+          ) : null}
           
           <button
             onClick={handleClick}

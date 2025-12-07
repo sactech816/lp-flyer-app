@@ -263,7 +263,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           return {
             id: generateBlockId(),
             type: 'line_card',
-            data: { title: 'LINE公式アカウント', description: '最新情報をお届けします', url: 'https://lin.ee/xxxxx', buttonText: '友だち追加' }
+          data: { title: 'LINE公式アカウント', description: '最新情報をお届けします', url: 'https://lin.ee/xxxxx', buttonText: '友だち追加', qrImageUrl: '' }
           };
         case 'faq':
           return {
@@ -903,6 +903,71 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <Input label="タイトル" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} ph="例: LINE公式アカウント" />
             <Textarea label="説明" val={block.data.description} onChange={v => updateBlock(block.id, { description: v })} rows={3} ph="例: 最新情報をお届けします" />
             <Input label="LINE URL" val={block.data.url} onChange={v => updateBlock(block.id, { url: v })} ph="例: https://lin.ee/xxxxx" type="url" />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">QRコード画像（任意）</label>
+              <div className="flex gap-2 mb-2">
+                <Input 
+                  label="" 
+                  val={block.data.qrImageUrl || ''} 
+                  onChange={v => updateBlock(block.id, { qrImageUrl: v })} 
+                  ph="QRコード画像URL (https://...)" 
+                  type="url"
+                />
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap self-end border-2 border-dashed border-indigo-300">
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={16}/> アップロード中...
+                    </>
+                  ) : (
+                    <>
+                      <UploadCloud size={16}/> 画像を選択
+                    </>
+                  )}
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file || !supabase) return;
+                      if (!user) {
+                        alert('画像をアップロードするにはログインが必要です');
+                        return;
+                      }
+                      setIsUploading(true);
+                      try {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `line_qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+                        const filePath = `${user.id}/${fileName}`;
+                        const { error: uploadError } = await supabase.storage.from('profile-uploads').upload(filePath, file, { upsert: true });
+                        if (uploadError) {
+                          console.error('LINE QR upload error:', uploadError);
+                          throw new Error(uploadError.message || '画像のアップロードに失敗しました');
+                        }
+                        const { data } = supabase.storage.from('profile-uploads').getPublicUrl(filePath);
+                        updateBlock(block.id, { qrImageUrl: data.publicUrl });
+                      } catch (error: any) {
+                        console.error('LINE QR image upload error:', error);
+                        const errorMessage = error.message || '画像のアップロードに失敗しました';
+                        if (errorMessage.includes('Bucket not found') || errorMessage.includes('bucket')) {
+                          alert('アップロードエラー: Supabase Storageのバケット「profile-uploads」が存在しないか、アクセス権限がありません。管理者にお問い合わせください。');
+                        } else {
+                          alert('アップロードエラー: ' + errorMessage);
+                        }
+                      } finally {
+                        setIsUploading(false);
+                      }
+                    }} 
+                    disabled={isUploading}
+                  />
+                </label>
+              </div>
+              {block.data.qrImageUrl && (
+                <div className="mt-2">
+                  <img src={block.data.qrImageUrl} alt="QRコード" className="w-32 h-32 object-cover rounded-lg border" />
+                </div>
+              )}
+            </div>
             <Input label="ボタンテキスト" val={block.data.buttonText} onChange={v => updateBlock(block.id, { buttonText: v })} ph="例: 友だち追加" />
           </div>
         );
@@ -1183,14 +1248,14 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                       <label className="text-xs font-bold text-gray-700 block mb-1">プリセット画像から選択</label>
                       <div className="flex flex-wrap gap-2">
                         {[
-                          // 男性イラスト3枚
-                          'https://api.dicebear.com/7.x/adventurer/png?seed=male1&size=200&backgroundColor=transparent',
-                          'https://api.dicebear.com/7.x/adventurer/png?seed=male2&size=200&backgroundColor=transparent',
-                          'https://api.dicebear.com/7.x/adventurer/png?seed=male3&size=200&backgroundColor=transparent',
-                          // 女性イラスト3枚
-                          'https://api.dicebear.com/7.x/adventurer/png?seed=female1&size=200&backgroundColor=transparent',
-                          'https://api.dicebear.com/7.x/adventurer/png?seed=female2&size=200&backgroundColor=transparent',
-                          'https://api.dicebear.com/7.x/adventurer/png?seed=female3&size=200&backgroundColor=transparent',
+                          // 男性ビジネス風イラスト3枚
+                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businessman1&size=200&backgroundColor=f2f2f2',
+                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businessman2&size=200&backgroundColor=e0f2fe',
+                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businessman3&size=200&backgroundColor=ede9fe',
+                          // 女性ビジネス風イラスト3枚
+                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businesswoman1&size=200&backgroundColor=fef9c3',
+                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businesswoman2&size=200&backgroundColor=ffe4e6',
+                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businesswoman3&size=200&backgroundColor=dbeafe',
                         ].map((preset, idx) => (
                           <button
                             key={idx}
