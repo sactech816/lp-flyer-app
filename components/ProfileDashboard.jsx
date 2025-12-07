@@ -32,20 +32,29 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
     };
 
     const fetchMyProfiles = async () => {
-        if(!user || !supabase) return;
+        console.log('[DASHBOARD] プロフィール取得開始');
+        if(!user || !supabase) {
+            console.log('[DASHBOARD] ユーザーまたはSupabaseがありません');
+            return;
+        }
+        
         // 管理者の場合はすべてのプロフィールを取得、それ以外は自分のプロフィールのみ
         const query = isAdmin 
             ? supabase.from('profiles').select('*').order('created_at', { ascending: false })
             : supabase.from('profiles').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
         
+        console.log('[DASHBOARD] クエリ実行中... isAdmin:', isAdmin);
         const { data, error } = await query;
+        
         if (error) {
-            console.error('プロフィール取得エラー:', error);
+            console.error('[DASHBOARD] プロフィール取得エラー:', error);
             setMyProfiles([]);
         } else {
+            console.log('[DASHBOARD] プロフィール取得成功:', data?.length, '件');
             setMyProfiles(data || []);
             
             // 各プロフィールのアナリティクスを取得
+            console.log('[DASHBOARD] アナリティクス取得開始');
             const analyticsPromises = (data || []).map(async (profile) => {
                 const analyticsData = await getAnalytics(profile.id);
                 return { profileId: profile.id, analytics: analyticsData };
@@ -56,6 +65,7 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                 analyticsMapObj[profileId] = analytics;
             });
             setAnalyticsMap(analyticsMapObj);
+            console.log('[DASHBOARD] アナリティクス取得完了');
         }
     };
 
@@ -64,13 +74,24 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
             if(!user) return;
             await fetchMyProfiles();
             
-            // 購入履歴を取得
+            // 購入履歴を取得（テーブルが存在しない場合はスキップ）
             if (supabase) {
-                const { data: bought } = await supabase
-                    .from('profile_purchases')
-                    .select('profile_id')
-                    .eq('user_id', user.id);
-                setPurchases(bought?.map(p => p.profile_id) || []);
+                try {
+                    const { data: bought, error } = await supabase
+                        .from('profile_purchases')
+                        .select('profile_id')
+                        .eq('user_id', user.id);
+                    
+                    if (error) {
+                        console.warn('profile_purchasesテーブルが見つかりません:', error.message);
+                        setPurchases([]);
+                    } else {
+                        setPurchases(bought?.map(p => p.profile_id) || []);
+                    }
+                } catch (e) {
+                    console.warn('購入履歴の取得に失敗:', e);
+                    setPurchases([]);
+                }
             }
 
             // 決済完了の確認
