@@ -19,15 +19,31 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
   const fetchPublicProfiles = async () => {
     if (!supabase) return;
     try {
-      const { data, error } = await supabase
+      // まずis_publicカラムがあるか試す
+      let { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('is_public', true)
         .order('created_at', { ascending: false })
         .limit(6);
       
+      // is_publicカラムがない場合は、すべてのプロフィールを取得
+      if (error && error.message?.includes('column')) {
+        console.log('is_publicカラムがないため、すべてのプロフィールを取得します');
+        const result = await supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(6);
+        data = result.data;
+        error = result.error;
+      }
+      
       if (!error && data) {
+        console.log('プロフィールを取得しました:', data.length, '件');
         setPublicProfiles(data);
+      } else if (error) {
+        console.error('プロフィール取得エラー:', error);
       }
     } catch (e) {
       console.error('プロフィール取得エラー:', e);
@@ -260,16 +276,16 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* プロフィールLP一覧セクション */}
-        {publicProfiles.length > 0 && (
-          <section className="mb-20 md:mb-32 animate-fade-in delay-5">
-            <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg flex items-center justify-center gap-2">
-              <Sparkles className="text-yellow-400" size={32}/>
-              作成されたプロフィールLP一覧
-            </h2>
-            <p className="text-white text-center mb-12 drop-shadow-md">
-              気になるプロフィールをプレイしてみましょう
-            </p>
-            
+        <section className="mb-20 md:mb-32 animate-fade-in delay-5">
+          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg flex items-center justify-center gap-2">
+            <Sparkles className="text-yellow-400" size={32}/>
+            作成されたプロフィールLP一覧
+          </h2>
+          <p className="text-white text-center mb-12 drop-shadow-md">
+            気になるプロフィールをプレイしてみましょう
+          </p>
+          
+          {publicProfiles.length > 0 ? (
             <div className="grid md:grid-cols-3 gap-6 md:gap-8">
               {publicProfiles.map((profile) => {
                 const category = getProfileCategory(profile);
@@ -327,8 +343,16 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 );
               })}
             </div>
-          </section>
-        )}
+          ) : (
+            <div className="glass-card rounded-2xl p-12 text-center">
+              <Sparkles className="mx-auto mb-4 text-indigo-300" size={48}/>
+              <p className="text-gray-700 text-lg">
+                まだ公開されているプロフィールがありません。<br/>
+                あなたが最初のプロフィールを作成してみませんか？
+              </p>
+            </div>
+          )}
+        </section>
 
         {/* CTAセクション */}
         <section className="mt-20 md:mt-32 text-center animate-fade-in delay-6">

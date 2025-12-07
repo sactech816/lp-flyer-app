@@ -272,7 +272,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           return {
             id: generateBlockId(),
             type: 'links',
-            data: { links: [] }
+            data: { links: [{ label: '新しいリンク', url: 'https://', style: '' }] }
           };
         case 'kindle':
           return {
@@ -296,19 +296,19 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           return {
             id: generateBlockId(),
             type: 'faq',
-            data: { items: [] }
+            data: { items: [{ id: generateBlockId(), question: '', answer: '' }] }
           };
         case 'pricing':
           return {
             id: generateBlockId(),
             type: 'pricing',
-            data: { plans: [] }
+            data: { plans: [{ id: generateBlockId(), title: '', price: '', features: [], isRecommended: false }] }
           };
         case 'testimonial':
           return {
             id: generateBlockId(),
             type: 'testimonial',
-            data: { items: [] }
+            data: { items: [{ id: generateBlockId(), name: '', role: '', comment: '', imageUrl: '' }] }
           };
         default:
           return {
@@ -697,15 +697,15 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">画像</label>
-              <div className="flex gap-2">
-                <Input 
-                  label="" 
-                  val={block.data.url} 
-                  onChange={v => updateBlock(block.id, { url: v })} 
-                  ph="画像URL (https://...)" 
-                  type="url"
-                />
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap self-end border-2 border-dashed border-indigo-300">
+              <Input 
+                label="" 
+                val={block.data.url} 
+                onChange={v => updateBlock(block.id, { url: v })} 
+                ph="画像URL (https://...)" 
+                type="url"
+              />
+              <div className="mt-2">
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 w-full">
                   {isUploading ? (
                     <>
                       <Loader2 className="animate-spin" size={16}/> アップロード中...
