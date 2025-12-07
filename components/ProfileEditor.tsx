@@ -188,14 +188,19 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         
         if (data) {
           // 後方互換性のため、旧形式のデータをマイグレーション
-          if (data.content && Array.isArray(data.content)) {
-            const migratedContent = migrateOldContent(data.content);
+          if (data.content) {
+          // マイグレーション関数が null/undefined/非配列を処理するため、直接呼び出し
+          const migratedContent = migrateOldContent(data.content);
+          if (Array.isArray(migratedContent) && migratedContent.length > 0) {
             setBlocks(migratedContent);
-          } else if (data.content && typeof data.content === 'object') {
-            // 旧形式のオブジェクトの場合もマイグレーション
-            const migratedContent = migrateOldContent(data.content);
-            setBlocks(migratedContent);
+          } else {
+            // 空の場合はデフォルトコンテンツを使用
+            setBlocks(getDefaultContent());
           }
+        } else {
+          // content が存在しない場合はデフォルトコンテンツを使用
+          setBlocks(getDefaultContent());
+        }
           setSavedSlug(data.slug || initialSlug);
           
           // 設定を読み込む（themeもsettingsに含まれる）
@@ -324,7 +329,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     setSelectedBlockId(null);
   };
 
-  // ブロックの並び替え
+  // ブロックの並び替え（不変性を保った実装）
   const moveBlock = (blockId: string, direction: 'up' | 'down') => {
     setBlocks(prev => {
       const index = prev.findIndex(b => b.id === blockId);
@@ -333,20 +338,28 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       const newIndex = direction === 'up' ? index - 1 : index + 1;
       if (newIndex < 0 || newIndex >= prev.length) return prev;
       
-      const newBlocks = [...prev];
-      [newBlocks[index], newBlocks[newIndex]] = [newBlocks[newIndex], newBlocks[index]];
-      return newBlocks;
+      // toSpliced を使用して不変性を保つ（ES2023+）
+      // フォールバック: スプレッド演算子で新しい配列を作成
+      if (Array.prototype.toSpliced) {
+        return prev.toSpliced(index, 1).toSpliced(newIndex, 0, prev[index]);
+      } else {
+        // フォールバック実装
+        const newBlocks = [...prev];
+        const [movedBlock] = newBlocks.splice(index, 1);
+        newBlocks.splice(newIndex, 0, movedBlock);
+        return newBlocks;
+      }
     });
   };
 
-  // ブロックの更新
-  const updateBlock = (blockId: string, updates: any) => {
+  // ブロックの更新（型安全な実装）
+  const updateBlock = (blockId: string, updates: Partial<Block['data']>) => {
     setBlocks(prev => prev.map(block => {
       if (block.id === blockId) {
         return {
           ...block,
-          data: { ...block.data, ...updates } as any
-        };
+          data: { ...block.data, ...updates }
+        } as Block;
       }
       return block;
     }));
@@ -354,36 +367,52 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
   // リンクの追加（linksブロック内）
   const addLinkToBlock = (blockId: string) => {
-    setBlocks(prev => prev.map(block => 
-      block.id === blockId && block.type === 'links'
-        ? { ...block, data: { links: [...block.data.links, { label: '新しいリンク', url: 'https://', style: '' }] } }
-        : block
-    ));
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId && block.type === 'links') {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            links: [...block.data.links, { label: '新しいリンク', url: 'https://', style: '' }]
+          }
+        };
+      }
+      return block;
+    }));
   };
 
   // リンクの削除（linksブロック内）
   const removeLinkFromBlock = (blockId: string, linkIndex: number) => {
-    setBlocks(prev => prev.map(block => 
-      block.id === blockId && block.type === 'links'
-        ? { ...block, data: { links: block.data.links.filter((_, i) => i !== linkIndex) } }
-        : block
-    ));
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId && block.type === 'links') {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            links: block.data.links.filter((_, i) => i !== linkIndex)
+          }
+        };
+      }
+      return block;
+    }));
   };
 
   // リンクの更新（linksブロック内）
   const updateLinkInBlock = (blockId: string, linkIndex: number, field: 'label' | 'url' | 'style', value: string) => {
-    setBlocks(prev => prev.map(block => 
-      block.id === blockId && block.type === 'links'
-        ? {
-            ...block,
-            data: {
-              links: block.data.links.map((link, i) => 
-                i === linkIndex ? { ...link, [field]: value } : link
-              )
-            }
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId && block.type === 'links') {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            links: block.data.links.map((link, i) => 
+              i === linkIndex ? { ...link, [field]: value } : link
+            )
           }
-        : block
-    ));
+        };
+      }
+      return block;
+    }));
   };
 
   // 画像アップロード（ブロック用）
@@ -735,8 +764,11 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               </button>
             </div>
             <div className="space-y-3">
-              {block.data.links.map((link, index) => (
-                <div key={index} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+              {block.data.links.map((link, index) => {
+                // リンクに一意のIDがない場合は生成（後方互換性）
+                const linkId = `link_${block.id}_${index}`;
+                return (
+                <div key={linkId} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-2 mb-2">
                     <GripVertical className="text-gray-400" size={14}/>
                     <span className="text-xs font-bold text-gray-500">リンク {index + 1}</span>
@@ -775,7 +807,8 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
               {block.data.links.length === 0 && (
                 <p className="text-center py-4 text-gray-400 text-sm">リンクがありません</p>
               )}
