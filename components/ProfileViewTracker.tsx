@@ -8,12 +8,23 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
   const maxScrollRef = useRef<number>(0);
   const scrollTrackedRef = useRef<Set<number>>(new Set());
   const readTrackedRef = useRef<boolean>(false);
+  const viewTrackedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (!profileId) return;
+    if (!profileId) {
+      console.warn('[ProfileViewTracker] No profileId provided');
+      return;
+    }
 
-    // ページビューを記録
-    saveAnalytics(profileId, 'view');
+    console.log('[ProfileViewTracker] Initializing for profile:', profileId);
+
+    // ページビューを記録（初回のみ）
+    if (!viewTrackedRef.current) {
+      viewTrackedRef.current = true;
+      saveAnalytics(profileId, 'view').then((result) => {
+        console.log('[ProfileViewTracker] View tracked:', result);
+      });
+    }
 
     // スクロール深度を追跡
     const handleScroll = () => {
@@ -27,7 +38,9 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
       [25, 50, 75, 100].forEach(milestone => {
         if (scrollDepth >= milestone && !scrollTrackedRef.current.has(milestone)) {
           scrollTrackedRef.current.add(milestone);
-          saveAnalytics(profileId, 'scroll', { scrollDepth: milestone });
+          saveAnalytics(profileId, 'scroll', { scrollDepth: milestone }).then(() => {
+            console.log('[ProfileViewTracker] Scroll milestone tracked:', milestone);
+          });
         }
       });
     };
@@ -36,7 +49,9 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
     const checkReadRate = () => {
       if (!readTrackedRef.current && maxScrollRef.current >= 50) {
         readTrackedRef.current = true;
-        saveAnalytics(profileId, 'read', { readPercentage: maxScrollRef.current });
+        saveAnalytics(profileId, 'read', { readPercentage: maxScrollRef.current }).then(() => {
+          console.log('[ProfileViewTracker] Read tracked:', maxScrollRef.current);
+        });
       }
     };
 
@@ -52,18 +67,20 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
     const handleBeforeUnload = () => {
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
       if (timeSpent > 0) {
-        saveAnalytics(profileId, 'time', { timeSpent });
-      }
-      if (maxScrollRef.current > 0) {
-        saveAnalytics(profileId, 'scroll', { scrollDepth: maxScrollRef.current });
+        // sendBeacon APIを使用して確実に送信
+        const data = JSON.stringify({ profileId, eventType: 'time', eventData: { timeSpent } });
+        navigator.sendBeacon('/api/analytics', data);
+        console.log('[ProfileViewTracker] Time tracked on unload:', timeSpent);
       }
     };
 
     // 定期的に滞在時間を記録（30秒ごと）
     const timeInterval = setInterval(() => {
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
-      if (timeSpent > 0) {
-        saveAnalytics(profileId, 'time', { timeSpent });
+      if (timeSpent > 0 && timeSpent % 30 === 0) {
+        saveAnalytics(profileId, 'time', { timeSpent }).then(() => {
+          console.log('[ProfileViewTracker] Time tracked:', timeSpent);
+        });
       }
     }, 30000);
 
@@ -79,11 +96,9 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
       
       // クリーンアップ時に最終データを記録
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
-      if (timeSpent > 0) {
+      if (timeSpent > 3) { // 3秒以上滞在した場合のみ記録
         saveAnalytics(profileId, 'time', { timeSpent });
-      }
-      if (maxScrollRef.current > 0) {
-        saveAnalytics(profileId, 'scroll', { scrollDepth: maxScrollRef.current });
+        console.log('[ProfileViewTracker] Final time tracked:', timeSpent);
       }
     };
   }, [profileId]);

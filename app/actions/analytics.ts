@@ -12,10 +12,15 @@ export async function saveAnalytics(
     readPercentage?: number;
   }
 ) {
-  if (!supabase) return { error: 'Database not available' };
+  if (!supabase) {
+    console.warn('Supabase not available for analytics');
+    return { error: 'Database not available' };
+  }
 
   try {
-    const { error } = await supabase
+    console.log('[Analytics] Saving:', { profileId, eventType, eventData });
+    
+    const { data, error } = await supabase
       .from('analytics')
       .insert([
         {
@@ -24,33 +29,42 @@ export async function saveAnalytics(
           event_data: eventData || {},
           created_at: new Date().toISOString()
         }
-      ]);
+      ])
+      .select();
 
     if (error) {
-      console.error('Analytics save error:', error);
+      console.error('[Analytics] Save error:', error);
       return { error: error.message };
     }
 
+    console.log('[Analytics] Saved successfully:', data);
     return { success: true };
   } catch (error: any) {
-    console.error('Analytics save error:', error);
+    console.error('[Analytics] Exception:', error);
     return { error: error.message };
   }
 }
 
 export async function getAnalytics(profileId: string) {
-  if (!supabase) return { views: 0, clicks: 0, avgScrollDepth: 0, avgTimeSpent: 0, readRate: 0, clickRate: 0 };
+  if (!supabase) {
+    console.warn('Supabase not available for analytics');
+    return { views: 0, clicks: 0, avgScrollDepth: 0, avgTimeSpent: 0, readRate: 0, clickRate: 0 };
+  }
 
   try {
+    console.log('[Analytics] Fetching for profile:', profileId);
+    
     const { data: allEvents, error } = await supabase
       .from('analytics')
       .select('*')
       .eq('profile_id', profileId);
 
     if (error) {
-      console.error('Analytics fetch error:', error);
+      console.error('[Analytics] Fetch error:', error);
       return { views: 0, clicks: 0, avgScrollDepth: 0, avgTimeSpent: 0, readRate: 0, clickRate: 0 };
     }
+
+    console.log('[Analytics] Fetched events:', allEvents?.length || 0);
 
     const views = allEvents?.filter(e => e.event_type === 'view') || [];
     const clicks = allEvents?.filter(e => e.event_type === 'click') || [];
