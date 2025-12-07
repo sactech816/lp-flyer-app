@@ -331,12 +331,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                           onError={(e) => {
                             // 画像読み込み失敗時はフォールバック
                             e.target.style.display = 'none';
-                            e.target.parentElement.classList.add(
-                              category === 'fortune' ? 'bg-gradient-to-br', 'from-purple-400', 'to-pink-500' :
-                              category === 'business' ? 'bg-gradient-to-br', 'from-blue-400', 'to-indigo-500' :
-                              category === 'study' ? 'bg-gradient-to-br', 'from-green-400', 'to-teal-500' :
-                              'bg-gradient-to-br', 'from-gray-400', 'to-gray-500'
-                            );
+                            const classes = 
+                              category === 'fortune' ? ['bg-gradient-to-br', 'from-purple-400', 'to-pink-500'] :
+                              category === 'business' ? ['bg-gradient-to-br', 'from-blue-400', 'to-indigo-500'] :
+                              category === 'study' ? ['bg-gradient-to-br', 'from-green-400', 'to-teal-500'] :
+                              ['bg-gradient-to-br', 'from-gray-400', 'to-gray-500'];
+                            e.target.parentElement.classList.add(...classes);
                             const fallbackIcon = document.createElement('div');
                             fallbackIcon.innerHTML = '<svg class="text-white opacity-50" width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>';
                             e.target.parentElement.appendChild(fallbackIcon.firstChild);
