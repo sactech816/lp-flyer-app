@@ -145,7 +145,7 @@ export const templates: Template[] = [
         type: 'kindle',
         data: {
           asin: 'B08XXXXXXX',
-          imageUrl: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&h=600&fit=crop',
+          imageUrl: '/assets/c__Users_info_AppData_Roaming_Cursor_User_workspaceStorage_214701d20b9d198b6d2d4a083db93119_images_image-cdb44753-72dc-45b6-8ea2-30ad12714c8b.png',
           title: '1週間で変わる文章術',
           description: '文章が苦手だった私が、たった1週間で読者に響く文章を書けるようになった方法を公開。\n\n・読みやすい文章の基本構造\n・共感を生む言葉の選び方\n・読者の心を動かすストーリー術\n\nKindle Unlimited会員なら無料で読めます！'
         }

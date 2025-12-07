@@ -94,6 +94,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     clickRate: 0 
   });
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const uploadOwnerId = user?.id || 'public';
 
   // 共通アップロード関数（RLS回避のためサーバールート経由）
@@ -630,7 +631,8 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         setAnalytics(analyticsData);
       }
       
-      alert('保存しました！');
+      // 成功モーダルを表示
+      setShowSuccessModal(true);
       
       if (onSave) {
         onSave({ slug, content: blocks });
