@@ -152,6 +152,16 @@ export const templates: Template[] = [
       },
       {
         id: generateBlockId(),
+        type: 'kindle',
+        data: {
+          asin: 'B09YYYYYYY',
+          imageUrl: 'https://m.media-amazon.com/images/I/41MXfWnMo9L._SY445_SX342_.jpg',
+          title: '売れる文章の作り方',
+          description: '読まれる文章から「売れる文章」へ。\n\n・顧客心理を動かす言葉の選び方\n・セールスライティングの基礎\n・実践的なコピーライティング術\n\nあなたの文章を「売れる」に変える一冊。'
+        }
+      },
+      {
+        id: generateBlockId(),
         type: 'text_card',
         data: {
           title: '🎉 出版記念キャンペーン実施中！',
@@ -202,7 +212,7 @@ export const templates: Template[] = [
         id: generateBlockId(),
         type: 'youtube',
         data: {
-          url: 'https://www.youtube.com/watch?v=example'
+          url: 'https://www.youtube.com/watch?v=N2NIQztcYyw'
         }
       },
       {
