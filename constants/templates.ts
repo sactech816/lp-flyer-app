@@ -129,7 +129,7 @@ export const templates: Template[] = [
     description: '販売と集客を重視したコンテンツ販売向けテンプレート',
     category: 'コンテンツ',
     theme: {
-      gradient: 'linear-gradient(-45deg, #f97316, #fb923c, #fbbf24, #f59e0b)'
+      gradient: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)'
     },
     blocks: [
       {
@@ -138,8 +138,17 @@ export const templates: Template[] = [
         data: {
           avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=faces',
           name: '佐藤 みらい',
-          title: 'ベストセラー作家｜累計3万部突破',
+          title: 'Kindle作家｜人生を変える読書術の伝道師',
           category: 'other'
+        }
+      },
+      {
+        id: generateBlockId(),
+        type: 'text_card',
+        data: {
+          title: '📚 本との出会いが、あなたの未来を変える',
+          text: '元・活字嫌いの私が、年間300冊読むようになり、Kindle作家として独立するまでの軌跡。\n\n読書を通じて人生が激変した経験から、「読書の力」と「知識の活かし方」を発信しています。\n\n本を読むだけでなく、学びを行動に変える方法をお伝えします。',
+          align: 'center'
         }
       },
       {
@@ -147,9 +156,9 @@ export const templates: Template[] = [
         type: 'kindle',
         data: {
           asin: 'B08XXXXXXX',
-          imageUrl: '/assets/c__Users_info_AppData_Roaming_Cursor_User_workspaceStorage_214701d20b9d198b6d2d4a083db93119_images_image-cdb44753-72dc-45b6-8ea2-30ad12714c8b.png',
-          title: '1週間で変わる文章術',
-          description: '文章が苦手だった私が、たった1週間で読者に響く文章を書けるようになった方法を公開。\n\n・読みやすい文章の基本構造\n・共感を生む言葉の選び方\n・読者の心を動かすストーリー術\n\nKindle Unlimited会員なら無料で読めます！'
+          imageUrl: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&h=600&fit=crop',
+          title: '読書革命：1日30分で人生が変わる読書術',
+          description: '忙しいあなたでも続けられる、効率的な読書メソッド。\n\n・スキマ時間を活用した読書習慣\n・記憶に残る読書ノート術\n・学びを収入に変える実践法\n・おすすめ書籍100選\n\n「読書が苦手」から「読書が楽しい」へ。\n\nKindle Unlimited会員なら無料！'
         }
       },
       {
@@ -157,17 +166,46 @@ export const templates: Template[] = [
         type: 'kindle',
         data: {
           asin: 'B09YYYYYYY',
-          imageUrl: 'https://m.media-amazon.com/images/I/41MXfWnMo9L._SY445_SX342_.jpg',
-          title: '売れる文章の作り方',
-          description: '読まれる文章から「売れる文章」へ。\n\n・顧客心理を動かす言葉の選び方\n・セールスライティングの基礎\n・実践的なコピーライティング術\n\nあなたの文章を「売れる」に変える一冊。'
+          imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&h=600&fit=crop',
+          title: 'アウトプット思考：読んだ知識を10倍活かす技術',
+          description: 'インプットだけでは意味がない。真の成長はアウトプットから始まる。\n\n・効果的なアウトプット習慣\n・SNSで発信力を高める方法\n・知識を収益化する5つのステップ\n・実践ワークシート付き\n\n読書を「自己投資」から「資産」に変える一冊。'
+        }
+      },
+      {
+        id: generateBlockId(),
+        type: 'testimonial',
+        data: {
+          items: [
+            {
+              id: generateBlockId(),
+              name: '田中 美咲',
+              role: '会社員・30代',
+              comment: 'みらいさんの本を読んで、読書習慣が身につきました！月1冊も読めなかった私が、今では月10冊ペースで読めています。人生が変わりました！',
+              imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces'
+            },
+            {
+              id: generateBlockId(),
+              name: '山田 健太',
+              role: 'フリーランス・40代',
+              comment: 'アウトプット思考を実践したら、SNSのフォロワーが3ヶ月で5倍に！読書から得た知識を発信することで、仕事の依頼も増えました。',
+              imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=faces'
+            },
+            {
+              id: generateBlockId(),
+              name: '鈴木 さくら',
+              role: '主婦・20代',
+              comment: '子育て中でも読書時間が作れるようになりました。スキマ時間の活用法が目からウロコ！今では読書が一番の楽しみです。',
+              imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
+            }
+          ]
         }
       },
       {
         id: generateBlockId(),
         type: 'text_card',
         data: {
-          title: '🎉 出版記念キャンペーン実施中！',
-          text: '今だけの特別特典をご用意しました！\n\n✅ 未公開の原稿（第0章）をプレゼント\n✅ 読者限定の動画セミナー（30分）\n✅ 文章添削サービス（1回分）\n\nこの機会をお見逃しなく！\n\n※特典はメルマガ登録後、すぐにお送りします。',
+          title: '🎁 読者限定プレゼント',
+          text: 'メルマガ登録で、今すぐ使える特典をプレゼント！\n\n【特典内容】\n📖 人生を変えた必読書リスト50選（PDF）\n✍️ 読書ノートテンプレート（Notion版）\n🎥 効率的な読書術・解説動画（20分）\n💡 月1回の限定コラム配信\n\n※登録後すぐにダウンロードURLをお送りします',
           align: 'center'
         }
       },
@@ -175,7 +213,7 @@ export const templates: Template[] = [
         id: generateBlockId(),
         type: 'lead_form',
         data: {
-          title: '未公開原稿をプレゼント',
+          title: '無料プレゼントを受け取る',
           buttonText: '今すぐ登録する'
         }
       },
@@ -184,9 +222,10 @@ export const templates: Template[] = [
         type: 'links',
         data: {
           links: [
-            { label: 'Amazon著者ページ', url: 'https://amazon.co.jp/author/example', style: 'orange' },
-            { label: 'note', url: 'https://note.com/example', style: '' },
-            { label: 'X (Twitter)', url: 'https://x.com/example', style: '' }
+            { label: '📕 Amazon著者ページ', url: 'https://amazon.co.jp/author/example', style: 'orange' },
+            { label: '📓 note（読書記録）', url: 'https://note.com/example', style: '' },
+            { label: '📘 X (Twitter)', url: 'https://x.com/example', style: '' },
+            { label: '📗 Instagram', url: 'https://instagram.com/example', style: '' }
           ]
         }
       }

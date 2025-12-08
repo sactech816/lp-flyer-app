@@ -131,7 +131,7 @@ export function BlockRenderer({ block, profileId }: { block: Block; profileId?: 
               : palette[link.style] || palette.default;
 
             const handleClick = async () => {
-              if (profileId) {
+              if (profileId && profileId !== 'demo') {
                 console.log('[LinkClick] Tracking click:', link.url);
                 await saveAnalytics(profileId, 'click', { url: link.url });
               }
@@ -212,7 +212,7 @@ export function BlockRenderer({ block, profileId }: { block: Block; profileId?: 
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={async () => {
-                    if (profileId) {
+                    if (profileId && profileId !== 'demo') {
                       console.log('[KindleClick] Tracking click:', amazonUrl);
                       await saveAnalytics(profileId, 'click', { url: amazonUrl });
                     }
@@ -406,7 +406,7 @@ function TestimonialBlock({ block }: { block: Extract<Block, { type: 'testimonia
 // LINE登録カードブロックコンポーネント
 function LineCardBlock({ block, profileId }: { block: Extract<Block, { type: 'line_card' }>; profileId?: string }) {
   const handleClick = async () => {
-    if (profileId) {
+    if (profileId && profileId !== 'demo') {
       console.log('[LineClick] Tracking click:', block.data.url);
       await saveAnalytics(profileId, 'click', { url: block.data.url });
     }

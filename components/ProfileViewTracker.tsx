@@ -16,6 +16,12 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
       return;
     }
 
+    // デモページの場合はトラッキングしない
+    if (profileId === 'demo') {
+      console.log('[ProfileViewTracker] Skipping demo profile');
+      return;
+    }
+
     console.log('[ProfileViewTracker] Initializing for profile:', profileId);
 
     // ページビューを記録（初回のみ）
@@ -23,6 +29,11 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
       viewTrackedRef.current = true;
       saveAnalytics(profileId, 'view').then((result) => {
         console.log('[ProfileViewTracker] View tracked:', result);
+        if (result.error) {
+          console.error('[ProfileViewTracker] View tracking error:', result.error);
+        }
+      }).catch((error) => {
+        console.error('[ProfileViewTracker] View tracking exception:', error);
       });
     }
 
@@ -38,8 +49,13 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
       [25, 50, 75, 100].forEach(milestone => {
         if (scrollDepth >= milestone && !scrollTrackedRef.current.has(milestone)) {
           scrollTrackedRef.current.add(milestone);
-          saveAnalytics(profileId, 'scroll', { scrollDepth: milestone }).then(() => {
-            console.log('[ProfileViewTracker] Scroll milestone tracked:', milestone);
+          saveAnalytics(profileId, 'scroll', { scrollDepth: milestone }).then((result) => {
+            console.log('[ProfileViewTracker] Scroll milestone tracked:', milestone, result);
+            if (result.error) {
+              console.error('[ProfileViewTracker] Scroll tracking error:', result.error);
+            }
+          }).catch((error) => {
+            console.error('[ProfileViewTracker] Scroll tracking exception:', error);
           });
         }
       });
@@ -49,8 +65,13 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
     const checkReadRate = () => {
       if (!readTrackedRef.current && maxScrollRef.current >= 50) {
         readTrackedRef.current = true;
-        saveAnalytics(profileId, 'read', { readPercentage: maxScrollRef.current }).then(() => {
-          console.log('[ProfileViewTracker] Read tracked:', maxScrollRef.current);
+        saveAnalytics(profileId, 'read', { readPercentage: maxScrollRef.current }).then((result) => {
+          console.log('[ProfileViewTracker] Read tracked:', maxScrollRef.current, result);
+          if (result.error) {
+            console.error('[ProfileViewTracker] Read tracking error:', result.error);
+          }
+        }).catch((error) => {
+          console.error('[ProfileViewTracker] Read tracking exception:', error);
         });
       }
     };
@@ -68,8 +89,11 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
       if (timeSpent > 0) {
         // sendBeacon APIを使用して確実に送信
-        const data = JSON.stringify({ profileId, eventType: 'time', eventData: { timeSpent } });
-        navigator.sendBeacon('/api/analytics', data);
+        const blob = new Blob(
+          [JSON.stringify({ profileId, eventType: 'time', eventData: { timeSpent } })],
+          { type: 'application/json' }
+        );
+        navigator.sendBeacon('/api/analytics', blob);
         console.log('[ProfileViewTracker] Time tracked on unload:', timeSpent);
       }
     };
@@ -77,9 +101,14 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
     // 定期的に滞在時間を記録（30秒ごと）
     const timeInterval = setInterval(() => {
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
-      if (timeSpent > 0 && timeSpent % 30 === 0) {
-        saveAnalytics(profileId, 'time', { timeSpent }).then(() => {
-          console.log('[ProfileViewTracker] Time tracked:', timeSpent);
+      if (timeSpent >= 30) {
+        saveAnalytics(profileId, 'time', { timeSpent }).then((result) => {
+          console.log('[ProfileViewTracker] Time tracked:', timeSpent, result);
+          if (result.error) {
+            console.error('[ProfileViewTracker] Time tracking error:', result.error);
+          }
+        }).catch((error) => {
+          console.error('[ProfileViewTracker] Time tracking exception:', error);
         });
       }
     }, 30000);
@@ -97,8 +126,14 @@ export function ProfileViewTracker({ profileId }: { profileId: string }) {
       // クリーンアップ時に最終データを記録
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000);
       if (timeSpent > 3) { // 3秒以上滞在した場合のみ記録
-        saveAnalytics(profileId, 'time', { timeSpent });
-        console.log('[ProfileViewTracker] Final time tracked:', timeSpent);
+        saveAnalytics(profileId, 'time', { timeSpent }).then((result) => {
+          console.log('[ProfileViewTracker] Final time tracked:', timeSpent, result);
+          if (result.error) {
+            console.error('[ProfileViewTracker] Final time tracking error:', result.error);
+          }
+        }).catch((error) => {
+          console.error('[ProfileViewTracker] Final time tracking exception:', error);
+        });
       }
     };
   }, [profileId]);

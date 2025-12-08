@@ -21,10 +21,10 @@ interface Profile {
 async function getProfile(slug: string): Promise<Profile | null> {
   if (!supabase) return null;
   
-  // デモページの場合は2つ目のテンプレート（Kindle作家）を返す
+  // デモページの場合はランダムテンプレートを返す
   if (slug === 'demo-user') {
     const { templates } = await import('@/constants/templates');
-    const randomTemplate = templates[1]; // 2つ目のテンプレート（kindle-author）を使用
+    const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
     
     // テンプレートのブロックをコピーしてIDを再生成
     const { generateBlockId } = await import('@/lib/types');
