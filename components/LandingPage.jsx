@@ -80,6 +80,18 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
     return headerBlock?.data?.avatar || null;
   };
 
+  // プロフィールのテーマ（背景画像またはグラデーション）を取得
+  const getProfileTheme = (profile) => {
+    const theme = profile.settings?.theme;
+    if (theme?.backgroundImage) {
+      return { type: 'image', value: theme.backgroundImage };
+    }
+    if (theme?.gradient) {
+      return { type: 'gradient', value: theme.gradient };
+    }
+    return null;
+  };
+
   // カテゴリーの表示名とスタイルを取得
   const getCategoryInfo = (category) => {
     const categories = {
@@ -299,7 +311,34 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 const categoryInfo = getCategoryInfo(category);
                 const profileName = getProfileName(profile);
                 const description = getProfileDescription(profile);
-                const avatarUrl = getProfileAvatar(profile);
+                const theme = getProfileTheme(profile);
+                
+                // 背景スタイルを決定（テーマ > カテゴリー別グラデーション）
+                const getBackgroundStyle = () => {
+                  if (theme?.type === 'image') {
+                    return {
+                      backgroundImage: `url(${theme.value})`,
+                      backgroundPosition: 'center',
+                      backgroundSize: 'cover',
+                      backgroundRepeat: 'no-repeat'
+                    };
+                  }
+                  if (theme?.type === 'gradient') {
+                    return {
+                      background: theme.value,
+                      backgroundSize: '400% 400%'
+                    };
+                  }
+                  // フォールバック: カテゴリー別グラデーション
+                  const gradientClasses = 
+                    category === 'fortune' ? 'bg-gradient-to-br from-purple-400 to-pink-500' :
+                    category === 'business' ? 'bg-gradient-to-br from-blue-400 to-indigo-500' :
+                    category === 'study' ? 'bg-gradient-to-br from-green-400 to-teal-500' :
+                    'bg-gradient-to-br from-gray-400 to-gray-500';
+                  return { className: gradientClasses };
+                };
+                
+                const backgroundStyle = getBackgroundStyle();
                 
                 return (
                   <a
@@ -309,40 +348,17 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                     rel="noopener noreferrer"
                     className="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer group"
                   >
-                    {/* カードヘッダー（サムネイル画像 or グラデーション背景） */}
-                    <div className={`relative h-32 flex items-center justify-center ${
-                      !avatarUrl ? (
-                        category === 'fortune' ? 'bg-gradient-to-br from-purple-400 to-pink-500' :
-                        category === 'business' ? 'bg-gradient-to-br from-blue-400 to-indigo-500' :
-                        category === 'study' ? 'bg-gradient-to-br from-green-400 to-teal-500' :
-                        'bg-gradient-to-br from-gray-400 to-gray-500'
-                      ) : 'bg-gray-200'
-                    }`}>
+                    {/* カードヘッダー（背景画像 or グラデーション背景） */}
+                    <div 
+                      className={`relative h-32 flex items-center justify-center ${backgroundStyle.className || ''}`}
+                      style={backgroundStyle.className ? undefined : backgroundStyle}
+                    >
                       <div className="absolute top-4 right-4 z-10">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${categoryInfo.color}`}>
                           {categoryInfo.label}
                         </span>
                       </div>
-                      {avatarUrl ? (
-                        <img 
-                          src={avatarUrl} 
-                          alt={profileName}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // 画像読み込み失敗時はフォールバック
-                            e.target.style.display = 'none';
-                            const classes = 
-                              category === 'fortune' ? ['bg-gradient-to-br', 'from-purple-400', 'to-pink-500'] :
-                              category === 'business' ? ['bg-gradient-to-br', 'from-blue-400', 'to-indigo-500'] :
-                              category === 'study' ? ['bg-gradient-to-br', 'from-green-400', 'to-teal-500'] :
-                              ['bg-gradient-to-br', 'from-gray-400', 'to-gray-500'];
-                            e.target.parentElement.classList.add(...classes);
-                            const fallbackIcon = document.createElement('div');
-                            fallbackIcon.innerHTML = '<svg class="text-white opacity-50" width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>';
-                            e.target.parentElement.appendChild(fallbackIcon.firstChild);
-                          }}
-                        />
-                      ) : (
+                      {!theme && (
                         <Sparkles className="text-white opacity-50" size={48}/>
                       )}
                     </div>
