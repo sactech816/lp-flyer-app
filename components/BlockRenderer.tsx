@@ -425,8 +425,8 @@ function LineCardBlock({ block, profileId }: { block: Extract<Block, { type: 'li
           <h3 className="text-2xl font-bold mb-2">{block.data.title || 'LINE公式アカウント'}</h3>
           <p className="text-white/90 mb-4">{block.data.description || '最新情報をお届けします'}</p>
           
-          {/* QRコード表示（画像が指定されている場合はそれを使用） */}
-          {block.data.qrImageUrl ? (
+          {/* QRコード表示（画像が指定されている場合のみ表示） */}
+          {block.data.qrImageUrl && (
             <div className="mb-4 flex justify-center">
               <div className="bg-white p-3 rounded-lg inline-block">
                 <img 
@@ -436,18 +436,7 @@ function LineCardBlock({ block, profileId }: { block: Extract<Block, { type: 'li
                 />
               </div>
             </div>
-          ) : block.data.url ? (
-            <div className="mb-4 flex justify-center">
-              <div className="bg-white p-3 rounded-lg inline-block">
-                <QRCodeSVG 
-                  value={block.data.url}
-                  size={120}
-                  level="H"
-                  includeMargin={true}
-                />
-              </div>
-            </div>
-          ) : null}
+          )}
           
           <button
             onClick={handleClick}
