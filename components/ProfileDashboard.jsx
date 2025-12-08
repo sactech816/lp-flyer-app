@@ -236,30 +236,30 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} />
-            <div className="max-w-6xl mx-auto py-12 px-4">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-extrabold text-gray-900 flex items-center gap-2">
-                        <LayoutDashboard/> ダッシュボード
+            <div className="max-w-6xl mx-auto py-6 md:py-12 px-4">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8">
+                    <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 flex items-center gap-2">
+                        <LayoutDashboard size={24} className="md:w-6 md:h-6"/> ダッシュボード
                     </h1>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                         <button 
                             onClick={handleCreate} 
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 transition-colors"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 md:px-4 py-2 rounded-full font-bold text-xs md:text-sm flex items-center gap-1 md:gap-2 transition-colors"
                         >
-                            <Plus size={16}/> LPの新規作成
+                            <Plus size={14} className="md:w-4 md:h-4"/> <span>LPの新規作成</span>
                         </button>
                         <button 
                             onClick={onLogout} 
-                            className="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 text-sm"
+                            className="text-gray-500 hover:text-red-500 font-bold flex items-center gap-1 text-xs md:text-sm"
                         >
-                            <LogOut size={16}/> ログアウト
+                            <LogOut size={14} className="md:w-4 md:h-4"/> <span className="hidden sm:inline">ログアウト</span>
                         </button>
                     </div>
                 </div>
 
-                <div className="grid lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
+                    <div className="lg:col-span-1 space-y-4 md:space-y-6">
+                        <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-200">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="bg-indigo-100 p-3 rounded-full text-indigo-600">
                                     <User size={24}/>
@@ -287,7 +287,7 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                     </div>
 
                     <div className="lg:col-span-2">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 min-h-[350px]">
+                        <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-200 min-h-[350px]">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="font-bold text-gray-700 flex items-center gap-2">
                                     <FileText size={18}/> プロフィール一覧
@@ -326,17 +326,17 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                                 </div>
                             ) : (
                                 <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-                                    <table className="w-full text-sm text-left text-gray-500">
-                                        <thead className="text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
+                                    <table className="w-full text-xs md:text-sm text-left text-gray-500">
+                                        <thead className="text-[10px] md:text-xs text-gray-700 uppercase bg-gray-50 sticky top-0">
                                             <tr>
-                                                <th className="px-4 py-3 bg-gray-50">プロフィール名</th>
-                                                <th className="px-4 py-3 bg-gray-50">Slug</th>
-                                                <th className="px-4 py-3 text-right bg-gray-50">アクセス数</th>
-                                                <th className="px-4 py-3 text-right bg-gray-50">クリック数</th>
-                                                <th className="px-4 py-3 text-right bg-gray-50">クリック率</th>
-                                                <th className="px-4 py-3 text-right bg-gray-50">精読率</th>
-                                                <th className="px-4 py-3 text-right bg-gray-50">滞在時間</th>
-                                                <th className="px-4 py-3 text-right bg-gray-50">作成日</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 bg-gray-50">プロフィール名</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 bg-gray-50 hidden md:table-cell">Slug</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-right bg-gray-50">アクセス数</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-right bg-gray-50">クリック数</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-right bg-gray-50 hidden sm:table-cell">クリック率</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-right bg-gray-50 hidden lg:table-cell">精読率</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-right bg-gray-50 hidden lg:table-cell">滞在時間</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-right bg-gray-50 hidden md:table-cell">作成日</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -344,28 +344,28 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                                                 const analytics = analyticsMap[p.id] || { views: 0, clicks: 0, clickRate: 0, readRate: 0, avgTimeSpent: 0 };
                                                 return (
                                                     <tr key={p.id} className="border-b hover:bg-gray-50">
-                                                        <td className="px-4 py-3 font-medium text-gray-900 truncate max-w-[200px]">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 font-medium text-gray-900 truncate max-w-[150px] md:max-w-[200px]">
                                                             {getProfileName(p)}
                                                         </td>
-                                                        <td className="px-4 py-3 text-gray-600 font-mono text-xs">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 text-gray-600 font-mono text-[10px] md:text-xs hidden md:table-cell">
                                                             {p.slug}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-indigo-600">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 text-right font-bold text-indigo-600">
                                                             {analytics.views}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-indigo-600">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 text-right font-bold text-indigo-600">
                                                             {analytics.clicks}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-green-600">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 text-right font-bold text-green-600 hidden sm:table-cell">
                                                             {analytics.clickRate > 0 ? `${analytics.clickRate}%` : '-'}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-blue-600">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 text-right font-bold text-blue-600 hidden lg:table-cell">
                                                             {analytics.readRate > 0 ? `${analytics.readRate}%` : '-'}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right font-bold text-purple-600">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 text-right font-bold text-purple-600 hidden lg:table-cell">
                                                             {analytics.avgTimeSpent > 0 ? `${analytics.avgTimeSpent}秒` : '-'}
                                                         </td>
-                                                        <td className="px-4 py-3 text-right text-gray-500 text-xs">
+                                                        <td className="px-2 md:px-4 py-2 md:py-3 text-right text-gray-500 text-[10px] md:text-xs hidden md:table-cell">
                                                             {p.created_at ? new Date(p.created_at).toLocaleDateString('ja-JP') : '-'}
                                                         </td>
                                                     </tr>

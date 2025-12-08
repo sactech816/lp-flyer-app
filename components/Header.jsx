@@ -56,10 +56,10 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
             {isMenuOpen && (
                 <div className="md:hidden bg-white border-t absolute w-full left-0 top-16 shadow-xl py-4 px-6 flex flex-col gap-2 animate-fade-in z-50 h-[calc(100vh-64px)] overflow-y-auto pb-20">
                     <p className="text-xs font-bold text-gray-400 mt-4 mb-2">メニュー</p>
-                    {user && (
-                        <button onClick={()=>{setPage('profile-editor'); setIsMenuOpen(false);}} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><PlusCircle size={20}/> LPの新規作成</button>
-                    )}
+                    <button onClick={()=>{setPage('profile-editor'); setIsMenuOpen(false);}} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><PlusCircle size={20}/> 新規作成</button>
                     <button onClick={()=>handleNav('dashboard')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><LayoutDashboard size={20}/> ダッシュボード</button>
+                    
+                    <p className="text-xs font-bold text-gray-400 mt-4 mb-2">コンテンツページ</p>
                     <button onClick={()=>handleNav('profile-howto')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><HelpCircle size={20}/> 使い方</button>
                     <button onClick={()=>handleNav('profile-effective')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Lightbulb size={20}/> 効果的な利用方法</button>
                     <button onClick={()=>handleNav('contact')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Mail size={20}/> お問い合わせ</button>

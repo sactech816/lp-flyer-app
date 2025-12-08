@@ -6,7 +6,7 @@ import {
     X, Link, UploadCloud, Eye, User, FileText, GripVertical,
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
     ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
-    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star
+    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter
 } from 'lucide-react';
 import { generateSlug } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -1354,95 +1354,124 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         )}
 
         {/* ヘッダー */}
-        <div className="bg-white border-b px-6 py-4 flex justify-between sticky top-0 z-50 shadow-sm" style={{ top: !user && !hideLoginBanner ? '120px' : '0' }}>
-          <div className="flex items-center gap-3">
-            <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-700">
-              <ArrowLeft/>
-            </button>
-            <h2 className="font-bold text-lg text-gray-900">
-              {initialSlug ? 'プロフィール編集' : '新規作成'}
-            </h2>
-            {savedSlug && analytics.views > 0 && (
-              <div className="flex items-center gap-4 ml-4 text-sm text-gray-600 flex-wrap">
-                <div className="flex items-center gap-1" title="総アクセス数">
-                  <Eye size={14}/>
-                  <span className="font-bold">{analytics.views}</span>
-                </div>
-                <div className="flex items-center gap-1" title="総クリック数">
-                  <BarChart2 size={14}/>
-                  <span className="font-bold">{analytics.clicks}</span>
-                </div>
-                {analytics.clickRate > 0 && (
-                  <div className="flex items-center gap-1 text-green-600" title="クリック率">
-                    <span className="font-bold">{analytics.clickRate}%</span>
-                  </div>
-                )}
-                {analytics.readRate > 0 && (
-                  <div className="flex items-center gap-1 text-blue-600" title="精読率">
-                    <span className="font-bold">{analytics.readRate}%</span>
-                  </div>
-                )}
-                {analytics.avgTimeSpent > 0 && (
-                  <div className="flex items-center gap-1 text-purple-600" title="平均滞在時間">
-                    <span className="font-bold">{analytics.avgTimeSpent}秒</span>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <div className="flex gap-2">
-            {savedSlug && (
-              <>
-                <button 
-                  onClick={() => setShowQRModal(true)} 
-                  className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-blue-100"
-                >
-                  <QrCode size={18}/> QRコード
-                </button>
-                <button 
-                  onClick={() => setShowSettingsModal(true)} 
-                  className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-gray-100"
-                >
-                  <Settings size={18}/> 設定
-                </button>
-              </>
-            )}
-            <button 
-              onClick={() => setShowPreview(!showPreview)} 
-              className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-purple-100 transition-all"
-            >
-              <Eye size={18}/> {showPreview ? 'プレビュー非表示' : 'プレビュー表示'}
-            </button>
-            {savedSlug && (
-              <button 
-                onClick={handlePublish} 
-                className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-green-100"
-              >
-                <Share2 size={18}/> 公開URL
+        <div className="bg-white border-b px-4 md:px-6 py-3 md:py-4 sticky top-0 z-50 shadow-sm" style={{ top: !user && !hideLoginBanner ? '120px' : '0' }}>
+          <div className="flex flex-col md:flex-row md:justify-between gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
+              <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-700">
+                <ArrowLeft size={20}/>
               </button>
-            )}
-            <button 
-              onClick={handleSave} 
-              disabled={isSaving} 
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all"
-            >
-              {isSaving ? <Loader2 className="animate-spin"/> : <Save/>} 保存
-            </button>
+              <h2 className="font-bold text-base md:text-lg text-gray-900">
+                {initialSlug ? 'プロフィール編集' : '新規作成'}
+              </h2>
+              {savedSlug && analytics.views > 0 && (
+                <div className="hidden md:flex items-center gap-4 ml-4 text-sm text-gray-600 flex-wrap">
+                  <div className="flex items-center gap-1" title="総アクセス数">
+                    <Eye size={14}/>
+                    <span className="font-bold">{analytics.views}</span>
+                  </div>
+                  <div className="flex items-center gap-1" title="総クリック数">
+                    <BarChart2 size={14}/>
+                    <span className="font-bold">{analytics.clicks}</span>
+                  </div>
+                  {analytics.clickRate > 0 && (
+                    <div className="flex items-center gap-1 text-green-600" title="クリック率">
+                      <span className="font-bold">{analytics.clickRate}%</span>
+                    </div>
+                  )}
+                  {analytics.readRate > 0 && (
+                    <div className="flex items-center gap-1 text-blue-600" title="精読率">
+                      <span className="font-bold">{analytics.readRate}%</span>
+                    </div>
+                  )}
+                  {analytics.avgTimeSpent > 0 && (
+                    <div className="flex items-center gap-1 text-purple-600" title="平均滞在時間">
+                      <span className="font-bold">{analytics.avgTimeSpent}秒</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {savedSlug && (
+                <>
+                  <button 
+                    onClick={() => setShowQRModal(true)} 
+                    className="bg-blue-50 border border-blue-200 text-blue-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-blue-100 text-xs md:text-sm"
+                  >
+                    <QrCode size={16}/> <span className="hidden sm:inline">QRコード</span>
+                  </button>
+                  <button 
+                    onClick={() => setShowSettingsModal(true)} 
+                    className="bg-gray-50 border border-gray-200 text-gray-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-gray-100 text-xs md:text-sm"
+                  >
+                    <Settings size={16}/> <span className="hidden sm:inline">設定</span>
+                  </button>
+                </>
+              )}
+              <button 
+                onClick={() => setShowPreview(!showPreview)} 
+                className="bg-purple-50 border border-purple-200 text-purple-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-purple-100 transition-all text-xs md:text-sm"
+              >
+                <Eye size={16}/> <span className="hidden sm:inline">{showPreview ? 'プレビュー非表示' : 'プレビュー表示'}</span>
+              </button>
+              {savedSlug && (
+                <button 
+                  onClick={handlePublish} 
+                  className="bg-green-50 border border-green-200 text-green-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-green-100 text-xs md:text-sm"
+                >
+                  <Share2 size={16}/> <span className="hidden sm:inline">公開URL</span>
+                </button>
+              )}
+              <button 
+                onClick={handleSave} 
+                disabled={isSaving} 
+                className="bg-indigo-600 text-white px-4 md:px-6 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-indigo-700 shadow-md transition-all text-xs md:text-sm whitespace-nowrap"
+              >
+                {isSaving ? <Loader2 className="animate-spin" size={16}/> : <Save size={16}/>} 保存
+              </button>
+            </div>
           </div>
+          {savedSlug && analytics.views > 0 && (
+            <div className="flex md:hidden items-center gap-3 mt-2 text-xs text-gray-600 flex-wrap">
+              <div className="flex items-center gap-1" title="総アクセス数">
+                <Eye size={12}/>
+                <span className="font-bold">{analytics.views}</span>
+              </div>
+              <div className="flex items-center gap-1" title="総クリック数">
+                <BarChart2 size={12}/>
+                <span className="font-bold">{analytics.clicks}</span>
+              </div>
+              {analytics.clickRate > 0 && (
+                <div className="flex items-center gap-1 text-green-600" title="クリック率">
+                  <span className="font-bold">{analytics.clickRate}%</span>
+                </div>
+              )}
+              {analytics.readRate > 0 && (
+                <div className="flex items-center gap-1 text-blue-600" title="精読率">
+                  <span className="font-bold">{analytics.readRate}%</span>
+                </div>
+              )}
+              {analytics.avgTimeSpent > 0 && (
+                <div className="flex items-center gap-1 text-purple-600" title="平均滞在時間">
+                  <span className="font-bold">{analytics.avgTimeSpent}秒</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* テーマ設定セクション */}
-        <div className="p-6 border-b bg-white">
+        <div className="p-4 md:p-6 border-b bg-white">
           <div className="flex items-center gap-2 mb-4">
             <Palette className="text-indigo-600" size={20}/>
-            <h3 className="font-bold text-lg text-gray-900">テーマ設定</h3>
+            <h3 className="font-bold text-base md:text-lg text-gray-900">テーマ設定</h3>
           </div>
           
           {/* 背景パターンと背景画像を1行に */}
-          <div className="flex items-end gap-4">
-            <div className="flex-1">
+          <div className="flex flex-col md:flex-row md:items-end gap-4">
+            <div className="flex-1 w-full">
               <label className="text-sm font-bold text-gray-900 block mb-2">背景パターン</label>
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                 {[
                   { id: 'sunset', name: 'Sunset', gradient: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)' },
                   { id: 'ocean', name: 'Ocean', gradient: 'linear-gradient(-45deg, #1e3c72, #2a5298, #7e8ba3, #a8c0d0)' },
@@ -1474,10 +1503,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               </div>
             </div>
             
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 w-full md:w-auto">
               <label className="text-sm font-bold text-gray-900 block mb-2">背景画像</label>
-              <div className="flex gap-2">
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed border-indigo-300 whitespace-nowrap">
+              <div className="flex gap-2 flex-wrap">
+                <label className="bg-indigo-50 text-indigo-700 px-3 md:px-4 py-2 md:py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer border-2 border-dashed border-indigo-300 text-sm md:text-base">
                   {isUploadingBackground ? (
                     <>
                       <Loader2 className="animate-spin" size={16}/> アップロード中...
@@ -1498,7 +1527,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                 {theme.backgroundImage && (
                   <button
                     onClick={() => setTheme(prev => ({ ...prev, backgroundImage: undefined }))}
-                    className="px-4 py-3 bg-red-50 text-red-700 rounded-lg font-bold hover:bg-red-100 whitespace-nowrap"
+                    className="px-3 md:px-4 py-2 md:py-3 bg-red-50 text-red-700 rounded-lg font-bold hover:bg-red-100 text-sm md:text-base"
                   >
                     削除
                   </button>
@@ -1519,60 +1548,60 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         </div>
 
         {/* ブロック追加ボタン */}
-        <div className="p-6 border-b bg-gray-50">
+        <div className="p-4 md:p-6 border-b bg-gray-50">
           <div className="flex flex-wrap gap-2 mb-3">
             <button 
               onClick={() => setShowTemplateModal(true)} 
-              className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 px-4 py-2 rounded-lg font-bold text-sm hover:from-blue-600 hover:to-cyan-600 flex items-center gap-2 shadow-md"
+              className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:from-blue-600 hover:to-cyan-600 flex items-center gap-1 md:gap-2 shadow-md"
             >
-              <FileText size={16}/> テンプレートから始める
+              <FileText size={14} className="md:w-4 md:h-4"/> <span>テンプレートから始める</span>
             </button>
             <button 
               onClick={() => setShowAIModal(true)} 
-              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-4 py-2 rounded-lg font-bold text-sm hover:from-purple-600 hover:to-pink-600 flex items-center gap-2 shadow-md"
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:from-purple-600 hover:to-pink-600 flex items-center gap-1 md:gap-2 shadow-md"
             >
-              <Sparkles size={16}/> AIで自動生成
+              <Sparkles size={14} className="md:w-4 md:h-4"/> <span>AIで自動生成</span>
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button onClick={() => addBlock('header')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <User size={16}/> ヘッダー
+            <button onClick={() => addBlock('header')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <User size={14} className="md:w-4 md:h-4"/> <span>ヘッダー</span>
             </button>
-            <button onClick={() => addBlock('text_card')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <FileText size={16}/> テキストカード
+            <button onClick={() => addBlock('text_card')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <FileText size={14} className="md:w-4 md:h-4"/> <span>テキストカード</span>
             </button>
-            <button onClick={() => addBlock('image')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <ImageIcon size={16}/> 画像
+            <button onClick={() => addBlock('image')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <ImageIcon size={14} className="md:w-4 md:h-4"/> <span>画像</span>
             </button>
-            <button onClick={() => addBlock('youtube')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <Youtube size={16}/> YouTube
+            <button onClick={() => addBlock('youtube')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <Youtube size={14} className="md:w-4 md:h-4"/> <span>YouTube</span>
             </button>
-            <button onClick={() => addBlock('links')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <Link size={16}/> リンク集
+            <button onClick={() => addBlock('links')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <Link size={14} className="md:w-4 md:h-4"/> <span>リンク集</span>
             </button>
-            <button onClick={() => addBlock('kindle')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <BookOpen size={16}/> Kindle書籍
+            <button onClick={() => addBlock('kindle')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <BookOpen size={14} className="md:w-4 md:h-4"/> <span>Kindle書籍</span>
             </button>
-            <button onClick={() => addBlock('lead_form')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <Mail size={16}/> リード獲得
+            <button onClick={() => addBlock('lead_form')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <Mail size={14} className="md:w-4 md:h-4"/> <span>リード獲得</span>
             </button>
-            <button onClick={() => addBlock('faq')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <HelpCircle size={16}/> FAQ
+            <button onClick={() => addBlock('faq')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <HelpCircle size={14} className="md:w-4 md:h-4"/> <span>FAQ</span>
             </button>
-            <button onClick={() => addBlock('pricing')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <DollarSign size={16}/> 料金表
+            <button onClick={() => addBlock('pricing')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <DollarSign size={14} className="md:w-4 md:h-4"/> <span>料金表</span>
             </button>
-            <button onClick={() => addBlock('testimonial')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <MessageSquare size={16}/> お客様の声
+            <button onClick={() => addBlock('testimonial')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <MessageSquare size={14} className="md:w-4 md:h-4"/> <span>お客様の声</span>
             </button>
-            <button onClick={() => addBlock('line_card')} className="bg-white border border-gray-200 px-4 py-2 rounded-lg font-bold text-sm hover:bg-gray-50 flex items-center gap-2">
-              <MessageSquare size={16}/> LINE登録
+            <button onClick={() => addBlock('line_card')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <MessageSquare size={14} className="md:w-4 md:h-4"/> <span>LINE登録</span>
             </button>
           </div>
         </div>
 
         {/* ブロック一覧 */}
-        <div className="p-6 max-w-3xl mx-auto space-y-4">
+        <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-4">
           {blocks.map((block, index) => {
             const isExpanded = expandedBlocks.has(block.id);
             return (
@@ -2045,6 +2074,80 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     コピー
                   </button>
                 </div>
+              </div>
+
+              {/* SNSシェア */}
+              <div className="mb-6">
+                <label className="block text-sm font-bold text-gray-700 mb-3">SNSでシェア</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {(() => {
+                    const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${savedSlug}`;
+                    const headerBlock = blocks.find(b => b.type === 'header');
+                    const profileName = headerBlock?.type === 'header' ? headerBlock.data.name : 'プロフィールLP';
+                    const shareText = `${profileName}のプロフィールページを作成しました！ #プロフィールLPメーカー`;
+                    
+                    return (
+                      <>
+                        <button
+                          onClick={() => {
+                            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+                            window.open(twitterUrl, '_blank', 'width=550,height=420');
+                          }}
+                          className="bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                        >
+                          <Twitter size={20} fill="currentColor" />
+                          X (Twitter)でシェア
+                        </button>
+                        <button
+                          onClick={() => {
+                            const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`;
+                            window.open(lineUrl, '_blank', 'width=550,height=420');
+                          }}
+                          className="bg-[#06C755] hover:bg-[#05b34c] text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.63.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766-.028 1.08l-.164.38c-.213.5-.577.694-1.111.477-.636-.255-1.726-.581-2.448-1.005-.193-.127-.232-.127-.538-.08-2.09.35-4.11.63-4.475.63-.63 0-1.095-.389-1.095-1.057 0-.66.465-1.045 1.095-1.045.365 0 2.385-.28 4.475-.63.306-.05.345-.047.538.08.722.424 1.812.75 2.448 1.005.534.217.898.023 1.111-.477l.164-.38c.107-.314.148-.779.028-1.08-.135-.332-.667-.508-1.058-.59C4.27 19.156 0 15.125 0 10.314z"/>
+                          </svg>
+                          LINEでシェア
+                        </button>
+                        <button
+                          onClick={() => {
+                            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+                            window.open(facebookUrl, '_blank', 'width=550,height=420');
+                          }}
+                          className="bg-[#1877F2] hover:bg-[#166fe5] text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                          </svg>
+                          Facebookでシェア
+                        </button>
+                        <button
+                          onClick={() => {
+                            const url = `${window.location.origin}/p/${savedSlug}`;
+                            if (navigator.share) {
+                              navigator.share({
+                                title: profileName,
+                                text: shareText,
+                                url: url,
+                              }).catch(() => {});
+                            } else {
+                              navigator.clipboard.writeText(`${shareText} ${url}`);
+                              alert('シェア内容をクリップボードにコピーしました！');
+                            }
+                          }}
+                          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                        >
+                          <Share2 size={20} />
+                          その他でシェア
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  作成したプロフィールLPをSNSでシェアして、多くの人に見てもらいましょう！
+                </p>
               </div>
 
               {/* Pro機能の案内 */}
