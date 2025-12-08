@@ -545,12 +545,13 @@ function LeadFormBlock({ block, profileId }: { block: Extract<Block, { type: 'le
 function QuizBlock({ block }: { block: Extract<Block, { type: 'quiz' }> }) {
   // クイズのURLを構築
   const getQuizUrl = () => {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    // 診断クイズメーカーのベースURL（環境変数から取得、なければデフォルト値）
+    const quizBaseUrl = process.env.NEXT_PUBLIC_QUIZ_SITE_URL || 'https://shindan-quiz.makers.tokyo';
     if (block.data.quizSlug) {
-      return `${baseUrl}?id=${block.data.quizSlug}`;
+      return `${quizBaseUrl}/?id=${block.data.quizSlug}`;
     }
     if (block.data.quizId) {
-      return `${baseUrl}?id=${block.data.quizId}`;
+      return `${quizBaseUrl}/?id=${block.data.quizId}`;
     }
     return null;
   };
