@@ -19,17 +19,17 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
   const fetchPublicProfiles = async () => {
     if (!supabase) return;
     try {
-      // まずis_publicカラムがあるか試す
+      // featured_on_topがtrueのプロフィールを取得
       let { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('is_public', true)
+        .eq('featured_on_top', true)
         .order('created_at', { ascending: false })
         .limit(6);
       
-      // is_publicカラムがない場合は、すべてのプロフィールを取得
+      // featured_on_topカラムがない場合は、すべてのプロフィールを取得
       if (error && error.message?.includes('column')) {
-        console.log('is_publicカラムがないため、すべてのプロフィールを取得します');
+        console.log('featured_on_topカラムがないため、すべてのプロフィールを取得します');
         const result = await supabase
           .from('profiles')
           .select('*')
@@ -201,7 +201,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* 特徴セクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-2">
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12 drop-shadow-lg">
-            こんなに簡単、こんなにあなたらしい
+            こんなに簡単、こんなに”あなた”らしい
           </h2>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
@@ -301,7 +301,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             作成されたプロフィールLP一覧
           </h2>
           <p className="text-white text-center mb-12 drop-shadow-md">
-            気になるプロフィールをプレイしてみましょう
+            気になるプロフィールを確認してみましょう
           </p>
           
           {publicProfiles.length > 0 ? (
@@ -433,7 +433,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                   <Sparkles className="text-pink-500"/> Profile LP Maker
                 </h3>
                 <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                  世界一美しいプロフィールページを、<br/>
+                  ”あなた”らしいプロフィールページを、<br/>
                   ノーコードで誰でも簡単に作成・公開できるプラットフォーム。
                 </p>
               </div>
