@@ -27,6 +27,7 @@ export async function saveAnalytics(
           profile_id: profileId,
           event_type: eventType,
           event_data: eventData || {},
+          content_type: 'profile', // プロフィールLPのアナリティクスとして記録
           created_at: new Date().toISOString()
         }
       ])
@@ -54,10 +55,12 @@ export async function getAnalytics(profileId: string) {
   try {
     console.log('[Analytics] Fetching for profile:', profileId);
     
+    // プロフィールLPのアナリティクスのみを取得
     const { data: allEvents, error } = await supabase
       .from('analytics')
       .select('*')
-      .eq('profile_id', profileId);
+      .eq('profile_id', profileId)
+      .eq('content_type', 'profile'); // プロフィールLPのデータのみ取得
 
     if (error) {
       console.error('[Analytics] Fetch error:', error);
