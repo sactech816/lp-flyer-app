@@ -96,7 +96,6 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [featuredOnTop, setFeaturedOnTop] = useState(true);
-  const [quizzes, setQuizzes] = useState<Array<{ id: string | number; slug?: string; title: string }>>([]);
   const uploadOwnerId = user?.id || 'public';
 
   // 共通アップロード関数（RLS回避のためサーバールート経由）
@@ -247,26 +246,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     };
 
     loadProfile();
-    
-    // 診断クイズのリストを取得
-    const fetchQuizzes = async () => {
-      if (!supabase || !user?.id) return;
-      try {
-        const { data, error } = await supabase
-          .from('quizzes')
-          .select('id, slug, title')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-        if (!error && data) {
-          setQuizzes(data);
-        }
-      } catch (error) {
-        console.error('診断クイズ取得エラー:', error);
-      }
-    };
-    
-    fetchQuizzes();
-  }, [initialSlug, user?.id]);
+  }, [initialSlug]);
 
   // ブロックの追加
   const addBlock = (type: Block['type']) => {
@@ -1350,43 +1330,44 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               ph="例: あなたのタイプを診断" 
             />
             <div>
-              <label className="text-sm font-bold text-gray-900 block mb-2">診断クイズを選択</label>
-              {quizzes.length === 0 ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
-                  <p className="font-bold mb-1">診断クイズがありません</p>
-                  <p>まず「診断クイズメーカー」で診断クイズを作成してください。</p>
-                </div>
-              ) : (
-                <select
-                  value={block.data.quizId || block.data.quizSlug || ''}
-                  onChange={(e) => {
-                    const selectedQuiz = quizzes.find(q => 
-                      String(q.id) === e.target.value || q.slug === e.target.value
-                    );
-                    if (selectedQuiz) {
-                      updateBlock(block.id, { 
-                        quizId: String(selectedQuiz.id),
-                        quizSlug: selectedQuiz.slug || '',
-                        title: block.data.title || selectedQuiz.title
-                      });
-                    }
-                  }}
-                  className="w-full border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
-                >
-                  <option value="">診断クイズを選択してください</option>
-                  {quizzes.map((quiz) => (
-                    <option key={quiz.id} value={quiz.slug || String(quiz.id)}>
-                      {quiz.title}
-                    </option>
-                  ))}
-                </select>
-              )}
+              <label className="text-sm font-bold text-gray-900 block mb-2">診断クイズIDまたはSlug</label>
+              <Input 
+                label="" 
+                val={block.data.quizId || block.data.quizSlug || ''} 
+                onChange={v => {
+                  // IDかSlugかを判定（数値のみならID、それ以外はSlug）
+                  const isNumeric = /^\d+$/.test(v);
+                  if (isNumeric) {
+                    updateBlock(block.id, { quizId: v, quizSlug: '' });
+                  } else {
+                    updateBlock(block.id, { quizId: '', quizSlug: v });
+                  }
+                }} 
+                ph="診断クイズのID（数値）またはSlug（文字列）を入力" 
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                診断クイズのURLから取得できます。例: <code className="bg-gray-100 px-1 rounded">?id=123</code> の場合は <code className="bg-gray-100 px-1 rounded">123</code>、<code className="bg-gray-100 px-1 rounded">?id=my-quiz</code> の場合は <code className="bg-gray-100 px-1 rounded">my-quiz</code>
+              </p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
+              <p className="font-bold text-blue-900 mb-2">💡 診断クイズを新規作成したい方</p>
+              <p className="text-blue-800 mb-2">
+                診断クイズを作成するには、<a href="https://shindan-quiz.makers.tokyo/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-bold">診断クイズメーカー</a>をご利用ください。
+              </p>
+              <a 
+                href="https://shindan-quiz.makers.tokyo/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-colors"
+              >
+                診断クイズメーカーへ →
+              </a>
             </div>
             {(block.data.quizId || block.data.quizSlug) && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
                 <p className="font-bold">✓ 診断クイズが設定されました</p>
                 <p className="text-xs mt-1">
-                  {quizzes.find(q => String(q.id) === block.data.quizId || q.slug === block.data.quizSlug)?.title || '選択された診断クイズ'}
+                  {block.data.quizId ? `ID: ${block.data.quizId}` : `Slug: ${block.data.quizSlug}`}
                 </p>
               </div>
             )}
