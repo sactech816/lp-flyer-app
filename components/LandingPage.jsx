@@ -167,7 +167,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         <section className="text-center mb-20 md:mb-32 animate-fade-in">
           <div className="mb-8">
             <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
-              あなたらしいプロフィールを、<br className="md:hidden"/>3分で。
+              "あなた"らしいプロフィールを、<br className="md:hidden"/>3分で。
             </h1>
             <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-8 leading-relaxed">
               エンジニアでなくても、スマホだけで。<br className="md:hidden"/>
@@ -222,7 +222,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 ノーコード編集
               </h3>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                プログラミング知識は不要。直感的なエディタで、誰でも美しいプロフィールページを作成できます。
+                プログラミング知識は不要。直感的なエディタで、誰でも"あなた"らしいプロフィールページを作成できます。
               </p>
             </div>
 
@@ -248,7 +248,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 スマホ完全対応
               </h3>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                レスポンシブデザインで、スマートフォンでもPCでも、美しく表示されます。
+                レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示されます。
               </p>
             </div>
           </div>

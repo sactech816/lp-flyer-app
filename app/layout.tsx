@@ -14,8 +14,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Profile LP Maker - 世界一美しいプロフィールを、3分で。",
-  description: "ノーコードで誰でも簡単に美しいプロフィールページを作成・公開できるプラットフォーム。AIアシスタント機能付き。",
+  title: "Profile LP Maker - ”あなた”らしいプロフィールを、3分で。",
+  description: "ノーコードで誰でも簡単にあなたらしいプロフィールページを作成・公開できるプラットフォーム。AIアシスタント機能付き。",
+  openGraph: {
+    title: "Profile LP Maker - ”あなた”らしいプロフィールを、3分で。",
+    description: "ノーコードで誰でも簡単に”あなた”らしいプロフィールページを作成・公開できるプラットフォーム。AIアシスタント機能付き。",
+    type: "website",
+    images: [
+      {
+        url: process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/og-image.png` : "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Profile LP Maker",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Profile LP Maker - ”あなた”らしいプロフィールを、3分で。",
+    description: "ノーコードで誰でも簡単に”あなた”らしいプロフィールページを作成・公開できるプラットフォーム。AIアシスタント機能付き。",
+    images: [process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/og-image.png` : "/og-image.png"],
+  },
 };
 
 export default function RootLayout({

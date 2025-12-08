@@ -105,10 +105,34 @@ export async function generateMetadata({
   const headerBlock = migratedContent.find((b): b is Extract<Block, { type: 'header' }> => b.type === 'header');
   const name = headerBlock?.data.name || 'プロフィール';
   const description = headerBlock?.data.title || 'プロフィールランディングページ';
+  const avatar = headerBlock?.data.avatar || null;
+  
+  // ベースURLを取得（環境変数から、またはデフォルト値）
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lp.makers.tokyo';
+  const ogImage = avatar ? avatar : `${baseUrl}/og-image.png`;
   
   return {
     title: `プロフィールページ - ${name}`,
     description,
+    openGraph: {
+      title: name,
+      description,
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: name,
+        },
+      ],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: name,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
