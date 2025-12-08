@@ -2025,40 +2025,40 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
       {/* 保存成功モーダル */}
       {showSuccessModal && savedSlug && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl shadow-2xl max-w-2xl w-full overflow-hidden">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 md:p-4">
+          <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl md:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] md:max-h-[85vh] flex flex-col overflow-hidden">
             {/* ヘッダー */}
-            <div className="bg-white px-6 py-6 border-b border-gray-200 relative">
+            <div className="bg-white px-4 md:px-6 py-4 md:py-6 border-b border-gray-200 relative flex-shrink-0">
               <button 
                 onClick={() => setShowSuccessModal(false)}
-                className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-all text-gray-700"
+                className="absolute top-2 md:top-4 right-2 md:right-4 p-2 hover:bg-gray-100 rounded-full transition-all text-gray-700"
               >
-                <X size={24}/>
+                <X size={20} className="md:w-6 md:h-6"/>
               </button>
-              <div className="flex items-center gap-3">
-                <div className="bg-green-500 rounded-full p-3">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 md:gap-3 pr-10">
+                <div className="bg-green-500 rounded-full p-2 md:p-3 flex-shrink-0">
+                  <svg className="w-6 h-6 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">プロフィールLPを作成しました！</h2>
-                  <p className="text-sm text-gray-600 mt-1">公開URLをコピーしてシェアできます</p>
+                <div className="min-w-0">
+                  <h2 className="text-lg md:text-2xl font-bold text-gray-900">プロフィールLPを作成しました！</h2>
+                  <p className="text-xs md:text-sm text-gray-600 mt-1">公開URLをコピーしてシェアできます</p>
                 </div>
               </div>
             </div>
 
-            {/* 本文 */}
-            <div className="p-6 bg-white">
+            {/* 本文 - スクロール可能 */}
+            <div className="p-4 md:p-6 bg-white overflow-y-auto flex-1">
               {/* 公開URL */}
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 mb-2">公開URL</label>
-                <div className="flex items-center gap-2 bg-indigo-50 border-2 border-indigo-200 rounded-xl p-4">
+              <div className="mb-4 md:mb-6">
+                <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2">公開URL</label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-indigo-50 border-2 border-indigo-200 rounded-xl p-3 md:p-4">
                   <input 
                     type="text" 
                     readOnly 
                     value={`${typeof window !== 'undefined' ? window.location.origin : ''}/p/${savedSlug}`}
-                    className="flex-1 bg-transparent text-gray-800 font-mono text-sm outline-none"
+                    className="flex-1 bg-transparent text-gray-800 font-mono text-xs md:text-sm outline-none break-all"
                   />
                   <button
                     onClick={() => {
@@ -2066,9 +2066,9 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                       navigator.clipboard.writeText(url);
                       alert('URLをコピーしました！');
                     }}
-                    className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-indigo-700 transition-all flex items-center gap-2 whitespace-nowrap shadow-md"
+                    className="bg-indigo-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-lg font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 whitespace-nowrap shadow-md text-xs md:text-sm"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                     コピー
@@ -2077,9 +2077,9 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               </div>
 
               {/* SNSシェア */}
-              <div className="mb-6">
-                <label className="block text-sm font-bold text-gray-700 mb-3">SNSでシェア</label>
-                <div className="grid grid-cols-2 gap-3">
+              <div className="mb-4 md:mb-6">
+                <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2 md:mb-3">SNSでシェア</label>
+                <div className="grid grid-cols-2 gap-2 md:gap-3">
                   {(() => {
                     const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${savedSlug}`;
                     const headerBlock = blocks.find(b => b.type === 'header');
@@ -2093,34 +2093,35 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                             const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
                             window.open(twitterUrl, '_blank', 'width=550,height=420');
                           }}
-                          className="bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                          className="bg-[#1DA1F2] hover:bg-[#1a8cd8] text-white px-2 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 shadow-md text-xs md:text-sm"
                         >
-                          <Twitter size={20} fill="currentColor" />
-                          X (Twitter)でシェア
+                          <Twitter size={16} className="md:w-5 md:h-5" fill="currentColor" />
+                          <span className="hidden sm:inline">X (Twitter)</span>
+                          <span className="sm:hidden">X</span>
                         </button>
                         <button
                           onClick={() => {
                             const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}`;
                             window.open(lineUrl, '_blank', 'width=550,height=420');
                           }}
-                          className="bg-[#06C755] hover:bg-[#05b34c] text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                          className="bg-[#06C755] hover:bg-[#05b34c] text-white px-2 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 shadow-md text-xs md:text-sm"
                         >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.63.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766-.028 1.08l-.164.38c-.213.5-.577.694-1.111.477-.636-.255-1.726-.581-2.448-1.005-.193-.127-.232-.127-.538-.08-2.09.35-4.11.63-4.475.63-.63 0-1.095-.389-1.095-1.057 0-.66.465-1.045 1.095-1.045.365 0 2.385-.28 4.475-.63.306-.05.345-.047.538.08.722.424 1.812.75 2.448 1.005.534.217.898.023 1.111-.477l.164-.38c.107-.314.148-.779.028-1.08-.135-.332-.667-.508-1.058-.59C4.27 19.156 0 15.125 0 10.314z"/>
                           </svg>
-                          LINEでシェア
+                          <span className="hidden sm:inline">LINE</span>
                         </button>
                         <button
                           onClick={() => {
                             const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
                             window.open(facebookUrl, '_blank', 'width=550,height=420');
                           }}
-                          className="bg-[#1877F2] hover:bg-[#166fe5] text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                          className="bg-[#1877F2] hover:bg-[#166fe5] text-white px-2 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 shadow-md text-xs md:text-sm"
                         >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                           </svg>
-                          Facebookでシェア
+                          <span className="hidden sm:inline">Facebook</span>
                         </button>
                         <button
                           onClick={() => {
@@ -2136,72 +2137,72 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                               alert('シェア内容をクリップボードにコピーしました！');
                             }
                           }}
-                          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                          className="bg-gray-600 hover:bg-gray-700 text-white px-2 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-bold transition-all flex items-center justify-center gap-1 md:gap-2 shadow-md text-xs md:text-sm"
                         >
-                          <Share2 size={20} />
-                          その他でシェア
+                          <Share2 size={16} className="md:w-5 md:h-5" />
+                          <span className="hidden sm:inline">その他</span>
                         </button>
                       </>
                     );
                   })()}
                 </div>
-                <p className="text-xs text-gray-500 mt-2 text-center">
+                <p className="text-[10px] md:text-xs text-gray-500 mt-2 text-center">
                   作成したプロフィールLPをSNSでシェアして、多くの人に見てもらいましょう！
                 </p>
               </div>
 
               {/* Pro機能の案内 */}
-              <div className="mb-6 bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-2xl p-5">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="bg-orange-500 text-white rounded-full p-2 flex-shrink-0">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <div className="mb-4 md:mb-6 bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-xl md:rounded-2xl p-3 md:p-5">
+                <div className="flex items-start gap-2 md:gap-3 mb-3 md:mb-4">
+                  <div className="bg-orange-500 text-white rounded-full p-1.5 md:p-2 flex-shrink-0">
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                     </svg>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-                      応援・寄付でPro機能を開放
-                      <span className="bg-orange-500 text-white text-xs px-2 py-1 rounded-full">オプション</span>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-sm md:text-lg text-gray-900 mb-1 md:mb-2 flex items-center gap-2 flex-wrap">
+                      <span>応援・寄付でPro機能を開放</span>
+                      <span className="bg-orange-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">オプション</span>
                     </h3>
-                    <p className="text-sm text-gray-700 mb-3">
+                    <p className="text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
                       500円〜50,000円で、以下の追加機能が使えるようになります
                     </p>
-                    <div className="grid md:grid-cols-2 gap-3 mb-4">
-                      <div className="bg-white rounded-lg p-3 border border-orange-200">
-                        <div className="flex items-center gap-2 mb-1">
-                          <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-3 mb-3 md:mb-4">
+                      <div className="bg-white rounded-lg p-2 md:p-3 border border-orange-200">
+                        <div className="flex items-center gap-1 md:gap-2 mb-1">
+                          <svg className="w-3 h-3 md:w-4 md:h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
                           </svg>
-                          <h4 className="font-bold text-sm text-gray-900">HTMLダウンロード</h4>
+                          <h4 className="font-bold text-[10px] md:text-sm text-gray-900">HTMLダウンロード</h4>
                         </div>
-                        <p className="text-xs text-gray-600">自分のサーバーにアップロード可能</p>
+                        <p className="text-[9px] md:text-xs text-gray-600">自分のサーバーにアップロード可能</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-orange-200">
-                        <div className="flex items-center gap-2 mb-1">
-                          <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-white rounded-lg p-2 md:p-3 border border-orange-200">
+                        <div className="flex items-center gap-1 md:gap-2 mb-1">
+                          <svg className="w-3 h-3 md:w-4 md:h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                           </svg>
-                          <h4 className="font-bold text-sm text-gray-900">埋め込みコード</h4>
+                          <h4 className="font-bold text-[10px] md:text-sm text-gray-900">埋め込みコード</h4>
                         </div>
-                        <p className="text-xs text-gray-600">WordPressなどに埋め込み可能</p>
+                        <p className="text-[9px] md:text-xs text-gray-600">WordPressなどに埋め込み可能</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-orange-200">
-                        <div className="flex items-center gap-2 mb-1">
-                          <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-white rounded-lg p-2 md:p-3 border border-orange-200">
+                        <div className="flex items-center gap-1 md:gap-2 mb-1">
+                          <svg className="w-3 h-3 md:w-4 md:h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                           </svg>
-                          <h4 className="font-bold text-sm text-gray-900">優先サポート</h4>
+                          <h4 className="font-bold text-[10px] md:text-sm text-gray-900">優先サポート</h4>
                         </div>
-                        <p className="text-xs text-gray-600">機能改善の優先対応</p>
+                        <p className="text-[9px] md:text-xs text-gray-600">機能改善の優先対応</p>
                       </div>
-                      <div className="bg-white rounded-lg p-3 border border-orange-200">
-                        <div className="flex items-center gap-2 mb-1">
-                          <svg className="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="bg-white rounded-lg p-2 md:p-3 border border-orange-200">
+                        <div className="flex items-center gap-1 md:gap-2 mb-1">
+                          <svg className="w-3 h-3 md:w-4 md:h-4 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                           </svg>
-                          <h4 className="font-bold text-sm text-gray-900">その他の機能</h4>
+                          <h4 className="font-bold text-[10px] md:text-sm text-gray-900">その他の機能</h4>
                         </div>
-                        <p className="text-xs text-gray-600">今後追加される機能も利用可能</p>
+                        <p className="text-[9px] md:text-xs text-gray-600">今後追加される機能も利用可能</p>
                       </div>
                     </div>
                     <button
@@ -2215,14 +2216,15 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                           setShowAuth?.(true);
                         }
                       }}
-                      className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-6 py-3 rounded-xl font-bold hover:from-orange-600 hover:to-yellow-600 transition-all flex items-center justify-center gap-2 shadow-lg"
+                      className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:from-orange-600 hover:to-yellow-600 transition-all flex items-center justify-center gap-1 md:gap-2 shadow-lg text-xs md:text-sm"
                     >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M3 3h18v2H3V3m0 4h18v2H3V7m0 4h18v2H3v-2m0 4h12v2H3v-2z" />
                       </svg>
-                      マイページで寄付・機能開放する
+                      <span className="hidden sm:inline">マイページで寄付・機能開放する</span>
+                      <span className="sm:hidden">寄付・機能開放</span>
                     </button>
-                    <p className="text-xs text-gray-500 text-center mt-2">
+                    <p className="text-[9px] md:text-xs text-gray-500 text-center mt-1 md:mt-2">
                       ※寄付は任意です。無料でもLPの公開・シェアは可能です
                     </p>
                   </div>
@@ -2230,22 +2232,23 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               </div>
 
               {/* アクションボタン */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 md:gap-3 pt-2 border-t border-gray-200">
                 <button
                   onClick={() => {
                     window.open(`/p/${savedSlug}`, '_blank');
                   }}
-                  className="flex-1 bg-indigo-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg"
+                  className="flex-1 bg-indigo-600 text-white px-4 md:px-6 py-3 md:py-4 rounded-lg md:rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg text-sm md:text-base"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
-                  プロフィールLPにアクセス
+                  <span className="hidden sm:inline">プロフィールLPにアクセス</span>
+                  <span className="sm:hidden">アクセス</span>
                 </button>
                 <button
                   onClick={() => setShowSuccessModal(false)}
-                  className="flex-1 bg-gray-100 text-gray-700 px-6 py-4 rounded-xl font-bold hover:bg-gray-200 transition-all"
+                  className="flex-1 bg-gray-100 text-gray-700 px-4 md:px-6 py-3 md:py-4 rounded-lg md:rounded-xl font-bold hover:bg-gray-200 transition-all text-sm md:text-base"
                 >
                   閉じる
                 </button>
