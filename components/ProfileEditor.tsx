@@ -75,8 +75,9 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [isUploadingBackground, setIsUploadingBackground] = useState(false);
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
   const [hideLoginBanner, setHideLoginBanner] = useState(false);
-  const [settings, setSettings] = useState<{ gtmId?: string; fbPixelId?: string; lineTagId?: string }>({});
+  const [settings, setSettings] = useState<{ gtmId?: string; fbPixelId?: string; lineTagId?: string; showOnPortal?: boolean }>({});
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showOnPortal, setShowOnPortal] = useState(true); // デフォルトはtrue
   const [showQRModal, setShowQRModal] = useState(false);
   const [analytics, setAnalytics] = useState<{ 
     views: number; 
@@ -214,8 +215,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               // theme以外の設定を保存
               const { theme: _, ...otherSettings } = loadedSettings;
               setSettings(otherSettings);
+              // showOnPortalを設定（デフォルトはtrue）
+              setShowOnPortal(otherSettings.showOnPortal !== false);
             } else {
               setSettings(loadedSettings);
+              // showOnPortalを設定（デフォルトはtrue）
+              setShowOnPortal(loadedSettings.showOnPortal !== false);
             }
           }
           
@@ -605,7 +610,8 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       // themeをsettingsに含める
       const settingsWithTheme = {
         ...settings,
-        theme: theme
+        theme: theme,
+        showOnPortal: showOnPortal
       };
 
       // ログインユーザーの場合のみuser_idを設定、未ログインの場合はnullにする
@@ -1848,6 +1854,19 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                 onChange={v => setSettings(prev => ({ ...prev, lineTagId: v }))} 
                 ph="例: @xxxxx" 
               />
+
+              {/* トップページ掲載設定 */}
+              <div className="pt-3 border-t border-gray-100">
+                <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600 hover:text-gray-800 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={showOnPortal}
+                    onChange={(e) => setShowOnPortal(e.target.checked)}
+                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                  />
+                  <span>トップページに掲載する</span>
+                </label>
+              </div>
               
               <div className="flex gap-2 pt-2">
                 <button 
