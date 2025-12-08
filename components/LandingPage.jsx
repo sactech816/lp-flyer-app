@@ -30,7 +30,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         .from('profiles')
         .select('*', { count: 'exact' })
         .eq('featured_on_top', true)
-        .order('created_at', { ascending: false })
+        .order('updated_at', { ascending: false })
         .range(from, to);
       
       // featured_on_topカラムがない場合は、すべてのプロフィールを取得
@@ -39,7 +39,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         const result = await supabase
           .from('profiles')
           .select('*', { count: 'exact' })
-          .order('created_at', { ascending: false })
+          .order('updated_at', { ascending: false })
           .range(from, to);
         data = result.data;
         error = result.error;
