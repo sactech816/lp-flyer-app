@@ -27,7 +27,20 @@ const AuthModal = ({ isOpen, onClose, setUser }) => {
                     }
                   });
             
-            if (error) throw error;
+            if (error) {
+                // より親切なエラーメッセージを表示
+                if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+                    alert('このメールアドレスは既に登録されています。ログインしてください。');
+                    setIsLogin(true); // ログイン画面に切り替え
+                } else if (error.message.includes('Invalid login credentials')) {
+                    alert('メールアドレスまたはパスワードが正しくありません。');
+                } else if (error.message.includes('Email not confirmed')) {
+                    alert('メールアドレスの確認が完了していません。確認メールをご確認ください。');
+                } else {
+                    alert(`エラー: ${error.message}`);
+                }
+                return;
+            }
 
             if (isLogin && data.user) { 
                 setUser(data.user); onClose(); 
@@ -35,7 +48,11 @@ const AuthModal = ({ isOpen, onClose, setUser }) => {
                 if (!data.session) alert('確認メールを送信しました。メール内のリンクをクリックして認証を完了させてください。');
                 else { setUser(data.user); onClose(); }
             }
-        } catch (e) { alert(e.message); } finally { setLoading(false); }
+        } catch (e) { 
+            alert(`予期しないエラーが発生しました: ${e.message}`); 
+        } finally { 
+            setLoading(false); 
+        }
     };
 
     return (
