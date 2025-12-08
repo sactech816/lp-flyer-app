@@ -88,6 +88,12 @@ export type TestimonialBlockData = {
   items: TestimonialItem[];
 };
 
+export type QuizBlockData = {
+  quizId?: string; // クイズID（数値または文字列）
+  quizSlug?: string; // クイズのslug
+  title?: string; // オプション: カスタムタイトル
+};
+
 // ブロックの型定義（Union型）
 export type Block = 
   | { id: string; type: 'header'; data: HeaderBlockData }
@@ -100,7 +106,8 @@ export type Block =
   | { id: string; type: 'line_card'; data: LineCardBlockData }
   | { id: string; type: 'faq'; data: FAQBlockData }
   | { id: string; type: 'pricing'; data: PricingBlockData }
-  | { id: string; type: 'testimonial'; data: TestimonialBlockData };
+  | { id: string; type: 'testimonial'; data: TestimonialBlockData }
+  | { id: string; type: 'quiz'; data: QuizBlockData };
 
 // プロフィール設定の型定義
 export type ProfileSettings = {

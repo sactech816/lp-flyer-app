@@ -96,6 +96,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [featuredOnTop, setFeaturedOnTop] = useState(true);
+  const [quizzes, setQuizzes] = useState<Array<{ id: string | number; slug?: string; title: string }>>([]);
   const uploadOwnerId = user?.id || 'public';
 
   // 共通アップロード関数（RLS回避のためサーバールート経由）
@@ -246,7 +247,26 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     };
 
     loadProfile();
-  }, [initialSlug]);
+    
+    // 診断クイズのリストを取得
+    const fetchQuizzes = async () => {
+      if (!supabase || !user?.id) return;
+      try {
+        const { data, error } = await supabase
+          .from('quizzes')
+          .select('id, slug, title')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        if (!error && data) {
+          setQuizzes(data);
+        }
+      } catch (error) {
+        console.error('診断クイズ取得エラー:', error);
+      }
+    };
+    
+    fetchQuizzes();
+  }, [initialSlug, user?.id]);
 
   // ブロックの追加
   const addBlock = (type: Block['type']) => {
@@ -317,6 +337,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             id: generateBlockId(),
             type: 'testimonial',
             data: { items: [{ id: generateBlockId(), name: '', role: '', comment: '', imageUrl: '' }] }
+          };
+        case 'quiz':
+          return {
+            id: generateBlockId(),
+            type: 'quiz',
+            data: { quizId: '', quizSlug: '', title: '' }
           };
         default:
           return {
@@ -1314,6 +1340,59 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           </div>
         );
 
+      case 'quiz':
+        return (
+          <div className="space-y-4">
+            <Input 
+              label="カスタムタイトル（オプション）" 
+              val={block.data.title || ''} 
+              onChange={v => updateBlock(block.id, { title: v })} 
+              ph="例: あなたのタイプを診断" 
+            />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">診断クイズを選択</label>
+              {quizzes.length === 0 ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+                  <p className="font-bold mb-1">診断クイズがありません</p>
+                  <p>まず「診断クイズメーカー」で診断クイズを作成してください。</p>
+                </div>
+              ) : (
+                <select
+                  value={block.data.quizId || block.data.quizSlug || ''}
+                  onChange={(e) => {
+                    const selectedQuiz = quizzes.find(q => 
+                      String(q.id) === e.target.value || q.slug === e.target.value
+                    );
+                    if (selectedQuiz) {
+                      updateBlock(block.id, { 
+                        quizId: String(selectedQuiz.id),
+                        quizSlug: selectedQuiz.slug || '',
+                        title: block.data.title || selectedQuiz.title
+                      });
+                    }
+                  }}
+                  className="w-full border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                >
+                  <option value="">診断クイズを選択してください</option>
+                  {quizzes.map((quiz) => (
+                    <option key={quiz.id} value={quiz.slug || String(quiz.id)}>
+                      {quiz.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+            {(block.data.quizId || block.data.quizSlug) && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
+                <p className="font-bold">✓ 診断クイズが設定されました</p>
+                <p className="text-xs mt-1">
+                  {quizzes.find(q => String(q.id) === block.data.quizId || q.slug === block.data.quizSlug)?.title || '選択された診断クイズ'}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+
       default:
         return null;
     }
@@ -1618,6 +1697,9 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <button onClick={() => addBlock('line_card')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
               <MessageSquare size={14} className="md:w-4 md:h-4"/> <span>LINE登録</span>
             </button>
+            <button onClick={() => addBlock('quiz')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
+              <Sparkles size={14} className="md:w-4 md:h-4"/> <span>診断クイズ</span>
+            </button>
           </div>
         </div>
 
@@ -1653,6 +1735,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                         {block.type === 'faq' && 'FAQ'}
                         {block.type === 'pricing' && '料金表'}
                         {block.type === 'testimonial' && 'お客様の声'}
+                        {block.type === 'quiz' && '診断クイズ'}
                       </span>
                     </button>
                   </div>

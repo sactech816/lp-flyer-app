@@ -262,6 +262,9 @@ export function BlockRenderer({ block, profileId }: { block: Block; profileId?: 
     case 'testimonial':
       return <TestimonialBlock block={block} />;
 
+    case 'quiz':
+      return <QuizBlock block={block} />;
+
     default:
       return null;
   }
@@ -533,6 +536,55 @@ function LeadFormBlock({ block, profileId }: { block: Extract<Block, { type: 'le
             {isSubmitting ? '送信中...' : block.data.buttonText || '登録する'}
           </button>
         </form>
+      </div>
+    </section>
+  );
+}
+
+// 診断クイズブロックコンポーネント
+function QuizBlock({ block }: { block: Extract<Block, { type: 'quiz' }> }) {
+  // クイズのURLを構築
+  const getQuizUrl = () => {
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    if (block.data.quizSlug) {
+      return `${baseUrl}?id=${block.data.quizSlug}`;
+    }
+    if (block.data.quizId) {
+      return `${baseUrl}?id=${block.data.quizId}`;
+    }
+    return null;
+  };
+
+  const quizUrl = getQuizUrl();
+
+  if (!quizUrl) {
+    return (
+      <section className="animate-fade-in">
+        <div className="glass-card rounded-2xl p-6 shadow-lg text-center">
+          <p className="text-gray-600">診断クイズのURLが設定されていません</p>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="animate-fade-in">
+      <div className="glass-card rounded-2xl p-4 shadow-lg overflow-hidden">
+        {block.data.title && (
+          <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+            {block.data.title}
+          </h3>
+        )}
+        <div className="relative w-full" style={{ minHeight: '600px' }}>
+          <iframe
+            src={quizUrl}
+            className="w-full border-0 rounded-xl"
+            style={{ height: '600px', minHeight: '600px' }}
+            title={block.data.title || '診断クイズ'}
+            allow="clipboard-read; clipboard-write"
+            loading="lazy"
+          />
+        </div>
       </div>
     </section>
   );
