@@ -1,11 +1,23 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Block } from '@/lib/types';
 import { saveAnalytics } from '@/app/actions/analytics';
 import { saveLead } from '@/app/actions/leads';
 import { ChevronDown as ChevronDownIcon, Star } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { supabase } from '@/lib/supabase';
+import dynamic from 'next/dynamic';
+
+// QuizPlayerを動的インポート（SSRを無効化、.jsxファイルなので拡張子を指定）
+const QuizPlayer = dynamic(() => import('./QuizPlayer.jsx'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center py-12">
+      <div className="text-gray-600">診断クイズを読み込み中...</div>
+    </div>
+  )
+});
 
 // YouTube URLから動画IDを抽出
 function extractYouTubeId(url: string): string | null {
@@ -543,30 +555,78 @@ function LeadFormBlock({ block, profileId }: { block: Extract<Block, { type: 'le
 
 // 診断クイズブロックコンポーネント
 function QuizBlock({ block }: { block: Extract<Block, { type: 'quiz' }> }) {
-  // クイズのURLを構築
-  const getQuizUrl = () => {
-    // 診断クイズメーカーのベースURL（環境変数から取得、なければデフォルト値）
-    const quizBaseUrl = process.env.NEXT_PUBLIC_QUIZ_SITE_URL || 'https://shindan-quiz.makers.tokyo';
-    if (block.data.quizSlug) {
-      return `${quizBaseUrl}/?id=${block.data.quizSlug}`;
-    }
-    if (block.data.quizId) {
-      return `${quizBaseUrl}/?id=${block.data.quizId}`;
-    }
-    return null;
-  };
+  const [quiz, setQuiz] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const quizUrl = getQuizUrl();
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      if (!supabase) {
+        setError('Supabaseが初期化されていません');
+        setIsLoading(false);
+        return;
+      }
 
-  if (!quizUrl) {
+      try {
+        let query = supabase.from('quizzes').select('*');
+        
+        if (block.data.quizSlug) {
+          query = query.eq('slug', block.data.quizSlug);
+        } else if (block.data.quizId) {
+          // IDが数値か文字列かを判定
+          const id = isNaN(Number(block.data.quizId)) 
+            ? block.data.quizId 
+            : Number(block.data.quizId);
+          query = query.eq('id', id);
+        } else {
+          setError('診断クイズのIDまたはSlugが設定されていません');
+          setIsLoading(false);
+          return;
+        }
+
+        const { data, error: fetchError } = await query.single();
+
+        if (fetchError) {
+          console.error('診断クイズ取得エラー:', fetchError);
+          setError('診断クイズが見つかりませんでした');
+        } else if (data) {
+          setQuiz(data);
+        }
+      } catch (err) {
+        console.error('診断クイズ取得エラー:', err);
+        setError('診断クイズの読み込みに失敗しました');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchQuiz();
+  }, [block.data.quizId, block.data.quizSlug]);
+
+  if (isLoading) {
     return (
       <section className="animate-fade-in">
         <div className="glass-card rounded-2xl p-6 shadow-lg text-center">
-          <p className="text-gray-600">診断クイズのURLが設定されていません</p>
+          <div className="text-gray-600">診断クイズを読み込み中...</div>
         </div>
       </section>
     );
   }
+
+  if (error || !quiz) {
+    return (
+      <section className="animate-fade-in">
+        <div className="glass-card rounded-2xl p-6 shadow-lg text-center">
+          <p className="text-gray-600">{error || '診断クイズが見つかりませんでした'}</p>
+        </div>
+      </section>
+    );
+  }
+
+  // 埋め込み用のonBackハンドラー（何もしない）
+  const handleBack = () => {
+    // 埋め込み時は戻る動作を無効化
+  };
 
   return (
     <section className="animate-fade-in">
@@ -576,15 +636,8 @@ function QuizBlock({ block }: { block: Extract<Block, { type: 'quiz' }> }) {
             {block.data.title}
           </h3>
         )}
-        <div className="relative w-full" style={{ minHeight: '600px' }}>
-          <iframe
-            src={quizUrl}
-            className="w-full border-0 rounded-xl"
-            style={{ height: '600px', minHeight: '600px' }}
-            title={block.data.title || '診断クイズ'}
-            allow="clipboard-read; clipboard-write"
-            loading="lazy"
-          />
+        <div className="relative w-full">
+          <QuizPlayer quiz={quiz} onBack={handleBack} />
         </div>
       </div>
     </section>
