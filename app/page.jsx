@@ -33,6 +33,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [showAuth, setShowAuth] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
 
   // 管理者かどうかを判定
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -47,6 +48,17 @@ const App = () => {
 
   useEffect(() => {
       const init = async () => {
+          // パスワードリセット用のURLハッシュをチェック
+          // Supabaseは #access_token=...&type=recovery の形式でリダイレクトする
+          const hash = window.location.hash;
+          if (hash && hash.includes('type=recovery')) {
+              console.log('🔑 パスワードリセットリンクを検出しました');
+              setShowPasswordReset(true);
+              setShowAuth(true);
+              // ハッシュをクリア（履歴に残さない）
+              window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+
           // ユーザーセッションの確認
           if(supabase) {
               const {data:{session}} = await supabase.auth.getSession();
@@ -295,7 +307,14 @@ const App = () => {
           `}
         </Script>
         
-        <AuthModal isOpen={showAuth} onClose={()=>setShowAuth(false)} setUser={setUser} />
+        <AuthModal 
+            isOpen={showAuth} 
+            onClose={()=>{setShowAuth(false); setShowPasswordReset(false);}} 
+            setUser={setUser}
+            isPasswordReset={showPasswordReset}
+            setShowPasswordReset={setShowPasswordReset}
+            onNavigate={navigateTo}
+        />
         
         {view === 'landing' && (
             <LandingPage 
