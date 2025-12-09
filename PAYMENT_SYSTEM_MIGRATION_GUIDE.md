@@ -12,9 +12,37 @@
 - Stripe アカウントを持っている
 - 購入対象が「プロフィールLP」または「コンテンツ」である
 
+## ✅ 実装状況
+
+このプロジェクトでは、プロフィールLP用の決済システムが既に実装されています：
+
+- ✅ `app/api/checkout-profile/route.js` - 決済セッション作成API
+- ✅ `app/api/verify-profile/route.js` - 決済検証・購入履歴記録API
+- ✅ `components/ProfileDashboard.jsx` - 購入処理とUI
+- ✅ `supabase_profile_purchases_setup.sql` - データベーススキーマ
+
+**最新の改善内容（2024年12月実装）:**
+- URLパラメータの保持とクリア処理の改善
+- 決済検証時のエラーハンドリングの強化
+- 購入履歴の再取得タイミングの最適化
+- 認証状態変更時のリダイレクト制御の実装
+
 ---
 
 ## 🗂️ 必要なファイル一覧
+
+### プロフィールLPプロジェクトの実装済みファイル
+
+このプロジェクトでは、以下のファイルが既に実装されています：
+
+- `app/api/checkout-profile/route.js` - プロフィールLP用決済セッション作成API
+- `app/api/verify-profile/route.js` - プロフィールLP用決済検証API
+- `components/ProfileDashboard.jsx` - ダッシュボード（購入処理を含む）
+- `supabase_profile_purchases_setup.sql` - データベーススキーマ
+
+以下は、診断クイズメーカーからの移植時の参考コードです。
+
+---
 
 ### 1. APIルート（必須）
 
@@ -475,6 +503,19 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 ## ✅ チェックリスト
 
+### プロフィールLP（このプロジェクト）
+- [x] 必要なファイルをコピー
+- [ ] データベーステーブルを作成（`supabase_profile_purchases_setup.sql`を実行）
+- [ ] 環境変数を設定（Stripe APIキー、Supabase Service Role Key）
+- [x] カスタマイズポイントを修正
+- [x] URLパラメータ保持処理を実装
+- [x] 決済検証処理を改善
+- [ ] テストモードで決済テスト
+- [ ] 本番環境で決済テスト
+- [ ] エラーハンドリングを確認
+- [ ] ユーザー体験を確認
+
+### 他のプロジェクトへの移植時
 - [ ] 必要なファイルをコピー
 - [ ] データベーステーブルを作成
 - [ ] 環境変数を設定

@@ -5,9 +5,17 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 プロジェクトを実行する前に、`.env.local`ファイルをプロジェクトのルートディレクトリに作成し、以下の環境変数を設定してください：
 
 ```env
+# Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# Stripe（決済機能を使用する場合）
+STRIPE_SECRET_KEY=sk_test_... または sk_live_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... または pk_live_...
+
+# サイトURL（決済のリダイレクト先）
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
 これらの値は、Supabaseダッシュボードの **Settings > API** から取得できます。
@@ -22,6 +30,29 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 2. **featured_on_topカラムの追加**
    - `add_featured_on_top_column.sql` をSupabaseダッシュボードの **SQL Editor** で実行
    - このカラムは、プロフィールをトップページに掲載するかどうかを制御します
+
+3. **購入履歴テーブルの作成（決済機能を使用する場合）**
+   - `supabase_profile_purchases_setup.sql` をSupabaseダッシュボードの **SQL Editor** で実行
+   - このテーブルは、Pro機能（HTML・埋め込み）の購入履歴を管理します
+
+## 決済システム（Stripe連携）
+
+このプロジェクトには、Stripeを使用した決済システムが実装されています。
+
+### 機能概要
+- プロフィールLPのPro機能（HTMLダウンロード・埋め込みコード）を寄付・応援により開放
+- 価格：500円〜50,000円（ユーザーが自由に設定可能）
+- 決済完了後、自動的に購入履歴を記録
+
+### セットアップ手順
+1. Stripeアカウントを作成（https://stripe.com/）
+2. `.env.local`にStripe APIキーを設定
+3. `supabase_profile_purchases_setup.sql`を実行してデータベーステーブルを作成
+4. テストモードで決済フローを確認
+
+### 詳細ドキュメント
+- `PAYMENT_SYSTEM_MIGRATION_GUIDE.md` - 決済システムの詳細な実装ガイド
+- テスト手順、トラブルシューティング、カスタマイズ方法などを記載
 
 ## Supabaseメールテンプレートの設定
 

@@ -14,7 +14,7 @@ export async function POST(req) {
     
     // ★サーバー側でも安全のため価格チェック（無効なら1000円にする）
     let finalPrice = parseInt(price);
-    if (isNaN(finalPrice) || finalPrice < 10 || finalPrice > 100000) {
+    if (isNaN(finalPrice) || finalPrice < 500 || finalPrice > 50000) {
         finalPrice = 1000;
     }
 
@@ -47,8 +47,8 @@ export async function POST(req) {
         },
       ],
       mode: 'payment',
-      success_url: `${origin}/dashboard?payment=success&session_id={CHECKOUT_SESSION_ID}&profile_id=${profileId}&redirect=dashboard`,
-      cancel_url: `${origin}/dashboard?payment=cancel&redirect=dashboard`,
+      success_url: `${origin}/?payment=success&session_id={CHECKOUT_SESSION_ID}&profile_id=${profileId}&page=dashboard`,
+      cancel_url: `${origin}/?payment=cancel&page=dashboard`,
       metadata: {
         userId: userId,
         profileId: profileId,

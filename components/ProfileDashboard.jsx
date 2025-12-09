@@ -71,35 +71,55 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
 
     useEffect(() => {
         const init = async () => {
-            if(!user) return;
+            // URLパラメータをチェック
+            const params = new URLSearchParams(window.location.search);
+            const paymentStatus = params.get('payment');
+            const sessionId = params.get('session_id');
+            const profileId = params.get('profile_id');
+            
+            console.log('📋 URLパラメータ:', { paymentStatus, sessionId, profileId, hasUser: !!user });
+            
+            const isPaymentSuccess = paymentStatus === 'success' && sessionId;
+            
+            if (isPaymentSuccess) {
+                if (!user) {
+                    console.log('⚠️ 決済成功を検出しましたが、ユーザー情報がありません。少し待ちます...');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    return;
+                }
+                console.log('✅ 決済成功を検出！検証を開始します...');
+                await verifyPayment(sessionId, profileId);
+                return;
+            }
+            
+            if(!user) {
+                console.log('⚠️ ユーザー情報がありません');
+                return;
+            }
+            
             await fetchMyProfiles();
             
             // 購入履歴を取得（テーブルが存在しない場合はスキップ）
+            console.log('🔍 購入履歴を取得中... user.id:', user.id);
             if (supabase) {
                 try {
                     const { data: bought, error } = await supabase
                         .from('profile_purchases')
-                        .select('profile_id')
-                        .eq('user_id', user.id);
+                        .select('profile_id, id, created_at, stripe_session_id')
+                        .eq('user_id', user.id)
+                        .order('created_at', { ascending: false });
                     
                     if (error) {
-                        console.warn('profile_purchasesテーブルが見つかりません:', error.message);
+                        console.warn('❌ 購入履歴の取得エラー:', error.message);
                         setPurchases([]);
                     } else {
+                        console.log('📋 購入履歴を取得:', bought);
                         setPurchases(bought?.map(p => p.profile_id) || []);
                     }
                 } catch (e) {
-                    console.warn('購入履歴の取得に失敗:', e);
+                    console.warn('❌ 購入履歴の取得に失敗:', e);
                     setPurchases([]);
                 }
-            }
-
-            // 決済完了の確認
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('payment') === 'success' && params.get('session_id')) {
-                const profileId = params.get('profile_id');
-                await verifyPayment(params.get('session_id'), profileId);
-                window.history.replaceState(null, '', window.location.pathname);
             }
 
             setLoading(false);
@@ -109,17 +129,57 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
 
     const verifyPayment = async (sessionId, profileId) => {
         try {
+            console.log('🔍 決済検証開始:', { sessionId, profileId, userId: user.id });
+            
+            // 決済検証APIを呼び出し
             const res = await fetch('/api/verify-profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ sessionId, profileId, userId: user.id }),
             });
+            
+            const data = await res.json();
+            console.log('✅ 決済検証レスポンス:', data);
+            
             if (res.ok) {
-                alert('寄付ありがとうございます！Pro機能（HTML・埋め込み）が開放されました。');
-                setPurchases(prev => [...prev, profileId]);
+                console.log('✅ 決済検証成功！購入履歴を更新します...');
+                
+                // URLパラメータをクリア
+                window.history.replaceState(null, '', window.location.pathname + '?page=dashboard');
+                console.log('🧹 URLパラメータをクリアしました');
+                
+                // 少し待ってから購入履歴を再取得
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 購入履歴を再取得
+                if (supabase) {
+                    const { data: bought, error } = await supabase
+                        .from('profile_purchases')
+                        .select('profile_id, id, created_at, stripe_session_id')
+                        .eq('user_id', user.id)
+                        .order('created_at', { ascending: false });
+                        
+                    if (error) {
+                        console.error('❌ 購入履歴の取得エラー:', error);
+                        alert('決済は完了しましたが、購入履歴の取得に失敗しました。ページを再読み込みしてください。');
+                    } else {
+                        console.log('📋 購入履歴を更新:', bought);
+                        const purchasedIds = bought?.map(p => p.profile_id) || [];
+                        setPurchases(purchasedIds);
+                        
+                        alert('寄付ありがとうございます！Pro機能（HTML・埋め込み）が開放されました。');
+                        
+                        // プロフィール一覧を再取得
+                        await fetchMyProfiles();
+                    }
+                }
+            } else {
+                console.error('❌ 決済検証失敗:', data);
+                alert('決済の確認に失敗しました: ' + (data.error || '不明なエラー'));
             }
         } catch (e) {
-            console.error(e);
+            console.error('❌ 決済検証エラー:', e);
+            alert('エラーが発生しました: ' + e.message);
         }
     };
 

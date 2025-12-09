@@ -63,8 +63,28 @@ const App = () => {
           if(supabase) {
               const {data:{session}} = await supabase.auth.getSession();
               setUser(session?.user||null);
-              supabase.auth.onAuthStateChange((_event, session) => {
+              supabase.auth.onAuthStateChange((event, session) => {
+                console.log('🔔 認証状態変更:', event, session?.user?.email);
                 setUser(session?.user || null);
+                
+                // ログイン成功時のリダイレクト制御
+                if (event === 'SIGNED_IN' && session?.user) {
+                    const currentSearch = new URLSearchParams(window.location.search);
+                    
+                    // 決済処理中はリダイレクトしない
+                    const paymentStatus = currentSearch.get('payment');
+                    if (paymentStatus === 'success' || paymentStatus === 'cancel') {
+                        console.log('⏸️ 決済処理中のため、リダイレクトをスキップ');
+                        return;
+                    }
+                    
+                    // 通常のリダイレクト処理
+                    const page = currentSearch.get('page');
+                    if (!page || page === 'landing') {
+                        console.log('🏠 ダッシュボードにリダイレクト');
+                        navigateTo('dashboard');
+                    }
+                }
               });
           }
 
