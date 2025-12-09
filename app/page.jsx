@@ -58,8 +58,8 @@ const App = () => {
               console.log('🔑 パスワードリセットリンクを検出しました');
               setShowPasswordReset(true);
               setShowAuth(true);
-              // ハッシュをクリア（履歴に残さない）
-              window.history.replaceState(null, '', window.location.pathname);
+              // ハッシュはクリアしない（AuthModalでセッション確立に必要）
+              // パスワード変更後にAuthModal側でクリアする
           }
 
           // ユーザーセッションの確認

@@ -278,6 +278,44 @@ const AuthModal = ({ isOpen, onClose, setUser, isPasswordReset = false, setShowP
         setLoading(true);
         try {
             console.log('パスワード更新を開始します');
+            
+            // セッションの確認
+            const { data: sessionData } = await supabase.auth.getSession();
+            console.log('現在のセッション:', sessionData.session ? 'あり' : 'なし');
+            
+            if (!sessionData.session) {
+                console.log('セッションがありません。URLからトークンを取得して再確立を試みます。');
+                
+                // URLのハッシュからトークンを取得
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                const refreshToken = hashParams.get('refresh_token');
+                
+                if (accessToken) {
+                    console.log('URLからアクセストークンを検出しました');
+                    // トークンを使ってセッションを設定
+                    const { data: sessionSetData, error: sessionError } = await supabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: refreshToken || ''
+                    });
+                    
+                    if (sessionError) {
+                        console.error('セッション設定エラー:', sessionError);
+                        alert('セッションの確立に失敗しました。\n\nパスワードリセットメールのリンクをもう一度クリックしてください。');
+                        setLoading(false);
+                        return;
+                    }
+                    
+                    console.log('セッションを再確立しました:', sessionSetData.session ? 'あり' : 'なし');
+                } else {
+                    console.error('URLにアクセストークンが見つかりません');
+                    alert('パスワードリセットのセッションが見つかりません。\n\nパスワードリセットメールのリンクをもう一度クリックしてください。');
+                    setLoading(false);
+                    return;
+                }
+            }
+            
+            // パスワードを更新
             const { data, error } = await supabase.auth.updateUser({
                 password: newPassword
             });
@@ -294,6 +332,8 @@ const AuthModal = ({ isOpen, onClose, setUser, isPasswordReset = false, setShowP
                     errorMessage = 'パスワードは6文字以上で入力してください。';
                 } else if (error.message.includes('same as the old password')) {
                     errorMessage = '新しいパスワードは、以前のパスワードと異なるものを設定してください。';
+                } else if (error.message.includes('Auth session missing')) {
+                    errorMessage = 'セッションが見つかりません。\n\nパスワードリセットメールのリンクをもう一度クリックしてください。';
                 } else {
                     errorMessage = error.message;
                 }
@@ -315,6 +355,11 @@ const AuthModal = ({ isOpen, onClose, setUser, isPasswordReset = false, setShowP
             // これがないと、ログイン後もパスワード変更画面が残る
             if (setShowPasswordReset) {
                 setShowPasswordReset(false);
+            }
+            
+            // URLのハッシュをクリア
+            if (typeof window !== 'undefined') {
+                window.history.replaceState(null, '', window.location.pathname);
             }
             
             // モーダルを閉じる
@@ -340,6 +385,8 @@ const AuthModal = ({ isOpen, onClose, setUser, isPasswordReset = false, setShowP
                 errorMessage = 'パスワードは6文字以上で入力してください。';
             } else if (e.message.includes('same as the old password')) {
                 errorMessage = '新しいパスワードは、以前のパスワードと異なるものを設定してください。';
+            } else if (e.message.includes('Auth session missing')) {
+                errorMessage = 'セッションが見つかりません。\n\nパスワードリセットメールのリンクをもう一度クリックしてください。';
             } else {
                 errorMessage = e.message;
             }
