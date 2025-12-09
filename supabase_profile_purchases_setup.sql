@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS public.profile_purchases (
     id BIGSERIAL PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    profile_id BIGINT NOT NULL, -- プロフィールLPのID
+    profile_id UUID NOT NULL, -- プロフィールLPのID（UUID形式）
     stripe_session_id TEXT NOT NULL UNIQUE,
     amount INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
