@@ -89,11 +89,13 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                 }
                 console.log('✅ 決済成功を検出！検証を開始します...');
                 await verifyPayment(sessionId, profileId);
-                return;
+                // 決済検証後もプロフィールリストと購入履歴を読み込む
+                // return を削除して処理を継続
             }
             
             if(!user) {
                 console.log('⚠️ ユーザー情報がありません');
+                setLoading(false);
                 return;
             }
             
@@ -142,37 +144,13 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
             console.log('✅ 決済検証レスポンス:', data);
             
             if (res.ok) {
-                console.log('✅ 決済検証成功！購入履歴を更新します...');
+                console.log('✅ 決済検証成功！');
                 
                 // URLパラメータをクリア
                 window.history.replaceState(null, '', window.location.pathname + '?page=dashboard');
                 console.log('🧹 URLパラメータをクリアしました');
                 
-                // 少し待ってから購入履歴を再取得
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // 購入履歴を再取得
-                if (supabase) {
-                    const { data: bought, error } = await supabase
-                        .from('profile_purchases')
-                        .select('profile_id, id, created_at, stripe_session_id')
-                        .eq('user_id', user.id)
-                        .order('created_at', { ascending: false });
-                        
-                    if (error) {
-                        console.error('❌ 購入履歴の取得エラー:', error);
-                        alert('決済は完了しましたが、購入履歴の取得に失敗しました。ページを再読み込みしてください。');
-                    } else {
-                        console.log('📋 購入履歴を更新:', bought);
-                        const purchasedIds = bought?.map(p => p.profile_id) || [];
-                        setPurchases(purchasedIds);
-                        
-                        alert('寄付ありがとうございます！Pro機能（HTML・埋め込み）が開放されました。');
-                        
-                        // プロフィール一覧を再取得
-                        await fetchMyProfiles();
-                    }
-                }
+                alert('寄付ありがとうございます！Pro機能（HTML・埋め込み）が開放されました。');
             } else {
                 console.error('❌ 決済検証失敗:', data);
                 alert('決済の確認に失敗しました: ' + (data.error || '不明なエラー'));
