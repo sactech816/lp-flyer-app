@@ -16,6 +16,9 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... または pk_live_...
 
 # サイトURL（決済のリダイレクト先）
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
+# Googleスプレッドシート連携（オプション・管理者機能）
+GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 ```
 
 これらの値は、Supabaseダッシュボードの **Settings > API** から取得できます。
@@ -53,6 +56,29 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ### 詳細ドキュメント
 - `PAYMENT_SYSTEM_MIGRATION_GUIDE.md` - 決済システムの詳細な実装ガイド
 - テスト手順、トラブルシューティング、カスタマイズ方法などを記載
+
+## 管理者機能：ユーザー情報エクスポート
+
+管理者アカウントでログインすると、全ユーザーの情報をエクスポートできる機能が利用できます。
+
+### 機能概要
+- **CSVダウンロード**: 全ユーザー情報をCSV形式でダウンロード
+- **Googleスプレッドシート連携**: ユーザー情報を自動的にGoogleスプレッドシートに送信
+
+### エクスポートされる情報
+- ユーザーID
+- メールアドレス
+- 登録日時
+- 最終ログイン日時
+- メール確認日時
+- プロフィール作成数
+- 購入数
+
+### セットアップ
+1. **CSVダウンロード**: 追加設定不要（管理者としてログインするだけで利用可能）
+2. **Googleスプレッドシート連携**: `GOOGLE_SHEETS_SETUP.md` を参照して設定
+
+詳細な設定手順は `GOOGLE_SHEETS_SETUP.md` をご覧ください。
 
 ## Supabaseメールテンプレートの設定
 

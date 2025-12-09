@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { User, LayoutDashboard, LogOut, Loader2, ExternalLink, Edit3, Trash2, Table, BarChart2, Copy, Plus, FileText, CheckCircle, ShoppingCart, Code, Download } from 'lucide-react';
+import { User, LayoutDashboard, LogOut, Loader2, ExternalLink, Edit3, Trash2, Table, BarChart2, Copy, Plus, FileText, CheckCircle, ShoppingCart, Code, Download, FileSpreadsheet, Upload } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Header from './Header';
 import Footer from './Footer';
@@ -23,6 +23,8 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
     const [viewMode, setViewMode] = useState('table');
     const [processingId, setProcessingId] = useState(null);
     const [analyticsMap, setAnalyticsMap] = useState({});
+    const [exportingCsv, setExportingCsv] = useState(false);
+    const [exportingSheets, setExportingSheets] = useState(false);
 
     // プロフィール名を取得（content配列からheaderブロックを探す）
     const getProfileName = (profile) => {
@@ -264,6 +266,87 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
         }
     };
 
+    // CSVエクスポート機能
+    const handleExportCsv = async () => {
+        if (!confirm('全ユーザー情報をCSVでダウンロードしますか？')) return;
+        setExportingCsv(true);
+        
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            
+            if (!token) {
+                throw new Error('認証トークンが取得できません');
+            }
+            
+            const response = await fetch('/api/export-users-csv', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'CSVエクスポートに失敗しました');
+            }
+            
+            // CSVファイルをダウンロード
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            alert('CSVファイルをダウンロードしました！');
+        } catch (error) {
+            console.error('CSV export error:', error);
+            alert('CSVエクスポートエラー: ' + error.message);
+        } finally {
+            setExportingCsv(false);
+        }
+    };
+
+    // Googleスプレッドシートエクスポート機能
+    const handleExportSheets = async () => {
+        if (!confirm('全ユーザー情報をGoogleスプレッドシートに送信しますか？')) return;
+        setExportingSheets(true);
+        
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            
+            if (!token) {
+                throw new Error('認証トークンが取得できません');
+            }
+            
+            const response = await fetch('/api/export-users-sheets', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Googleスプレッドシートへの送信に失敗しました');
+            }
+            
+            const result = await response.json();
+            alert(`Googleスプレッドシートに${result.users_count}件のユーザー情報を送信しました！`);
+        } catch (error) {
+            console.error('Google Sheets export error:', error);
+            alert('Googleスプレッドシートエクスポートエラー: ' + error.message);
+        } finally {
+            setExportingSheets(false);
+        }
+    };
+
     // グラフデータ生成（プロフィール用の統計は簡略化）
     const graphData = myProfiles.map(p => ({
         name: getProfileName(p).length > 10 ? getProfileName(p).substring(0, 10)+'...' : getProfileName(p),
@@ -322,6 +405,61 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
                                 </div>
                             </div>
                         </div>
+
+                        {/* 管理者専用：ユーザーエクスポート機能 */}
+                        {isAdmin && (
+                            <div className="bg-gradient-to-br from-red-50 to-orange-50 p-4 md:p-6 rounded-2xl shadow-sm border-2 border-red-200">
+                                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                                    <FileSpreadsheet size={18} className="text-red-600"/>
+                                    <span>ユーザー情報エクスポート</span>
+                                    <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">ADMIN</span>
+                                </h3>
+                                <p className="text-xs text-gray-600 mb-4">
+                                    全ユーザーの登録情報をエクスポートできます
+                                </p>
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={handleExportCsv}
+                                        disabled={exportingCsv}
+                                        className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {exportingCsv ? (
+                                            <>
+                                                <Loader2 size={16} className="animate-spin"/>
+                                                <span>ダウンロード中...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Download size={16}/>
+                                                <span>CSVダウンロード</span>
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        onClick={handleExportSheets}
+                                        disabled={exportingSheets}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {exportingSheets ? (
+                                            <>
+                                                <Loader2 size={16} className="animate-spin"/>
+                                                <span>送信中...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Upload size={16}/>
+                                                <span>スプレッドシートに送信</span>
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                                <p className="text-[10px] text-gray-500 mt-3 leading-relaxed">
+                                    ※スプレッドシート連携には環境変数<br/>
+                                    <code className="bg-white px-1 py-0.5 rounded text-[9px]">GOOGLE_SHEETS_WEBHOOK_URL</code><br/>
+                                    の設定が必要です
+                                </p>
+                            </div>
+                        )}
                     </div>
 
                     <div className="lg:col-span-2">
