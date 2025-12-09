@@ -43,12 +43,18 @@ const AuthModal = ({ isOpen, onClose, setUser, isPasswordReset = false, setShowP
     const handleAuth = async (e) => {
         e.preventDefault(); setLoading(true);
         try {
+            // 現在のドメインを取得してリダイレクトURLを動的に設定
+            const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+            const redirectUrl = currentOrigin.includes('localhost') 
+                ? 'https://lp.makers.tokyo/' 
+                : `${currentOrigin}/`;
+            
             const { data, error } = isLogin 
                 ? await supabase.auth.signInWithPassword({ email, password })
                 : await supabase.auth.signUp({ 
                     email, 
                     password,
-                    options: { emailRedirectTo: 'https://lp.makers.tokyo/' }
+                    options: { emailRedirectTo: redirectUrl }
                   });
             
             if (error) {
@@ -205,9 +211,12 @@ const AuthModal = ({ isOpen, onClose, setUser, isPasswordReset = false, setShowP
         }
         setLoading(true);
         try {
-            // リダイレクトURLを明示的にlp.makers.tokyoに設定
-            // Supabaseは自動的に #access_token=...&type=recovery をURLに追加します
-            const redirectUrl = 'https://lp.makers.tokyo/';
+            // 現在のドメインを取得してリダイレクトURLを動的に設定
+            // 本番環境では現在のオリジンを使用、開発環境では本番URLを使用
+            const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+            const redirectUrl = currentOrigin.includes('localhost') 
+                ? 'https://lp.makers.tokyo/' 
+                : `${currentOrigin}/`;
             
             console.log('パスワードリセットメール送信:', email, 'リダイレクト先:', redirectUrl);
             
