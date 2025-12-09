@@ -94,7 +94,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     clickRate: 0 
   });
   const [showTemplateModal, setShowTemplateModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState<string | null>(null);
   const [featuredOnTop, setFeaturedOnTop] = useState(true);
   const uploadOwnerId = user?.id || 'public';
 
@@ -615,6 +615,8 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       const headerBlock = blocks.find(b => b.type === 'header');
       const name = headerBlock?.type === 'header' ? headerBlock.data.name : 'プロフィール';
 
+      console.log('[ProfileEditor] 保存開始:', { slug, hasBlocks: blocks.length > 0 });
+
       // themeをsettingsに含める
       const settingsWithTheme = {
         ...settings,
@@ -633,11 +635,11 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         featuredOnTop
       });
 
+      console.log('[ProfileEditor] 保存結果:', result);
+
       if (result.error) {
         throw new Error(result.error);
       }
-      
-      setSavedSlug(slug);
       
       // アナリティクスを再取得
       if (result.data?.id) {
@@ -645,14 +647,19 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         setAnalytics(analyticsData);
       }
       
-      // 成功モーダルを表示
-      setShowSuccessModal(true);
+      // slugを保存してから成功モーダルを表示
+      console.log('[ProfileEditor] slugを設定:', slug);
+      setSavedSlug(slug);
+      
+      // 成功モーダルにslugを直接設定（状態更新のタイミング問題を回避）
+      console.log('[ProfileEditor] 成功モーダルを表示');
+      setShowSuccessModal(slug);
       
       if (onSave) {
         onSave({ slug, content: blocks });
       }
     } catch (error: any) {
-      console.error('保存エラー:', error);
+      console.error('[ProfileEditor] 保存エラー:', error);
       alert('保存に失敗しました: ' + error.message);
     } finally {
       setIsSaving(false);
@@ -2124,13 +2131,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       )}
 
       {/* 保存成功モーダル */}
-      {showSuccessModal && savedSlug && (
+      {showSuccessModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 md:p-4">
           <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-2xl md:rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] md:max-h-[85vh] flex flex-col overflow-hidden">
             {/* ヘッダー */}
             <div className="bg-white px-4 md:px-6 py-4 md:py-6 border-b border-gray-200 relative flex-shrink-0">
               <button 
-                onClick={() => setShowSuccessModal(false)}
+                onClick={() => setShowSuccessModal(null)}
                 className="absolute top-2 md:top-4 right-2 md:right-4 p-2 hover:bg-gray-100 rounded-full transition-all text-gray-700"
               >
                 <X size={20} className="md:w-6 md:h-6"/>
@@ -2157,12 +2164,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                   <input 
                     type="text" 
                     readOnly 
-                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/p/${savedSlug}`}
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/p/${showSuccessModal}`}
                     className="flex-1 bg-transparent text-gray-800 font-mono text-xs md:text-sm outline-none break-all"
                   />
                   <button
                     onClick={() => {
-                      const url = `${window.location.origin}/p/${savedSlug}`;
+                      const url = `${window.location.origin}/p/${showSuccessModal}`;
                       navigator.clipboard.writeText(url);
                       alert('URLをコピーしました！');
                     }}
@@ -2181,7 +2188,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                 <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2 md:mb-3">SNSでシェア</label>
                 <div className="grid grid-cols-2 gap-2 md:gap-3">
                   {(() => {
-                    const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${savedSlug}`;
+                    const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/p/${showSuccessModal}`;
                     const headerBlock = blocks.find(b => b.type === 'header');
                     const profileName = headerBlock?.type === 'header' ? headerBlock.data.name : 'プロフィールLP';
                     const shareText = `${profileName}のプロフィールページを作成しました！ #プロフィールLPメーカー`;
@@ -2225,7 +2232,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                         </button>
                         <button
                           onClick={() => {
-                            const url = `${window.location.origin}/p/${savedSlug}`;
+                            const url = `${window.location.origin}/p/${showSuccessModal}`;
                             if (navigator.share) {
                               navigator.share({
                                 title: profileName,
@@ -2335,7 +2342,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
               <div className="flex flex-col sm:flex-row gap-2 md:gap-3 pt-2 border-t border-gray-200">
                 <button
                   onClick={() => {
-                    window.open(`/p/${savedSlug}`, '_blank');
+                    window.open(`/p/${showSuccessModal}`, '_blank');
                   }}
                   className="flex-1 bg-indigo-600 text-white px-4 md:px-6 py-3 md:py-4 rounded-lg md:rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg text-sm md:text-base"
                 >
@@ -2347,7 +2354,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                   <span className="sm:hidden">アクセス</span>
                 </button>
                 <button
-                  onClick={() => setShowSuccessModal(false)}
+                  onClick={() => setShowSuccessModal(null)}
                   className="flex-1 bg-gray-100 text-gray-700 px-4 md:px-6 py-3 md:py-4 rounded-lg md:rounded-xl font-bold hover:bg-gray-200 transition-all text-sm md:text-base"
                 >
                   閉じる
