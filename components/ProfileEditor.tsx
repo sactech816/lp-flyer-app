@@ -2272,7 +2272,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                       <span className="bg-orange-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full">オプション</span>
                     </h3>
                     <p className="text-xs md:text-sm text-gray-700 mb-2 md:mb-3">
-                      500円〜50,000円で、以下の追加機能が使えるようになります
+                      50円〜100,000円で、以下の追加機能が使えるようになります
                     </p>
                     <div className="grid grid-cols-2 md:grid-cols-2 gap-2 md:gap-3 mb-3 md:mb-4">
                       <div className="bg-white rounded-lg p-2 md:p-3 border border-orange-200">

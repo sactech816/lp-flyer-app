@@ -185,11 +185,11 @@ const ProfileDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin, 
 
     const handlePurchase = async (profile) => {
         const profileName = getProfileName(profile);
-        const inputPrice = window.prompt(`「${profileName}」のPro機能を開放します。\n\n応援・寄付金額を入力してください（500円〜50,000円）。`, "1000");
+        const inputPrice = window.prompt(`「${profileName}」のPro機能を開放します。\n\n応援・寄付金額を入力してください（50円〜100,000円）。`, "1000");
         if (inputPrice === null) return;
         const price = parseInt(inputPrice, 10);
-        if (isNaN(price) || price < 500 || price > 50000) {
-            alert("金額は 500円以上、50,000円以下 の半角数字で入力してください。");
+        if (isNaN(price) || price < 50 || price > 100000) {
+            alert("金額は 50円以上、100,000円以下 の半角数字で入力してください。");
             return;
         }
 
