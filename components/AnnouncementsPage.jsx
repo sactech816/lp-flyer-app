@@ -47,13 +47,12 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                 .order('announcement_date', { ascending: false });
 
             // サービスタイプでフィルタリング（現在のサービス または 全サービス共通）
+            // 管理者も一般ユーザーも、現在のサービスに関連するお知らせのみ表示
+            query = query.in('service_type', [serviceType, 'all']);
+
+            // 一般ユーザーは表示中のお知らせのみ
             if (!isAdmin) {
-                query = query
-                    .eq('is_active', true)
-                    .in('service_type', [serviceType, 'all']);
-            } else {
-                // 管理者は全て表示するが、現在のサービスと全サービス共通を優先表示
-                query = query.in('service_type', [serviceType, 'all']);
+                query = query.eq('is_active', true);
             }
 
             const { data, error } = await query;
