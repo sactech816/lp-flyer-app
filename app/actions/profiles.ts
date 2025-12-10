@@ -5,6 +5,7 @@ import { Block } from '@/lib/types';
 
 export async function saveProfile(data: {
   slug: string;
+  nickname?: string | null;
   content: Block[];
   settings: any;
   userId: string | null;
@@ -19,6 +20,7 @@ export async function saveProfile(data: {
       .from('profiles')
       .upsert({
         slug: data.slug,
+        nickname: data.nickname || null,
         content: data.content,
         settings: data.settings,
         user_id: data.userId,

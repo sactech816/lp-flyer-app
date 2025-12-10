@@ -8,7 +8,7 @@ import {
     ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
     HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter
 } from 'lucide-react';
-import { generateSlug } from '../lib/utils';
+import { generateSlug, validateNickname, isAdmin as checkIsAdmin } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 import { Block, generateBlockId, migrateOldContent } from '../lib/types';
 import { BlockRenderer } from './BlockRenderer';
@@ -96,6 +96,9 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState<string | null>(null);
   const [featuredOnTop, setFeaturedOnTop] = useState(true);
+  const [nickname, setNickname] = useState<string>('');
+  const [originalNickname, setOriginalNickname] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const uploadOwnerId = user?.id || 'public';
 
   // 共通アップロード関数（RLS回避のためサーバールート経由）
@@ -132,6 +135,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // 管理者判定
+  useEffect(() => {
+    if (user?.id) {
+      setIsAdmin(checkIsAdmin(user.id));
+    }
+  }, [user]);
 
   // デフォルトのプロフィールコンテンツ
   const getDefaultContent = (): Block[] => [
@@ -229,6 +239,12 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           // featured_on_topを読み込む（デフォルトはtrue）
           if (typeof data.featured_on_top === 'boolean') {
             setFeaturedOnTop(data.featured_on_top);
+          }
+          
+          // nicknameを読み込む
+          if (data.nickname) {
+            setNickname(data.nickname);
+            setOriginalNickname(data.nickname);
           }
           
           // アナリティクスを取得
@@ -617,6 +633,40 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
       console.log('[ProfileEditor] 保存開始:', { slug, hasBlocks: blocks.length > 0 });
 
+      // ニックネームのバリデーション
+      const trimmedNickname = nickname.trim().toLowerCase();
+      if (trimmedNickname) {
+        const validation = validateNickname(trimmedNickname);
+        if (!validation.valid) {
+          alert(`ニックネームエラー: ${validation.error}`);
+          setIsSaving(false);
+          return;
+        }
+        
+        // 既存のニックネームと異なる場合のみ重複チェック
+        if (trimmedNickname !== originalNickname) {
+          // 管理者以外は変更不可
+          if (originalNickname && !isAdmin) {
+            alert('ニックネームは一度設定すると変更できません。変更が必要な場合は管理者にお問い合わせください。');
+            setIsSaving(false);
+            return;
+          }
+          
+          // 重複チェック
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('nickname', trimmedNickname)
+            .single();
+          
+          if (existingProfile) {
+            alert('このニックネームは既に使用されています。別のニックネームを選択してください。');
+            setIsSaving(false);
+            return;
+          }
+        }
+      }
+
       // themeをsettingsに含める
       const settingsWithTheme = {
         ...settings,
@@ -629,6 +679,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       // Server Action経由で保存
       const result = await saveProfile({
         slug,
+        nickname: trimmedNickname || null,
         content: blocks,
         settings: settingsWithTheme,
         userId,
@@ -1922,6 +1973,45 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             </div>
             
             <div className="space-y-4">
+              {/* ニックネーム設定 */}
+              <div className="border-b border-gray-200 pb-4 mb-4">
+                <div className="mb-2">
+                  <label className="text-sm font-bold text-gray-900 block mb-2">
+                    ニックネーム（任意）
+                    {originalNickname && !isAdmin && (
+                      <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">変更不可</span>
+                    )}
+                    {isAdmin && (
+                      <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">🔑 管理者</span>
+                    )}
+                  </label>
+                  <input 
+                    type="text"
+                    className={`w-full border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none placeholder-gray-400 transition-shadow ${
+                      originalNickname && !isAdmin ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+                    }`}
+                    value={nickname}
+                    onChange={e => setNickname(e.target.value.toLowerCase())}
+                    placeholder="例: abc123, my-profile"
+                    disabled={originalNickname && !isAdmin}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {originalNickname && !isAdmin ? (
+                      '※ニックネームは変更できません。変更が必要な場合は管理者にお問い合わせください。'
+                    ) : originalNickname && isAdmin ? (
+                      '🔑 管理者権限でニックネームを変更できます'
+                    ) : (
+                      '※英小文字、数字、ハイフンのみ（3〜20文字）。一度設定すると変更できません。'
+                    )}
+                  </p>
+                  {nickname && (
+                    <p className="text-xs text-indigo-600 mt-1 font-medium">
+                      URL: https://lp.makers.tokyo/p/{nickname}
+                    </p>
+                  )}
+                </div>
+              </div>
+
               <Input 
                 label="Google Tag Manager ID" 
                 val={settings.gtmId || ''} 

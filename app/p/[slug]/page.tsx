@@ -17,7 +17,7 @@ interface Profile {
   };
 }
 
-// プロフィールデータを取得
+// プロフィールデータを取得（slug または nickname で検索）
 async function getProfile(slug: string): Promise<Profile | null> {
   if (!supabase) return null;
   
@@ -74,10 +74,11 @@ async function getProfile(slug: string): Promise<Profile | null> {
     } as Profile;
   }
   
+  // slug または nickname で検索
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, slug, content, settings')
-    .eq('slug', slug)
+    .select('id, slug, nickname, content, settings')
+    .or(`slug.eq.${slug},nickname.eq.${slug}`)
     .single();
 
   if (error || !data) return null;

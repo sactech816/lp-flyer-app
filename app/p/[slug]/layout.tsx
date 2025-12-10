@@ -31,10 +31,11 @@ export default async function ProfileLayout({
     const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
     theme = randomTemplate.theme;
   } else if (supabase) {
+    // slug または nickname で検索
     const { data } = await supabase
       .from('profiles')
       .select('settings')
-      .eq('slug', slug)
+      .or(`slug.eq.${slug},nickname.eq.${slug}`)
       .single();
     
     // settingsからthemeを取得

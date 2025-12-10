@@ -124,6 +124,7 @@ export type ProfileSettings = {
 export interface Profile {
   id: string;
   slug: string;
+  nickname?: string | null; // ユーザー設定の覚えやすいニックネーム（任意）
   content: Block[];
   user_id?: string | null;
   created_at?: string;
