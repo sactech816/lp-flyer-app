@@ -180,16 +180,15 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         <section className="text-center mb-20 md:mb-32 animate-fade-in">
           <div className="mb-8">
             <h2 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
-              まとめよう、活動のすべてを。<br className="md:hidden"/>
-              <span className="text-3xl md:text-5xl">SNSプロフィールリンクまとめ</span>
+              "あなた"らしいプロフィールを、<br className="md:hidden"/>3分で。
             </h2>
             <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-4 leading-relaxed">
-              プロフィールLPメーカーは、SNSや作品投稿サイトの情報を集約して、<br className="hidden md:block"/>
-              公開プロフィールがサッとかんたんに作れるサービス。
+              エンジニアでなくても、スマホだけで。<br className="md:hidden"/>
+              あなたの魅力を伝える「集客導線」を作りましょう。
             </p>
             <p className="text-base md:text-lg text-white/90 px-4 drop-shadow-md mb-8">
-              最新の作品や情報をひとつのページにまとめて、あなたの活動をサポートします。<br className="hidden md:block"/>
-              <span className="text-sm">litlink、profu.link、POTOFUの代わりに</span>
+              SNSや作品投稿サイトのリンクをまとめて、ひとつのページに。<br className="hidden md:block"/>
+              ずっと無料で使えるプロフィールリンクまとめツール。
             </p>
           </div>
           
