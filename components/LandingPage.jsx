@@ -155,6 +155,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
 
   return (
     <div className="profile-page-wrapper min-h-screen">
+      {/* SEO用の隠しテキスト（検索エンジン向け） */}
+      <div className="sr-only">
+        <h1>プロフィールLPメーカー - ずっと無料のSNSプロフィールリンクまとめ</h1>
+        <p>まとめよう、活動のすべてを。プロフィールLPメーカーはSNSや作品投稿サイトの情報を集約して、公開プロフィールがサッとかんたんに作れるサービス。litlink、profu.link、POTOFUの代わりに使える無料プロフィールリンクまとめツール。インフルエンサー、クリエイター、アーティスト、ビジネスパーソンに最適。</p>
+      </div>
+      
       {/* お知らせバナー */}
       <AnnouncementBanner 
         serviceType="profile"
@@ -173,12 +179,17 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* ヒーローセクション */}
         <section className="text-center mb-20 md:mb-32 animate-fade-in">
           <div className="mb-8">
-            <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
-              "あなた"らしいプロフィールを、<br className="md:hidden"/>3分で。
-            </h1>
-            <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-8 leading-relaxed">
-              エンジニアでなくても、スマホだけで。<br className="md:hidden"/>
-              あなたの魅力を伝える「集客導線」を作りましょう。
+            <h2 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
+              まとめよう、活動のすべてを。<br className="md:hidden"/>
+              <span className="text-3xl md:text-5xl">SNSプロフィールリンクまとめ</span>
+            </h2>
+            <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-4 leading-relaxed">
+              プロフィールLPメーカーは、SNSや作品投稿サイトの情報を集約して、<br className="hidden md:block"/>
+              公開プロフィールがサッとかんたんに作れるサービス。
+            </p>
+            <p className="text-base md:text-lg text-white/90 px-4 drop-shadow-md mb-8">
+              最新の作品や情報をひとつのページにまとめて、あなたの活動をサポートします。<br className="hidden md:block"/>
+              <span className="text-sm">litlink、profu.link、POTOFUの代わりに</span>
             </p>
           </div>
           
@@ -215,9 +226,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
 
         {/* 特徴セクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-2">
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12 drop-shadow-lg">
-            こんなに簡単、こんなに”あなた”らしい
-          </h2>
+          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
+            ずっと無料で使える、プロフィールリンクまとめツール
+          </h3>
+          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
+            インフルエンサー、クリエイター、アーティスト、ビジネスパーソンに最適
+          </p>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {/* 特徴1: ノーコード編集 */}
@@ -225,11 +239,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
               <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Code className="text-indigo-600" size={32}/>
               </div>
-              <h3 className="text-xl font-bold mb-3 accent-color">
-                ノーコード編集
-              </h3>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                ノーコードで簡単作成
+              </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                プログラミング知識は不要。直感的なエディタで、誰でも"あなた"らしいプロフィールページを作成できます。
+                プログラミング知識は不要。直感的なエディタで、誰でもプロフィールページを作成できます。SNSリンクをまとめて、あなただけのページを3分で。
               </p>
             </div>
 
@@ -238,11 +252,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
               <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Wand2 className="text-purple-600" size={32}/>
               </div>
-              <h3 className="text-xl font-bold mb-3 accent-color">
-                AIアシスタント
-              </h3>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                AIアシスタント搭載
+              </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                AIがあなたの職業や強みから、魅力的なキャッチコピーや自己紹介文を自動生成します。
+                AIがあなたの職業や強みから、魅力的なキャッチコピーや自己紹介文を自動生成。プロフィールリンクの作成がさらに簡単に。
               </p>
             </div>
 
@@ -251,11 +265,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Smartphone className="text-green-600" size={32}/>
               </div>
-              <h3 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-xl font-bold mb-3 accent-color">
                 スマホ完全対応
-              </h3>
+              </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示されます。
+                レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示。SNSプロフィールリンクをどこからでも確認できます。
               </p>
             </div>
           </div>
@@ -263,9 +277,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
 
         {/* 利用シーンセクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-12 drop-shadow-lg">
-            こんなシーンで活躍します
-          </h2>
+          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
+            こんな方におすすめのプロフィールリンクまとめ
+          </h3>
+          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
+            クリエイター、インフルエンサー、ビジネスパーソンの活動をサポート
+          </p>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
             {/* 利用シーン1: Kindle作家の集客に */}
@@ -273,11 +290,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="text-orange-600" size={32}/>
               </div>
-              <h3 className="text-xl font-bold mb-3 accent-color">
-                Kindle作家の集客に
-              </h3>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                クリエイター・作家
+              </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                作品紹介や著者プロフィールをまとめて、読者をKindleストアへ誘導。SNSでの拡散にも最適です。
+                作品紹介や著者プロフィールをまとめて、読者やファンへ誘導。SNSリンクをまとめて、作品の拡散にも最適です。
               </p>
             </div>
 
@@ -286,11 +303,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Store className="text-blue-600" size={32}/>
               </div>
-              <h3 className="text-xl font-bold mb-3 accent-color">
-                店舗のリンク集に
-              </h3>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                店舗・ビジネス
+              </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                店舗情報やSNS、予約サイトへのリンクを1つのページに集約。QRコードで簡単にシェアできます。
+                店舗情報やSNS、予約サイトへのリンクを1つのページに集約。QRコードで簡単にシェア。プロフィールリンクで集客アップ。
               </p>
             </div>
 
@@ -299,11 +316,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
               <div className="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Briefcase className="text-pink-600" size={32}/>
               </div>
-              <h3 className="text-xl font-bold mb-3 accent-color">
-                フリーランスの名刺代わりに
-              </h3>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                フリーランス・個人事業主
+              </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                ポートフォリオや実績、連絡先をまとめたプロフィールページ。デジタル名刺として活用できます。
+                ポートフォリオや実績、連絡先をまとめたプロフィールページ。デジタル名刺として、SNSプロフィールリンクを活用できます。
               </p>
             </div>
           </div>
@@ -463,16 +480,75 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
           )}
         </section>
 
+        {/* FAQセクション */}
+        <section className="mb-20 md:mb-32 animate-fade-in delay-6">
+          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-12 drop-shadow-lg">
+            よくある質問
+          </h3>
+          
+          <div className="max-w-3xl mx-auto space-y-4">
+            <details className="glass-card rounded-xl p-6 shadow-lg group">
+              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
+                <span>プロフィールLPメーカーは無料で使えますか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-gray-700 leading-relaxed">
+                はい、ずっと無料でご利用いただけます。プロフィールリンクまとめツールとして、litlink、profu.link、POTOFUなどの代替サービスをお探しの方に最適です。
+              </p>
+            </details>
+            
+            <details className="glass-card rounded-xl p-6 shadow-lg group">
+              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
+                <span>ログインしなくても使えますか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-gray-700 leading-relaxed">
+                はい、ログインなしでもプロフィールページを作成できます。ただし、ログインすると複数のプロフィールを管理したり、後から編集したりできるようになります。
+              </p>
+            </details>
+            
+            <details className="glass-card rounded-xl p-6 shadow-lg group">
+              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
+                <span>どんな人におすすめですか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-gray-700 leading-relaxed">
+                インフルエンサー、クリエイター、アーティスト、ビジネスパーソン、フリーランス、店舗経営者など、SNSや作品投稿サイトのリンクをまとめたい方におすすめです。プロフィールリンクまとめツールとして、あなたの活動をサポートします。
+              </p>
+            </details>
+            
+            <details className="glass-card rounded-xl p-6 shadow-lg group">
+              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
+                <span>litlinkやprofu.linkとの違いは？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-gray-700 leading-relaxed">
+                プロフィールLPメーカーは、ノーコードで簡単にプロフィールページを作成できる点は同じですが、AIアシスタント機能により、キャッチコピーや自己紹介文を自動生成できます。また、カスタマイズ性が高く、より自由なデザインが可能です。
+              </p>
+            </details>
+            
+            <details className="glass-card rounded-xl p-6 shadow-lg group">
+              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
+                <span>スマホでも作成できますか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-gray-700 leading-relaxed">
+                はい、スマートフォンでも簡単にプロフィールページを作成・編集できます。レスポンシブデザインで、どのデバイスからでも快適にご利用いただけます。
+              </p>
+            </details>
+          </div>
+        </section>
+
         {/* CTAセクション */}
-        <section className="mt-20 md:mt-32 text-center animate-fade-in delay-6">
+        <section className="mt-20 md:mt-32 text-center animate-fade-in delay-7">
           <div className="glass-card rounded-2xl p-8 md:p-12 shadow-xl max-w-3xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 drop-shadow-lg">
+            <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 drop-shadow-lg">
               {user ? 'プロフィールを作成しましょう' : '今すぐ無料で始める'}
-            </h2>
+            </h3>
             <p className="text-gray-800 mb-8 text-lg drop-shadow-md">
               {user 
                 ? 'ダッシュボードから、新しいプロフィールページを作成できます。'
-                : 'ログイン不要で、すぐにプロフィールページを作成できます。'
+                : 'ログイン不要で、すぐにプロフィールページを作成できます。SNSプロフィールリンクをまとめて、あなたの活動をアピールしましょう。'
               }
             </p>
             <button
@@ -491,12 +567,13 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8 mb-8">
               <div className="col-span-1 md:col-span-2">
-                <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                  <Sparkles className="text-pink-500"/> Profile LP Maker
-                </h3>
+                <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                  <Sparkles className="text-pink-500"/> プロフィールLPメーカー
+                </h4>
                 <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                  ”あなた”らしいプロフィールページを、<br/>
-                  ノーコードで誰でも簡単に作成・公開できるプラットフォーム。
+                  まとめよう、活動のすべてを。<br/>
+                  SNSプロフィールリンクまとめツール。<br/>
+                  ずっと無料で使える、litlink・profu.link・POTOFUの代替サービス。
                 </p>
               </div>
               <div>

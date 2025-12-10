@@ -14,7 +14,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 STRIPE_SECRET_KEY=sk_test_... または sk_live_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_... または pk_live_...
 
-# サイトURL（決済のリダイレクト先）
+# サイトURL（決済のリダイレクト先・SEO用）
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 # Googleスプレッドシート連携（オプション・管理者機能）
@@ -79,6 +79,35 @@ GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
 2. **Googleスプレッドシート連携**: `GOOGLE_SHEETS_SETUP.md` を参照して設定
 
 詳細な設定手順は `GOOGLE_SHEETS_SETUP.md` をご覧ください。
+
+## SEO対策
+
+このプロジェクトには、Google検索やAI検索エンジンに最適化されたSEO対策が実装されています。
+
+### 実装内容
+- **メタタグ最適化**: タイトル、説明文、キーワードを最適化
+- **構造化データ**: Schema.org準拠のJSON-LD実装
+- **sitemap.xml**: 自動生成されるサイトマップ
+- **robots.txt**: 検索エンジンのクロール設定
+- **OGP対応**: SNSシェア時の表示最適化
+- **コンテンツSEO**: 競合キーワード（litlink、profu.link、POTOFU）を含む自然な文章
+
+### 主要キーワード
+- プロフィールリンク
+- SNSまとめ
+- プロフィール作成
+- リンクまとめ
+- 無料プロフィール
+- litlink 代替
+- profu.link
+- POTOFU
+
+### セットアップ
+1. `.env.local`に`NEXT_PUBLIC_SITE_URL`を設定（必須）
+2. Google Search Consoleにサイトを登録
+3. サイトマップを送信: `https://your-domain.com/sitemap.xml`
+
+詳細は `SEO_IMPLEMENTATION_GUIDE.md` をご覧ください。
 
 ## Supabaseメールテンプレートの設定
 

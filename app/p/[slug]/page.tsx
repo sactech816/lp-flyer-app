@@ -111,13 +111,32 @@ export async function generateMetadata({
   // ベースURLを取得（環境変数から、またはデフォルト値）
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lp.makers.tokyo';
   const ogImage = avatar ? avatar : `${baseUrl}/og-image.png`;
+  const profileUrl = `${baseUrl}/p/${slug}`;
   
   return {
-    title: `プロフィールページ - ${name}`,
-    description,
+    title: `${name} - プロフィールページ | プロフィールLPメーカー`,
+    description: `${description} | プロフィールLPメーカーで作成されたプロフィールページ。SNSリンクまとめ、無料で使えるプロフィールリンクツール。`,
+    keywords: [
+      name,
+      'プロフィール',
+      'プロフィールページ',
+      'SNSリンクまとめ',
+      'プロフィールリンク',
+      'リンクまとめ',
+      'プロフィールLPメーカー',
+    ],
+    authors: [{ name }],
+    creator: name,
+    publisher: 'プロフィールLPメーカー',
+    alternates: {
+      canonical: profileUrl,
+    },
     openGraph: {
-      title: name,
+      title: `${name} - プロフィールページ`,
       description,
+      url: profileUrl,
+      siteName: 'プロフィールLPメーカー',
+      locale: 'ja_JP',
       images: [
         {
           url: ogImage,
@@ -126,13 +145,24 @@ export async function generateMetadata({
           alt: name,
         },
       ],
-      type: 'website',
+      type: 'profile',
     },
     twitter: {
       card: 'summary_large_image',
-      title: name,
+      title: `${name} - プロフィールページ`,
       description,
       images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   };
 }
@@ -170,16 +200,19 @@ export default async function ProfilePage({
       {/* コピーライトとリンク */}
       <footer className="text-center py-6 animate-fade-in delay-10">
         <p className="text-sm text-white/90 drop-shadow-md mb-2">
-          &copy; {new Date().getFullYear()} Profile LP Maker. All rights reserved.
+          &copy; {new Date().getFullYear()} プロフィールLPメーカー. All rights reserved.
         </p>
         <a 
           href="https://lp.makers.tokyo/" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="text-sm text-white/80 hover:text-white/100 drop-shadow-md transition-colors underline"
+          className="text-sm text-white/80 hover:text-white/100 drop-shadow-md transition-colors underline inline-block mb-2"
         >
-          https://lp.makers.tokyo/
+          プロフィールLPメーカーで作成
         </a>
+        <p className="text-xs text-white/70 drop-shadow-md">
+          無料でSNSプロフィールリンクをまとめる
+        </p>
       </footer>
     </>
   );
