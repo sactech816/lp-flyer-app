@@ -495,7 +495,8 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                 setPage={setPage} 
                 onCreate={() => setPage('profile-editor')} 
                 user={user} 
-                setShowAuth={setShowAuth} 
+                setShowAuth={setShowAuth}
+                variant="light"
             />
         </div>
     );
