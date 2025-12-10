@@ -258,7 +258,7 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                                 <select
                                     value={formData.service_type}
                                     onChange={(e) => setFormData({ ...formData, service_type: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 bg-white"
                                     required
                                 >
                                     <option value="profile">プロフィールLPメーカー</option>
@@ -278,7 +278,7 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                                     type="text"
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-400"
                                     placeholder="お知らせのタイトル"
                                     required
                                 />
@@ -291,7 +291,7 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                                 <textarea
                                     value={formData.content}
                                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[120px]"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 min-h-[120px] text-gray-900 placeholder-gray-400"
                                     placeholder="お知らせの本文"
                                     required
                                 />
@@ -306,7 +306,7 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                                         type="url"
                                         value={formData.link_url}
                                         onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-400"
                                         placeholder="https://example.com"
                                     />
                                 </div>
@@ -319,7 +319,7 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                                         type="text"
                                         value={formData.link_text}
                                         onChange={(e) => setFormData({ ...formData, link_text: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 placeholder-gray-400"
                                         placeholder="詳細はこちら"
                                     />
                                 </div>
@@ -334,7 +334,7 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
                                         type="date"
                                         value={formData.announcement_date}
                                         onChange={(e) => setFormData({ ...formData, announcement_date: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-900"
                                         required
                                     />
                                 </div>

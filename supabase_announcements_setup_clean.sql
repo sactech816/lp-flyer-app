@@ -1,12 +1,13 @@
+-- ========================================
 -- お知らせ機能のデータベーステーブル作成
--- プロフィールLPメーカー用
--- Supabaseのダッシュボードで実行してください
+-- クリーンインストール版
+-- ========================================
 
--- 既存のテーブルを削除（必要な場合のみ）
--- DROP TABLE IF EXISTS announcements;
+-- ステップ1: 既存のテーブルを完全に削除（CASCADE で関連するポリシーも削除）
+DROP TABLE IF EXISTS announcements CASCADE;
 
--- お知らせテーブルの作成
-CREATE TABLE IF NOT EXISTS announcements (
+-- ステップ2: テーブルの作成
+CREATE TABLE announcements (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   service_type TEXT NOT NULL DEFAULT 'profile',
   title TEXT NOT NULL,
@@ -16,26 +17,31 @@ CREATE TABLE IF NOT EXISTS announcements (
   is_active BOOLEAN DEFAULT true,
   announcement_date DATE DEFAULT CURRENT_DATE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  CONSTRAINT service_type_check CHECK (service_type IN ('quiz', 'profile', 'all'))
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- インデックスの作成（パフォーマンス向上）
-CREATE INDEX IF NOT EXISTS idx_announcements_service_type ON announcements(service_type);
-CREATE INDEX IF NOT EXISTS idx_announcements_is_active ON announcements(is_active);
-CREATE INDEX IF NOT EXISTS idx_announcements_date ON announcements(announcement_date DESC);
-CREATE INDEX IF NOT EXISTS idx_announcements_created_at ON announcements(created_at DESC);
+-- ステップ3: 制約の追加
+ALTER TABLE announcements 
+ADD CONSTRAINT service_type_check 
+CHECK (service_type IN ('quiz', 'profile', 'all'));
 
--- RLS（Row Level Security）ポリシーの設定
+-- ステップ4: インデックスの作成
+CREATE INDEX idx_announcements_service_type ON announcements(service_type);
+CREATE INDEX idx_announcements_is_active ON announcements(is_active);
+CREATE INDEX idx_announcements_date ON announcements(announcement_date DESC);
+CREATE INDEX idx_announcements_created_at ON announcements(created_at DESC);
+
+-- ステップ5: RLS（Row Level Security）を有効化
 ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
 
+-- ステップ6: ポリシーの作成
 -- 全ユーザーが表示中のお知らせを閲覧可能
 CREATE POLICY "Anyone can read active announcements"
   ON announcements
   FOR SELECT
   USING (is_active = true);
 
--- 管理者（info@kei-sho.co.jp）のみが全てのお知らせを閲覧可能
+-- 管理者のみが全てのお知らせを閲覧可能
 CREATE POLICY "Admin can read all announcements"
   ON announcements
   FOR SELECT
@@ -67,7 +73,7 @@ CREATE POLICY "Admin can delete announcements"
     auth.jwt() ->> 'email' = 'info@kei-sho.co.jp'
   );
 
--- updated_at を自動更新するトリガー
+-- ステップ7: トリガー関数の作成
 CREATE OR REPLACE FUNCTION update_announcements_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -76,12 +82,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- ステップ8: トリガーの作成
 CREATE TRIGGER trigger_announcements_updated_at
   BEFORE UPDATE ON announcements
   FOR EACH ROW
   EXECUTE FUNCTION update_announcements_updated_at();
 
--- コメント追加
+-- ステップ9: コメントの追加
 COMMENT ON TABLE announcements IS 'お知らせ管理テーブル（全サービス共通）';
 COMMENT ON COLUMN announcements.id IS 'お知らせの一意識別子';
 COMMENT ON COLUMN announcements.service_type IS 'サービス区分（quiz: 診断クイズ, profile: プロフィールLP, all: 全サービス共通）';
@@ -94,7 +101,7 @@ COMMENT ON COLUMN announcements.announcement_date IS 'お知らせの日付';
 COMMENT ON COLUMN announcements.created_at IS '作成日時';
 COMMENT ON COLUMN announcements.updated_at IS '最終更新日時';
 
--- サンプルデータの挿入（テスト用）
+-- ステップ10: サンプルデータの挿入
 INSERT INTO announcements (service_type, title, content, link_url, link_text, is_active, announcement_date)
 VALUES 
   (
@@ -134,5 +141,10 @@ VALUES
     CURRENT_DATE
   );
 
-
+-- 完了！
+SELECT 
+  '✅ セットアップ完了！' as status,
+  COUNT(*) as sample_data_count,
+  'Table Editor で announcements テーブルを確認してください' as next_step
+FROM announcements;
 
