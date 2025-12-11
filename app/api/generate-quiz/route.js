@@ -15,27 +15,11 @@ function getOpenAI() {
 
 export async function POST(req) {
   try {
-    const { occupation, target, strengths } = await req.json();
+    const { theme, mode, prompt } = await req.json();
 
-    if (!occupation || !target || !strengths) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!theme || !prompt) {
+      return NextResponse.json({ error: 'テーマとプロンプトが必要です' }, { status: 400 });
     }
-
-    const prompt = `あなたはプロフィールLP作成の専門家です。以下の情報を基に、魅力的なプロフィールLPのコンテンツを生成してください。
-
-職業: ${occupation}
-ターゲット: ${target}
-強み: ${strengths}
-
-以下のJSON形式で返答してください：
-{
-  "catchphrase": "キャッチコピー（30文字以内）",
-  "introduction": "自己紹介文（200文字程度）",
-  "recommendedLinks": [
-    {"label": "リンク名", "url": "https://example.com", "style": ""},
-    {"label": "リンク名", "url": "https://example.com", "style": ""}
-  ]
-}`;
 
     const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
@@ -43,7 +27,7 @@ export async function POST(req) {
       messages: [
         {
           role: 'system',
-          content: 'あなたはプロフィールLP作成の専門家です。JSON形式で返答してください。',
+          content: 'あなたはクイズ・診断作成の専門家です。JSON形式で返答してください。',
         },
         {
           role: 'user',
@@ -51,7 +35,7 @@ export async function POST(req) {
         },
       ],
       temperature: 0.7,
-      max_tokens: 500,
+      max_tokens: 1500,
     });
 
     const content = completion.choices[0]?.message?.content || '';
@@ -73,6 +57,20 @@ export async function POST(req) {
       jsonStr = jsonStr.replace(/```\n?/g, '');
     }
 
+    // JSONの開始位置と終了位置を見つける
+    const startIndex = jsonStr.indexOf('{');
+    const endIndex = jsonStr.lastIndexOf('}');
+    
+    if (startIndex === -1 || endIndex === -1) {
+      console.error('[AI生成] JSONの開始/終了が見つかりません:', jsonStr);
+      return NextResponse.json(
+        { error: 'AIからの応答の解析に失敗しました。もう一度お試しください。' },
+        { status: 500 }
+      );
+    }
+
+    jsonStr = jsonStr.substring(startIndex, endIndex + 1);
+
     let result;
     try {
       result = JSON.parse(jsonStr);
@@ -86,10 +84,12 @@ export async function POST(req) {
       );
     }
 
+    // 結果の検証と整形
     const response = {
-      catchphrase: result.catchphrase || '',
-      introduction: result.introduction || '',
-      recommendedLinks: result.recommendedLinks || [],
+      title: result.title || '',
+      description: result.description || '',
+      questions: result.questions || [],
+      results: result.results || [],
     };
     
     console.log('[AI生成] 最終レスポンス:', response);

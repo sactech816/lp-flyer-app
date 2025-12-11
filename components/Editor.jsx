@@ -404,8 +404,6 @@ const Editor = ({ onBack, onSave, initialData, setPage, user, setShowAuth }) => 
   };
 
   const handleAiGenerate = async () => {
-      const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-      if(!apiKey) return alert('エラー: OpenAI APIキーが設定されていません。Vercelの環境変数を確認してください。');
       if(!aiTheme) return alert('どんな診断を作りたいかテーマを入力してください');
       setIsGenerating(true);
       try {
@@ -418,22 +416,32 @@ const Editor = ({ onBack, onSave, initialData, setPage, user, setShowAuth }) => 
               prompt = `テーマ「${aiTheme}」の性格/タイプ診断を作成して。質問5つ。結果は3タイプ。`;
           }
 
-          const res = await fetch("https://api.openai.com/v1/chat/completions", {
-              method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-              body: JSON.stringify({ model: "gpt-3.5-turbo", messages: [{ role: "user", content: prompt + `出力はJSON形式のみ: {title, description, questions:[{text, options:[{label, score:{A,B,C}}]...], results:[{type, title, description, link_url, link_text, line_url, line_text, qr_url, qr_text}]}` }] })
+          // セキュリティ: サーバーサイドAPIを経由してOpenAI APIを呼び出す
+          const res = await fetch("/api/generate-quiz", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ 
+                  theme: aiTheme,
+                  mode: form.mode,
+                  prompt: prompt + `出力はJSON形式のみ: {title, description, questions:[{text, options:[{label, score:{A,B,C}}]...], results:[{type, title, description, link_url, link_text, line_url, line_text, qr_url, qr_text}]}`
+              })
           });
           
-          if (!res.ok) throw new Error('API request failed');
+          if (!res.ok) {
+              const errorData = await res.json();
+              throw new Error(errorData.error || 'API request failed');
+          }
           const data = await res.json();
-          const content = data.choices[0].message.content;
-          const jsonStr = content.substring(content.indexOf('{'), content.lastIndexOf('}') + 1);
-          const json = JSON.parse(jsonStr);
           setForm(prev => ({ 
-              ...prev, ...json,
-              results: json.results.map(r => ({link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:"", ...r}))
+              ...prev, ...data,
+              results: data.results.map(r => ({link_url:"", link_text:"", line_url:"", line_text:"", qr_url:"", qr_text:"", ...r}))
           })); 
           alert('AI生成が完了しました！');
-      } catch(e) { alert('AI生成エラー: ' + e.message); } finally { setIsGenerating(false); }
+      } catch(e) { 
+          alert('AI生成エラー: ' + e.message); 
+      } finally { 
+          setIsGenerating(false); 
+      }
   };
 
   const setCorrectOption = (qIndex, optIndex) => {
