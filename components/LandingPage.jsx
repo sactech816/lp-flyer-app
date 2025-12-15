@@ -12,7 +12,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
   const [publicProfiles, setPublicProfiles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProfiles, setTotalProfiles] = useState(0);
-  const profilesPerPage = 9;
+  const profilesPerPage = 6;
 
   useEffect(() => {
     setIsLoading(false);
@@ -186,7 +186,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             <h2 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
               名刺・SNS・紹介に使える<br/>
               プロフィールLPを<br/>
-              <span className="text-yellow-300">「ひな形」から最短ルートで作成</span>
+              <span className="text-yellow-300">「テンプレート」から<br/>最短ルートで作成</span>
             </h2>
             <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-4 leading-relaxed">
               文章の型は用意済み。<br/>
@@ -204,7 +204,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
               className="glass-card bg-white/95 hover:bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
             >
               <Sparkles size={20}/>
-              新規作成
+              無料で作成する
               <ArrowRight size={20}/>
             </button>
           </div>
@@ -213,7 +213,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* テンプレート選択セクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-1">
           <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
-            テンプレートを選択してください
+            テンプレートで簡単作成（フルセットが人気）
           </h3>
           <p className="text-center text-white/90 mb-12 text-sm md:text-base">
             用途に合わせて最適なテンプレートをお選びください
@@ -273,110 +273,8 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
           </div>
         </section>
 
-        {/* 特徴セクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-2">
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
-            ずっと無料で使える、プロフィールリンクまとめツール
-          </h3>
-          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
-            インフルエンサー、クリエイター、アーティスト、ビジネスパーソンに最適
-          </p>
-          
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {/* 特徴1: ノーコード編集 */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Code className="text-indigo-600" size={32}/>
-              </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
-                ノーコードで簡単作成
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                プログラミング知識は不要。直感的なエディタで、誰でもプロフィールページを作成できます。SNSリンクをまとめて、あなただけのページを3分で。
-              </p>
-            </div>
-
-            {/* 特徴2: AIアシスタント */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Wand2 className="text-purple-600" size={32}/>
-              </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
-                AIアシスタント搭載
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                AIがあなたの職業や強みから、魅力的なキャッチコピーや自己紹介文を自動生成。プロフィールリンクの作成がさらに簡単に。
-              </p>
-            </div>
-
-            {/* 特徴3: スマホ完全対応 */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Smartphone className="text-green-600" size={32}/>
-              </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
-                スマホ完全対応
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示。SNSプロフィールリンクをどこからでも確認できます。
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 利用シーンセクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-4">
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
-            こんな方におすすめのプロフィールリンクまとめ
-          </h3>
-          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
-            クリエイター、インフルエンサー、ビジネスパーソンの活動をサポート
-          </p>
-          
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {/* 利用シーン1: Kindle作家の集客に */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="text-orange-600" size={32}/>
-              </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
-                クリエイター・作家
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                作品紹介や著者プロフィールをまとめて、読者やファンへ誘導。SNSリンクをまとめて、作品の拡散にも最適です。
-              </p>
-            </div>
-
-            {/* 利用シーン2: 店舗のリンク集に */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Store className="text-blue-600" size={32}/>
-              </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
-                店舗・ビジネス
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                店舗情報やSNS、予約サイトへのリンクを1つのページに集約。QRコードで簡単にシェア。プロフィールリンクで集客アップ。
-              </p>
-            </div>
-
-            {/* 利用シーン3: フリーランスの名刺代わりに */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Briefcase className="text-pink-600" size={32}/>
-              </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
-                フリーランス・個人事業主
-              </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                ポートフォリオや実績、連絡先をまとめたプロフィールページ。デジタル名刺として、SNSプロフィールリンクを活用できます。
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* プロフィールLP一覧セクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-5">
+        <section className="mb-20 md:mb-32 animate-fade-in delay-2">
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg flex items-center justify-center gap-2">
             <Sparkles className="text-yellow-400" size={32}/>
             作成されたプロフィールLP一覧
@@ -387,7 +285,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
           
           {publicProfiles.length > 0 ? (
             <>
-              <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {publicProfiles.map((profile) => {
                 const category = getProfileCategory(profile);
                 const categoryInfo = getCategoryInfo(category);
@@ -529,8 +427,110 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
           )}
         </section>
 
+        {/* 特徴セクション */}
+        <section className="mb-20 md:mb-32 animate-fade-in delay-3">
+          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
+            ずっと無料で使える、プロフィールリンクまとめツール
+          </h3>
+          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
+            インフルエンサー、クリエイター、アーティスト、ビジネスパーソンに最適
+          </p>
+          
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            {/* 特徴1: ノーコード編集 */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Code className="text-indigo-600" size={32}/>
+              </div>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                ノーコードで簡単作成
+              </h4>
+              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+                プログラミング知識は不要。直感的なエディタで、誰でもプロフィールページを作成できます。SNSリンクをまとめて、あなただけのページを3分で。
+              </p>
+            </div>
+
+            {/* 特徴2: AIアシスタント */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Wand2 className="text-purple-600" size={32}/>
+              </div>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                AIアシスタント搭載
+              </h4>
+              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+                AIがあなたの職業や強みから、魅力的なキャッチコピーや自己紹介文を自動生成。プロフィールリンクの作成がさらに簡単に。
+              </p>
+            </div>
+
+            {/* 特徴3: スマホ完全対応 */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Smartphone className="text-green-600" size={32}/>
+              </div>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                スマホ完全対応
+              </h4>
+              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+                レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示。SNSプロフィールリンクをどこからでも確認できます。
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 利用シーンセクション */}
+        <section className="mb-20 md:mb-32 animate-fade-in delay-4">
+          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
+            こんな方におすすめのプロフィールリンクまとめ
+          </h3>
+          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
+            クリエイター、インフルエンサー、ビジネスパーソンの活動をサポート
+          </p>
+          
+          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            {/* 利用シーン1: Kindle作家の集客に */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="text-orange-600" size={32}/>
+              </div>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                クリエイター・作家
+              </h4>
+              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+                作品紹介や著者プロフィールをまとめて、読者やファンへ誘導。SNSリンクをまとめて、作品の拡散にも最適です。
+              </p>
+            </div>
+
+            {/* 利用シーン2: 店舗のリンク集に */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Store className="text-blue-600" size={32}/>
+              </div>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                店舗・ビジネス
+              </h4>
+              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+                店舗情報やSNS、予約サイトへのリンクを1つのページに集約。QRコードで簡単にシェア。プロフィールリンクで集客アップ。
+              </p>
+            </div>
+
+            {/* 利用シーン3: フリーランスの名刺代わりに */}
+            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Briefcase className="text-pink-600" size={32}/>
+              </div>
+              <h4 className="text-xl font-bold mb-3 accent-color">
+                フリーランス・個人事業主
+              </h4>
+              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+                ポートフォリオや実績、連絡先をまとめたプロフィールページ。デジタル名刺として、SNSプロフィールリンクを活用できます。
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* FAQセクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-6">
+        <section className="mb-20 md:mb-32 animate-fade-in delay-5">
           <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-12 drop-shadow-lg">
             よくある質問
           </h3>
@@ -589,7 +589,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* CTAセクション */}
-        <section className="mt-20 md:mt-32 text-center animate-fade-in delay-7">
+        <section className="mt-20 md:mt-32 text-center animate-fade-in delay-6">
           <div className="glass-card rounded-2xl p-8 md:p-12 shadow-xl max-w-3xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 drop-shadow-lg">
               {user ? 'プロフィールを作成しましょう' : '今すぐ無料で始める'}
@@ -612,7 +612,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* フッター */}
-        <footer className="mt-20 bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 animate-fade-in delay-8">
+        <footer className="mt-20 bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 animate-fade-in delay-7">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-4 gap-8 mb-8">
               <div className="col-span-1 md:col-span-2">

@@ -176,7 +176,18 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     }
   ];
 
-  const [blocks, setBlocks] = useState<Block[]>(getDefaultContent());
+  const [blocks, setBlocks] = useState<Block[]>(() => {
+    const defaultBlocks = getDefaultContent();
+    return defaultBlocks;
+  });
+  
+  // 初期ブロックを展開状態で初期化
+  useEffect(() => {
+    if (blocks.length > 0 && expandedBlocks.size === 0) {
+      const initialBlockIds = blocks.slice(0, 3).map(block => block.id);
+      setExpandedBlocks(new Set(initialBlockIds));
+    }
+  }, [blocks]);
   
   // 新規ブロック追加時は自動的に展開
   useEffect(() => {
@@ -798,7 +809,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">プロフィール画像</label>
-              <div className="flex gap-2 items-end">
+              <div className="flex gap-2 items-start">
                 <div className="flex-1">
                   <Input
                     label=""
@@ -807,7 +818,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     ph="画像URL (https://...)"
                   />
                 </div>
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap h-[50px]">
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap h-[50px] shrink-0">
                   {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
                   <span>アップロード</span>
                   <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(block.id, e)} disabled={isUploading}/>
@@ -1000,15 +1011,17 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <Input label="ASINまたはAmazon URL" val={block.data.asin} onChange={v => updateBlock(block.id, { asin: v })} ph="例: B08XXXXXXX または https://amazon.co.jp/dp/B08XXXXXXX" />
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">画像URL</label>
-              <div className="flex gap-2 mb-2">
-                <Input 
-                  label="" 
-                  val={block.data.imageUrl} 
-                  onChange={v => updateBlock(block.id, { imageUrl: v })} 
-                  ph="https://..." 
-                  type="url"
-                />
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap self-end border-2 border-dashed border-indigo-300">
+              <div className="flex gap-2 mb-2 items-start">
+                <div className="flex-1">
+                  <Input 
+                    label="" 
+                    val={block.data.imageUrl} 
+                    onChange={v => updateBlock(block.id, { imageUrl: v })} 
+                    ph="https://..." 
+                    type="url"
+                  />
+                </div>
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 h-[50px] shrink-0">
                   {isUploading ? (
                     <>
                       <Loader2 className="animate-spin" size={16}/> アップロード中...
@@ -1086,15 +1099,17 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <Input label="LINE URL" val={block.data.url} onChange={v => updateBlock(block.id, { url: v })} ph="例: https://lin.ee/xxxxx" type="url" />
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">QRコード画像（任意）</label>
-              <div className="flex gap-2 mb-2">
-                <Input 
-                  label="" 
-                  val={block.data.qrImageUrl || ''} 
-                  onChange={v => updateBlock(block.id, { qrImageUrl: v })} 
-                  ph="QRコード画像URL (https://...)" 
-                  type="url"
-                />
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap self-end border-2 border-dashed border-indigo-300">
+              <div className="flex gap-2 mb-2 items-start">
+                <div className="flex-1">
+                  <Input 
+                    label="" 
+                    val={block.data.qrImageUrl || ''} 
+                    onChange={v => updateBlock(block.id, { qrImageUrl: v })} 
+                    ph="QRコード画像URL (https://...)" 
+                    type="url"
+                  />
+                </div>
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 h-[50px] shrink-0">
                   {isUploading ? (
                     <>
                       <Loader2 className="animate-spin" size={16}/> アップロード中...
@@ -1346,21 +1361,23 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                   }} rows={4} ph="お客様の声を入力してください" />
                   <div className="mt-2">
                     <label className="text-sm font-bold text-gray-900 block mb-2">画像URL（オプション）</label>
-                    <div className="flex gap-2 mb-2">
-                      <Input 
-                        label="" 
-                        val={item.imageUrl || ''} 
-                        onChange={v => {
-                          setBlocks(prev => prev.map(b => 
-                            b.id === block.id && b.type === 'testimonial'
-                              ? { ...b, data: { items: b.data.items.map((it, i) => i === index ? { ...it, imageUrl: v } : it) } }
-                              : b
-                          ));
-                        }} 
-                        ph="画像URL (https://...)" 
-                        type="url"
-                      />
-                      <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap self-end border-2 border-dashed border-indigo-300">
+                    <div className="flex gap-2 mb-2 items-start">
+                      <div className="flex-1">
+                        <Input 
+                          label="" 
+                          val={item.imageUrl || ''} 
+                          onChange={v => {
+                            setBlocks(prev => prev.map(b => 
+                              b.id === block.id && b.type === 'testimonial'
+                                ? { ...b, data: { items: b.data.items.map((it, i) => i === index ? { ...it, imageUrl: v } : it) } }
+                                : b
+                            ));
+                          }} 
+                          ph="画像URL (https://...)" 
+                          type="url"
+                        />
+                      </div>
+                      <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 h-[50px] shrink-0">
                         {isUploading ? (
                           <>
                             <Loader2 className="animate-spin" size={16}/> アップロード中...
@@ -1405,14 +1422,14 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                       <label className="text-xs font-bold text-gray-700 block mb-1">プリセット画像から選択</label>
                       <div className="flex flex-wrap gap-2">
                         {[
-                          // 男性ビジネス風イラスト3枚
-                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businessman1&size=200&backgroundColor=f2f2f2',
-                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businessman2&size=200&backgroundColor=e0f2fe',
-                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businessman3&size=200&backgroundColor=ede9fe',
-                          // 女性ビジネス風イラスト3枚
-                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businesswoman1&size=200&backgroundColor=fef9c3',
-                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businesswoman2&size=200&backgroundColor=ffe4e6',
-                          'https://api.dicebear.com/7.x/notionists-neutral/png?seed=businesswoman3&size=200&backgroundColor=dbeafe',
+                          // リアルな男性3人
+                          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=faces',
+                          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&crop=faces',
+                          'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=faces',
+                          // リアルな女性3人
+                          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=faces',
+                          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=faces',
+                          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=faces',
                         ].map((preset, idx) => (
                           <button
                             key={idx}
@@ -1665,7 +1682,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
         <div className="p-4 md:p-6 border-b bg-white">
           <div className="flex items-center gap-2 mb-4">
             <Palette className="text-indigo-600" size={20}/>
-            <h3 className="font-bold text-base md:text-lg text-gray-900">テーマ設定</h3>
+            <h3 className="font-bold text-base md:text-lg text-gray-900">テーマ設定（背景パターンか背景画像を選択ください）</h3>
           </div>
           
           {/* 背景パターンと背景画像を1行に */}
@@ -1750,12 +1767,16 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
         {/* ブロック追加ボタン */}
         <div className="p-4 md:p-6 border-b bg-gray-50">
+          <div className="flex items-center gap-2 mb-2">
+            <Palette className="text-indigo-600" size={20}/>
+            <h3 className="font-bold text-base md:text-lg text-gray-900">作成方法を選択（テンプレートかAIで自動作成を選択）</h3>
+          </div>
           <div className="flex flex-wrap gap-2 mb-3">
             <button 
               onClick={() => setShowTemplateModal(true)} 
               className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:from-blue-600 hover:to-cyan-600 flex items-center gap-1 md:gap-2 shadow-md"
             >
-              <FileText size={14} className="md:w-4 md:h-4"/> <span>テンプレートから始める</span>
+              <FileText size={14} className="md:w-4 md:h-4"/> <span>テンプレートから始める（おすすめ）</span>
             </button>
             <button 
               onClick={() => setShowAIModal(true)} 
@@ -1763,6 +1784,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             >
               <Sparkles size={14} className="md:w-4 md:h-4"/> <span>AIで自動生成</span>
             </button>
+          </div>
+          <div className="flex items-center gap-2 mb-2">
+            <Palette className="text-indigo-600" size={20}/>
+            <h3 className="font-bold text-base md:text-lg text-gray-900">ブロック追加（クリックで追加。ブロックを開き入力してください）</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             <button onClick={() => addBlock('header')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
