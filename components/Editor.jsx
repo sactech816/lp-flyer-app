@@ -241,6 +241,9 @@ const Editor = ({ onBack, onSave, initialData, setPage, user, setShowAuth }) => 
   const [showPreview, setShowPreview] = useState(false);
   const [previewQuestionIndex, setPreviewQuestionIndex] = useState(0);
   const [hideLoginBanner, setHideLoginBanner] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [searchingImages, setSearchingImages] = useState(false);
+  const [imageResults, setImageResults] = useState([]);
 
   const STEPS = [
       { id: 1, icon: Sparkles, label: 'クイズの種類', description: 'テンプレートまたはAI生成' },
@@ -390,6 +393,38 @@ const Editor = ({ onBack, onSave, initialData, setPage, user, setShowAuth }) => 
       }
   };
 
+  const handleAutoSelectImage = async () => {
+      setSearchingImages(true);
+      try {
+          // タイトルをベースに画像を検索
+          const searchQuery = form.title || 'business professional';
+          
+          const response = await fetch('/api/search-images', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ query: searchQuery })
+          });
+          
+          if (!response.ok) {
+              throw new Error('画像検索に失敗しました');
+          }
+          
+          const data = await response.json();
+          
+          if (data.images && data.images.length > 0) {
+              setImageResults(data.images);
+              setShowImagePicker(true);
+          } else {
+              alert('画像が見つかりませんでした');
+          }
+      } catch (error) {
+          console.error('画像検索エラー:', error);
+          alert('画像の検索に失敗しました: ' + error.message);
+      } finally {
+          setSearchingImages(false);
+      }
+  };
+
   const handleRandomImage = () => {
       const curatedImages = [
           "https://images.unsplash.com/photo-1664575602276-acd073f104c1?auto=format&fit=crop&w=800&q=80",
@@ -455,6 +490,61 @@ const Editor = ({ onBack, onSave, initialData, setPage, user, setShowAuth }) => 
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col font-sans text-gray-900">
+        {/* 画像選択モーダル */}
+        {showImagePicker && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4" onClick={() => setShowImagePicker(false)}>
+                <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                    <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
+                        <h3 className="font-bold text-lg flex items-center gap-2">
+                            <ImageIcon size={20} className="text-indigo-600"/> 画像を選択
+                        </h3>
+                        <button onClick={() => setShowImagePicker(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                            <X size={20}/>
+                        </button>
+                    </div>
+                    
+                    <div className="p-6">
+                        <p className="text-sm text-gray-600 mb-4">
+                            「{form.title || 'タイトル未設定'}」に関連する画像
+                        </p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {imageResults.map((img) => (
+                                <div 
+                                    key={img.id} 
+                                    className="relative group cursor-pointer overflow-hidden rounded-lg border-2 border-gray-200 hover:border-indigo-500 transition-all"
+                                    onClick={() => {
+                                        setForm({...form, image_url: img.urls.regular});
+                                        setShowImagePicker(false);
+                                    }}
+                                >
+                                    <img 
+                                        src={img.urls.small || img.urls.regular} 
+                                        alt={img.alt_description} 
+                                        className="w-full h-40 object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+                                        <button className="opacity-0 group-hover:opacity-100 bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm transition-all transform scale-90 group-hover:scale-100">
+                                            選択
+                                        </button>
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                                        <p className="text-white text-xs truncate">
+                                            Photo by {img.user.name}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        {imageResults.length === 0 && (
+                            <div className="text-center py-12 text-gray-500">
+                                画像が見つかりませんでした
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        )}
+
         {/* プレビューモーダル */}
         {showPreview && (
             <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4" onClick={() => setShowPreview(false)}>
@@ -920,15 +1010,21 @@ const Editor = ({ onBack, onSave, initialData, setPage, user, setShowAuth }) => 
                             </div>
 
                             <div className="mt-6 mb-6">
-                                <label className="text-sm font-bold text-gray-900 block mb-2">メイン画像</label>
+                                <label className="text-sm font-bold text-gray-900 block mb-2">メイン画像（任意）</label>
                                 <div className="flex gap-2 items-stretch">
-                                    <input className="flex-grow border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400" value={form.image_url||''} onChange={e=>setForm({...form, image_url:e.target.value})} placeholder="画像URL (https://...)"/>
-                                    <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0">
+                                    <input className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400" value={form.image_url||''} onChange={e=>setForm({...form, image_url:e.target.value})} placeholder="画像URL (https://...)"/>
+                                    <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all">
                                         {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
-                                        <span>アップロード</span>
+                                        <span className="hidden sm:inline">アップロード</span>
                                         <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={isUploading}/>
                                     </label>
-                                    <button onClick={handleRandomImage} className="bg-gray-100 px-4 py-3 rounded-lg text-sm font-bold hover:bg-gray-200 flex items-center justify-center gap-1 whitespace-nowrap shrink-0"><ImageIcon size={16}/> 自動</button>
+                                    <button 
+                                        onClick={handleRandomImage} 
+                                        className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                                    >
+                                        <Sparkles size={16}/>
+                                        <span>自動</span>
+                                    </button>
                                 </div>
                                 {form.image_url && <img src={form.image_url} alt="Preview" className="h-32 w-full object-cover rounded-lg mt-2 border"/>}
                             </div>

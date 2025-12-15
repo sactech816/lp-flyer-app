@@ -78,6 +78,10 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
   const [settings, setSettings] = useState<{ gtmId?: string; fbPixelId?: string; lineTagId?: string }>({});
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showImagePicker, setShowImagePicker] = useState(false);
+  const [searchingImages, setSearchingImages] = useState(false);
+  const [imageResults, setImageResults] = useState<any[]>([]);
+  const [imagePickerContext, setImagePickerContext] = useState<{ blockId: string; field: string; searchQuery: string } | null>(null);
   const [analytics, setAnalytics] = useState<{ 
     views: number; 
     clicks: number; 
@@ -583,6 +587,107 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
     });
   };
 
+  // 画像自動選定
+  const handleAutoSelectImage = async (blockId: string, field: string, searchQuery: string) => {
+    setSearchingImages(true);
+    setImagePickerContext({ blockId, field, searchQuery });
+    
+    try {
+      const response = await fetch('/api/search-images', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: searchQuery })
+      });
+      
+      if (!response.ok) {
+        throw new Error('画像検索に失敗しました');
+      }
+      
+      const data = await response.json();
+      
+      if (data.images && data.images.length > 0) {
+        setImageResults(data.images);
+        setShowImagePicker(true);
+      } else {
+        alert('画像が見つかりませんでした');
+      }
+    } catch (error: any) {
+      console.error('画像検索エラー:', error);
+      alert('画像の検索に失敗しました: ' + error.message);
+    } finally {
+      setSearchingImages(false);
+    }
+  };
+
+  // 画像選択の適用
+  const applySelectedImage = (imageUrl: string) => {
+    if (!imagePickerContext) return;
+    
+    const { blockId, field } = imagePickerContext;
+    const block = blocks.find(b => b.id === blockId);
+    
+    if (!block) return;
+    
+    // ブロックタイプに応じて更新
+    if (block.type === 'header' && field === 'avatar') {
+      updateBlock(blockId, { avatar: imageUrl });
+    } else if (block.type === 'kindle' && field === 'imageUrl') {
+      updateBlock(blockId, { imageUrl });
+    } else if (block.type === 'line' && field === 'qrImageUrl') {
+      updateBlock(blockId, { qrImageUrl: imageUrl });
+    } else if (block.type === 'testimonial' && field.startsWith('item-')) {
+      // お客様の声の画像
+      const itemIndex = parseInt(field.split('-')[1]);
+      const newItems = [...(block.data.items || [])];
+      if (newItems[itemIndex]) {
+        newItems[itemIndex] = { ...newItems[itemIndex], imageUrl };
+        updateBlock(blockId, { items: newItems });
+      }
+    }
+    
+    setShowImagePicker(false);
+    setImagePickerContext(null);
+  };
+
+  // ランダム画像選択（モーダルなし）
+  const handleRandomImage = (blockId: string, field: string) => {
+    const curatedImages = [
+      "https://images.unsplash.com/photo-1664575602276-acd073f104c1?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1606857521015-7f9fcf423740?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=800&q=80"
+    ];
+    
+    const selected = curatedImages[Math.floor(Math.random() * curatedImages.length)];
+    const block = blocks.find(b => b.id === blockId);
+    
+    if (!block) return;
+    
+    // ブロックタイプに応じて更新
+    if (block.type === 'header' && field === 'avatar') {
+      updateBlock(blockId, { avatar: selected });
+    } else if (block.type === 'kindle' && field === 'imageUrl') {
+      updateBlock(blockId, { imageUrl: selected });
+    } else if (block.type === 'line_card' && field === 'qrImageUrl') {
+      updateBlock(blockId, { qrImageUrl: selected });
+    } else if (block.type === 'testimonial' && field.startsWith('item-')) {
+      const itemIndex = parseInt(field.split('-')[1]);
+      const newItems = [...(block.data.items || [])];
+      if (newItems[itemIndex]) {
+        newItems[itemIndex] = { ...newItems[itemIndex], imageUrl: selected };
+        updateBlock(blockId, { items: newItems });
+      }
+    } else if (block.type === 'image' && field === 'url') {
+      updateBlock(blockId, { url: selected });
+    }
+  };
+
   // AI生成機能
   const handleAIGenerate = async () => {
     if (!aiForm.occupation || !aiForm.target || !aiForm.strengths) {
@@ -809,24 +914,32 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">プロフィール画像</label>
-              <div className="flex gap-2 items-start">
-                <div className="flex-1">
-                  <Input
-                    label=""
-                    val={block.data.avatar}
-                    onChange={v => updateBlock(block.id, { avatar: v })}
-                    ph="画像URL (https://...)"
-                  />
-                </div>
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap h-[50px] shrink-0">
+              <div className="flex gap-2 items-stretch">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.avatar || ''}
+                  onChange={e => updateBlock(block.id, { avatar: e.target.value })}
+                  placeholder="画像URL (https://...)"
+                />
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all">
                   {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
-                  <span>アップロード</span>
+                  <span className="hidden sm:inline">アップロード</span>
                   <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(block.id, e)} disabled={isUploading}/>
                 </label>
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'avatar')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
               </div>
               {block.data.avatar && (
                 <img src={block.data.avatar} alt="Preview" className="h-32 w-32 rounded-full object-cover mt-2 border-4 border-white shadow-lg"/>
               )}
+              <p className="text-xs text-gray-500 mt-2">
+                💡 「自動」ボタンでプロフィールに合った画像を自動選定できます
+              </p>
             </div>
             <Input label="名前" val={block.data.name} onChange={v => updateBlock(block.id, { name: v })} ph="あなたの名前" />
             <Textarea label="キャッチコピー（肩書き）" val={block.data.title} onChange={v => updateBlock(block.id, { title: v })} rows={2} />
@@ -884,24 +997,17 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           <div className="space-y-4">
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">画像</label>
-              <Input 
-                label="" 
-                val={block.data.url} 
-                onChange={v => updateBlock(block.id, { url: v })} 
-                ph="画像URL (https://...)" 
-                type="url"
-              />
-              <div className="mt-2">
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 w-full">
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="animate-spin" size={16}/> アップロード中...
-                    </>
-                  ) : (
-                    <>
-                      <UploadCloud size={16}/> 画像を選択
-                    </>
-                  )}
+              <div className="flex gap-2 items-stretch mb-2">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.url || ''}
+                  onChange={e => updateBlock(block.id, { url: e.target.value })}
+                  placeholder="画像URL (https://...)"
+                  type="url"
+                />
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all">
+                  {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
+                  <span className="hidden sm:inline">アップロード</span>
                   <input 
                     type="file" 
                     className="hidden" 
@@ -910,6 +1016,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     disabled={isUploading}
                   />
                 </label>
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'url')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
               </div>
             </div>
             <Input label="キャプション（オプション）" val={block.data.caption || ''} onChange={v => updateBlock(block.id, { caption: v })} ph="画像の説明" />
@@ -1011,26 +1124,17 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <Input label="ASINまたはAmazon URL" val={block.data.asin} onChange={v => updateBlock(block.id, { asin: v })} ph="例: B08XXXXXXX または https://amazon.co.jp/dp/B08XXXXXXX" />
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">画像URL</label>
-              <div className="flex gap-2 mb-2 items-start">
-                <div className="flex-1">
-                  <Input 
-                    label="" 
-                    val={block.data.imageUrl} 
-                    onChange={v => updateBlock(block.id, { imageUrl: v })} 
-                    ph="https://..." 
-                    type="url"
-                  />
-                </div>
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 h-[50px] shrink-0">
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="animate-spin" size={16}/> アップロード中...
-                    </>
-                  ) : (
-                    <>
-                      <UploadCloud size={16}/> 画像を選択
-                    </>
-                  )}
+              <div className="flex gap-2 mb-2 items-stretch">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.imageUrl || ''}
+                  onChange={e => updateBlock(block.id, { imageUrl: e.target.value })}
+                  placeholder="https://..."
+                  type="url"
+                />
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all">
+                  {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
+                  <span className="hidden sm:inline">アップロード</span>
                   <input 
                     type="file" 
                     className="hidden" 
@@ -1057,6 +1161,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     disabled={isUploading}
                   />
                 </label>
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'imageUrl')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
               </div>
               <div className="mb-2">
                 <label className="text-xs font-bold text-gray-700 block mb-1">プリセット画像から選択</label>
@@ -1099,26 +1210,17 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <Input label="LINE URL" val={block.data.url} onChange={v => updateBlock(block.id, { url: v })} ph="例: https://lin.ee/xxxxx" type="url" />
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">QRコード画像（任意）</label>
-              <div className="flex gap-2 mb-2 items-start">
-                <div className="flex-1">
-                  <Input 
-                    label="" 
-                    val={block.data.qrImageUrl || ''} 
-                    onChange={v => updateBlock(block.id, { qrImageUrl: v })} 
-                    ph="QRコード画像URL (https://...)" 
-                    type="url"
-                  />
-                </div>
-                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 h-[50px] shrink-0">
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="animate-spin" size={16}/> アップロード中...
-                    </>
-                  ) : (
-                    <>
-                      <UploadCloud size={16}/> 画像を選択
-                    </>
-                  )}
+              <div className="flex gap-2 mb-2 items-stretch">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.qrImageUrl || ''}
+                  onChange={e => updateBlock(block.id, { qrImageUrl: e.target.value })}
+                  placeholder="QRコード画像URL (https://...)"
+                  type="url"
+                />
+                <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all">
+                  {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
+                  <span className="hidden sm:inline">アップロード</span>
                   <input 
                     type="file" 
                     className="hidden" 
@@ -1145,12 +1247,22 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                     disabled={isUploading}
                   />
                 </label>
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'qrImageUrl')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
               </div>
               {block.data.qrImageUrl && (
                 <div className="mt-2">
                   <img src={block.data.qrImageUrl} alt="QRコード" className="w-32 h-32 object-cover rounded-lg border" />
                 </div>
               )}
+              <p className="text-xs text-gray-500 mt-2">
+                💡 「自動」ボタンでQRコード風の画像を自動選定できます
+              </p>
             </div>
             <Input label="ボタンテキスト" val={block.data.buttonText} onChange={v => updateBlock(block.id, { buttonText: v })} ph="例: 友だち追加" />
           </div>
@@ -1361,32 +1473,23 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                   }} rows={4} ph="お客様の声を入力してください" />
                   <div className="mt-2">
                     <label className="text-sm font-bold text-gray-900 block mb-2">画像URL（オプション）</label>
-                    <div className="flex gap-2 mb-2 items-start">
-                      <div className="flex-1">
-                        <Input 
-                          label="" 
-                          val={item.imageUrl || ''} 
-                          onChange={v => {
-                            setBlocks(prev => prev.map(b => 
-                              b.id === block.id && b.type === 'testimonial'
-                                ? { ...b, data: { items: b.data.items.map((it, i) => i === index ? { ...it, imageUrl: v } : it) } }
-                                : b
-                            ));
-                          }} 
-                          ph="画像URL (https://...)" 
-                          type="url"
-                        />
-                      </div>
-                      <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap border-2 border-dashed border-indigo-300 h-[50px] shrink-0">
-                        {isUploading ? (
-                          <>
-                            <Loader2 className="animate-spin" size={16}/> アップロード中...
-                          </>
-                        ) : (
-                          <>
-                            <UploadCloud size={16}/> 画像を選択
-                          </>
-                        )}
+                    <div className="flex gap-2 mb-2 items-stretch">
+                      <input 
+                        className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                        value={item.imageUrl || ''}
+                        onChange={e => {
+                          setBlocks(prev => prev.map(b => 
+                            b.id === block.id && b.type === 'testimonial'
+                              ? { ...b, data: { items: b.data.items.map((it, i) => i === index ? { ...it, imageUrl: e.target.value } : it) } }
+                              : b
+                          ));
+                        }}
+                        placeholder="画像URL (https://...)"
+                        type="url"
+                      />
+                      <label className="bg-indigo-50 text-indigo-700 px-4 py-3 rounded-lg font-bold hover:bg-indigo-100 flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-all">
+                        {isUploading ? <Loader2 className="animate-spin" size={16}/> : <UploadCloud size={16}/>}
+                        <span className="hidden sm:inline">アップロード</span>
                         <input 
                           type="file" 
                           className="hidden" 
@@ -1417,7 +1520,17 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                           disabled={isUploading}
                         />
                       </label>
+                      <button 
+                        onClick={() => handleRandomImage(block.id, `item-${index}`)}
+                        className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                      >
+                        <Sparkles size={16}/>
+                        <span>自動</span>
+                      </button>
                     </div>
+                    <p className="text-xs text-gray-500 mb-2">
+                      💡 「自動」ボタンでお客様に合った画像を自動選定できます
+                    </p>
                     <div className="mb-2">
                       <label className="text-xs font-bold text-gray-700 block mb-1">プリセット画像から選択</label>
                       <div className="flex flex-wrap gap-2">
@@ -1526,6 +1639,58 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
 
   return (
     <div className={`bg-gray-100 flex font-sans text-gray-900 ${isMobile && showPreview ? 'flex-col h-screen' : 'min-h-screen flex-col lg:flex-row'}`}>
+      {/* 画像選択モーダル */}
+      {showImagePicker && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4" onClick={() => setShowImagePicker(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <ImageIcon size={20} className="text-indigo-600"/> 画像を選択
+              </h3>
+              <button onClick={() => setShowImagePicker(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                <X size={20}/>
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-sm text-gray-600 mb-4">
+                「{imagePickerContext?.searchQuery || '検索中'}」に関連する画像
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {imageResults.map((img) => (
+                  <div 
+                    key={img.id} 
+                    className="relative group cursor-pointer overflow-hidden rounded-lg border-2 border-gray-200 hover:border-indigo-500 transition-all"
+                    onClick={() => applySelectedImage(img.urls.regular)}
+                  >
+                    <img 
+                      src={img.urls.small || img.urls.regular} 
+                      alt={img.alt_description} 
+                      className="w-full h-40 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+                      <button className="opacity-0 group-hover:opacity-100 bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm transition-all transform scale-90 group-hover:scale-100">
+                        選択
+                      </button>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                      <p className="text-white text-xs truncate">
+                        Photo by {img.user.name}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {imageResults.length === 0 && (
+                <div className="text-center py-12 text-gray-500">
+                  画像が見つかりませんでした
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 左側: 編集エリア */}
       <div className={`flex-1 overflow-y-auto transition-all ${showPreview && !isMobile ? 'lg:w-1/2' : 'w-full'} ${isMobile && showPreview ? 'flex-shrink-0' : ''}`}>
         {/* 未ログインユーザー向けバナー */}
