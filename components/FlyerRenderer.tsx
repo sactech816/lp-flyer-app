@@ -92,12 +92,32 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
 
   // PDF生成ハンドラー
   const handleGeneratePDF = async () => {
+    console.log('[FlyerRenderer] PDF生成開始');
     setIsGeneratingPDF(true);
     try {
+      console.log('[FlyerRenderer] APIリクエスト送信:', `/api/generate-flyer-pdf?slug=${slug}&layout=${layout}&theme=${colorTheme}`);
       const response = await fetch(`/api/generate-flyer-pdf?slug=${slug}&layout=${layout}&theme=${colorTheme}`);
-      if (!response.ok) throw new Error('PDF生成に失敗しました');
       
+      console.log('[FlyerRenderer] レスポンス受信:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        // エラーレスポンスの詳細を取得
+        let errorDetails;
+        try {
+          errorDetails = await response.json();
+          console.error('[FlyerRenderer] エラー詳細:', errorDetails);
+        } catch (e) {
+          console.error('[FlyerRenderer] エラーレスポンスのJSON解析失敗');
+          errorDetails = { error: 'レスポンスの解析に失敗しました' };
+        }
+        
+        throw new Error(errorDetails.details || errorDetails.error || 'PDF生成に失敗しました');
+      }
+      
+      console.log('[FlyerRenderer] PDFデータ取得中...');
       const blob = await response.blob();
+      console.log('[FlyerRenderer] PDFサイズ:', blob.size, 'bytes');
+      
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -106,11 +126,24 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      console.log('[FlyerRenderer] PDF生成成功！');
     } catch (error) {
-      console.error('PDF生成エラー:', error);
-      alert('PDF生成に失敗しました。ブラウザの印刷機能をご利用ください。');
+      console.error('[FlyerRenderer] ❌ PDF生成エラー:', error);
+      console.error('[FlyerRenderer] エラーの種類:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('[FlyerRenderer] エラーメッセージ:', error instanceof Error ? error.message : String(error));
+      
+      alert(
+        'PDF生成に失敗しました。\n\n' +
+        '代わりに以下の方法をお試しください：\n\n' +
+        '1. 「印刷 / PDFで保存」ボタンをクリック\n' +
+        '2. 印刷ダイアログで「PDFに保存」を選択\n' +
+        '3. 保存先を指定して保存\n\n' +
+        'エラー詳細: ' + (error instanceof Error ? error.message : String(error))
+      );
     } finally {
       setIsGeneratingPDF(false);
+      console.log('[FlyerRenderer] PDF生成処理終了');
     }
   };
 
