@@ -2,27 +2,21 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// #region agent log
-fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/verify-profile/route.js:5',message:'Module load - checking env vars',data:{hasSupabaseUrl:!!process.env.NEXT_PUBLIC_SUPABASE_URL,hasServiceRole:!!process.env.SUPABASE_SERVICE_ROLE_KEY,hasStripeKey:!!process.env.STRIPE_SECRET_KEY,nodeEnv:process.env.NODE_ENV},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-// #endregion
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2024-12-18.acacia',
 });
 
-// #region agent log
-fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/verify-profile/route.js:13',message:'Before createClient call',data:{url:process.env.NEXT_PUBLIC_SUPABASE_URL,hasKey:!!process.env.SUPABASE_SERVICE_ROLE_KEY},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-// #endregion
-
-// ★修正: 管理者権限（Service Role）でSupabaseを操作する
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // ここが変わりました
-);
-
-// #region agent log
-fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/verify-profile/route.js:22',message:'After createClient call',data:{clientCreated:!!supabaseAdmin},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'})}).catch(()=>{});
-// #endregion
+// Supabase Adminインスタンスを遅延初期化（ビルド時エラーを防ぐ）
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Supabase credentials are missing!");
+  }
+  
+  return createClient(supabaseUrl, serviceRoleKey);
+}
 
 export async function POST(req) {
   try {
@@ -45,6 +39,9 @@ export async function POST(req) {
       console.error('❌ 決済未完了:', session.payment_status);
       return NextResponse.json({ error: 'Payment not completed', status: session.payment_status }, { status: 400 });
     }
+
+    // Supabase Adminクライアントを取得
+    const supabaseAdmin = getSupabaseAdmin();
 
     // 2. 既に記録済みかチェック（重複防止）
     const { data: existing } = await supabaseAdmin

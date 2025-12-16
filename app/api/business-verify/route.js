@@ -5,8 +5,23 @@ import { createClient } from '@supabase/supabase-js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
   apiVersion: '2024-12-18.acacia',
 });
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// Supabase Adminインスタンスを遅延初期化（ビルド時エラーを防ぐ）
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Supabase credentials are missing!");
+  }
+  
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+}
 
 export async function POST(request) {
   try {
@@ -37,13 +52,8 @@ export async function POST(request) {
       );
     }
 
-    // Supabaseクライアントを作成（サービスロールキー使用）
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
+    // Supabaseクライアントを取得
+    const supabase = getSupabaseAdmin();
 
     // 購入履歴をチェック（重複防止）
     const { data: existingPurchase } = await supabase

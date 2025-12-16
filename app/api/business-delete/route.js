@@ -1,8 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// Supabase Adminインスタンスを遅延初期化（ビルド時エラーを防ぐ）
+function getSupabaseAdmin() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error("Supabase credentials are missing!");
+  }
+  
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+}
 
 export async function POST(request) {
   try {
@@ -12,13 +26,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
     }
 
-    // サービスロールキーを使用してSupabaseクライアントを作成
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    });
+    // Supabaseクライアントを取得
+    const supabase = getSupabaseAdmin();
 
     // 認証トークンを取得
     const authHeader = request.headers.get('authorization');
