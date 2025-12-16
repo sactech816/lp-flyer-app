@@ -633,7 +633,7 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
       updateBlock(blockId, { avatar: imageUrl });
     } else if (block.type === 'kindle' && field === 'imageUrl') {
       updateBlock(blockId, { imageUrl });
-    } else if (block.type === 'line' && field === 'qrImageUrl') {
+    } else if (block.type === 'line_card' && field === 'qrImageUrl') {
       updateBlock(blockId, { qrImageUrl: imageUrl });
     } else if (block.type === 'testimonial' && field.startsWith('item-')) {
       // お客様の声の画像
