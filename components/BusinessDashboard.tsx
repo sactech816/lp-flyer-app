@@ -950,7 +950,7 @@ const BusinessDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin,
                                     const backgroundImage = project.settings?.theme?.backgroundImage;
                                     
                                     // サムネイル用のスタイルを動的に生成
-                                    const thumbnailStyle = {};
+                                    const thumbnailStyle: React.CSSProperties = {};
                                     if (backgroundImage) {
                                         thumbnailStyle.backgroundImage = `url(${backgroundImage})`;
                                         thumbnailStyle.backgroundSize = 'cover';
