@@ -156,15 +156,6 @@ export default async function FlyerPage({
           </div>
         </div>
       )}
-
-      {/* 印刷用のスタイル追加 */}
-      <style jsx global>{`
-        @media print {
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
     </>
   );
 }

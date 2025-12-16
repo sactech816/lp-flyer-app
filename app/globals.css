@@ -93,3 +93,10 @@ body {
 .delay-8 { animation-delay: 0.8s; }
 .delay-9 { animation-delay: 0.9s; }
 .delay-10 { animation-delay: 1.0s; }
+
+/* 印刷用のスタイル */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
