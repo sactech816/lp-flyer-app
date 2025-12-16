@@ -532,28 +532,28 @@ export const PrivacyPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAd
 // --- Profile Effective Use Page ---
 export const ProfileEffectiveUsePage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { 
-        document.title = "効果的な使い方・メリット | Profile LP Maker"; 
+        document.title = "効果的な使い方・メリット | LPチラシメーカー（エルチラ）"; 
         window.scrollTo(0, 0);
     }, []);
     
     const tips = [
-        { icon: Share2, color: "text-blue-600", bg: "bg-blue-100", title: "1. SNS拡散（UGC）を狙う", text: "プロフィールページは「自分語り」ができる最高のコンテンツです。美しいデザインのプロフィールはX(Twitter)やInstagramでシェアされやすく、広告費をかけずに認知が広がります。" },
-        { icon: Search, color: "text-purple-600", bg: "bg-purple-100", title: "2. SEO & AI検索対策", text: "プロフィールページに外部サイトへのリンクを設置することで、SEO効果が期待できます。また、構造化データによりChatGPTなどのAI検索からの流入も狙えます。" },
-        { icon: Megaphone, color: "text-green-600", bg: "bg-green-100", title: "3. 自然な集客導線", text: "いきなり売り込むのではなく、「プロフィールを見る」という自然な流れで、あなたのサービスや作品への導線を強化できます。" },
-        { icon: Target, color: "text-red-600", bg: "bg-red-100", title: "4. あなたのサービスを告知できる", text: "プロフィールページに「note」「X (旧Twitter)」「予約サイト」などのリンクを設置できます。プロフィールを通じて興味を持った見込み客に、自然な流れでサービスを紹介できます。" },
-        { icon: TrendingUp, color: "text-yellow-600", bg: "bg-yellow-100", title: "5. 集客のテストができる", text: "どんなプロフィールが人気なのか、どんな導線でクリック率が高いのかをリアルタイムに分析できます。本格的な広告投資の前に、低コストで顧客の反応をテストしましょう。" },
-        { icon: QrCode, color: "text-gray-800", bg: "bg-gray-100", title: "6. リアル店舗・イベントでの活用", text: "QRコードを発行してチラシや店頭に掲示しましょう。「待ち時間の暇つぶし」としてプロフィールを見てもらいつつ、会員登録や予約へ誘導できます。" },
-        { icon: Users, color: "text-indigo-600", bg: "bg-indigo-100", title: "7. Kindle作家の集客に", text: "読者を集めるためのプロフィールや、他の作品への導線を強化。noteやXのリンクを設置して、自然な流れで作品を紹介できます。" },
-        { icon: GraduationCap, color: "text-orange-600", bg: "bg-orange-100", title: "8. 店舗のリンク集に", text: "SNS、予約サイト、メニューなど、必要な情報を一つに集約。顧客が迷わず必要な情報にアクセスできます。" },
-        { icon: Repeat, color: "text-pink-600", bg: "bg-pink-100", title: "9. フリーランスの名刺代わりに", text: "実績やスキル、連絡先を魅力的に提示し、仕事の依頼を増やす。プロフィールページを名刺代わりに使うことで、印象を残せます。" }
+        { icon: Share2, color: "text-blue-600", bg: "bg-blue-100", title: "1. SNS拡散で集客", text: "ビジネスLPは「シェアしやすい」コンテンツです。魅力的なLPはX(Twitter)やInstagramでシェアされやすく、広告費をかけずに認知が広がります。" },
+        { icon: Search, color: "text-purple-600", bg: "bg-purple-100", title: "2. SEO & AI検索対策", text: "LPに外部サイトへのリンクを設置することで、SEO効果が期待できます。また、構造化データによりChatGPTなどのAI検索からの流入も狙えます。" },
+        { icon: Megaphone, color: "text-green-600", bg: "bg-green-100", title: "3. 自然な集客導線", text: "いきなり売り込むのではなく、「LPを見る」という自然な流れで、あなたのサービスや商品への導線を強化できます。" },
+        { icon: Target, color: "text-red-600", bg: "bg-red-100", title: "4. サービスを効果的に告知", text: "LPに「問い合わせ」「予約」「LINE登録」などのCTAボタンを設置できます。LPを通じて興味を持った見込み客に、自然な流れでサービスを紹介できます。" },
+        { icon: TrendingUp, color: "text-yellow-600", bg: "bg-yellow-100", title: "5. 集客のテストができる", text: "どんなLPが人気なのか、どんな導線でクリック率が高いのかをリアルタイムに分析できます。本格的な広告投資の前に、低コストで顧客の反応をテストしましょう。" },
+        { icon: QrCode, color: "text-gray-800", bg: "bg-gray-100", title: "6. リアル店舗・イベントでの活用", text: "QRコードを発行してチラシや店頭に掲示しましょう。「待ち時間の暇つぶし」としてLPを見てもらいつつ、会員登録や予約へ誘導できます。" },
+        { icon: Users, color: "text-indigo-600", bg: "bg-indigo-100", title: "7. コンサル・士業の集客に", text: "サービス内容や実績、お客様の声をまとめて、見込み客へ訴求。問い合わせや相談予約へスムーズに誘導できます。" },
+        { icon: GraduationCap, color: "text-orange-600", bg: "bg-orange-100", title: "8. 店舗のリンク集に", text: "メニュー、料金、アクセス、予約リンクを1ページに集約。顧客が迷わず必要な情報にアクセスできます。" },
+        { icon: Repeat, color: "text-pink-600", bg: "bg-pink-100", title: "9. フリーランスの営業資料に", text: "実績やスキル、サービス内容を魅力的に提示し、仕事の依頼を増やす。LPを営業資料として使うことで、印象を残せます。" }
     ];
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans">
             <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
             <div className="bg-indigo-900 text-white py-16 px-6 text-center">
-                <h1 className="text-3xl font-extrabold mb-4">プロフィールLPの<span className="text-yellow-300">効果的な活用法 9選</span></h1>
-                <p className="text-indigo-200 max-w-xl mx-auto">作成したコンテンツを最大限に活かし、集客と売上につなげるための具体的なアイデアをご紹介します。あなたのビジネスを加速させるヒントが満載です。</p>
+                <h1 className="text-3xl font-extrabold mb-4">ビジネスLPの<span className="text-yellow-300">効果的な活用法 9選</span></h1>
+                <p className="text-indigo-200 max-w-xl mx-auto">作成したLPを最大限に活かし、集客と売上につなげるための具体的なアイデアをご紹介します。あなたのビジネスを加速させるヒントが満載です。</p>
             </div>
             <div className="max-w-4xl mx-auto py-12 px-4 space-y-6">
                 <button onClick={onBack} className="flex items-center gap-1 text-gray-500 font-bold hover:text-indigo-600 mb-4"><ArrowLeft size={16}/> 戻る</button>
@@ -572,24 +572,24 @@ export const ProfileEffectiveUsePage = ({ onBack, setPage, user, onLogout, setSh
                 </div>
                 <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-8 rounded-2xl border border-indigo-100 mt-8">
                     <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-                        <Sparkles className="text-yellow-500"/> このプラットフォームでプロフィールを作るメリット
+                        <Sparkles className="text-yellow-500"/> このプラットフォームでビジネスLPを作るメリット
                     </h3>
                     <ul className="space-y-3 text-sm text-gray-700">
                         <li className="flex items-start gap-3">
                             <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
-                            <span><strong>無料で始められる:</strong> アカウント登録なしで、すぐに美しいプロフィールページを作成できます。</span>
+                            <span><strong>無料で始められる:</strong> アカウント登録なしで、すぐに美しいビジネスLPを作成できます。</span>
                         </li>
                         <li className="flex items-start gap-3">
                             <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
-                            <span><strong>即座にシェア可能:</strong> 作成したプロフィールは自動的に公開され、URLが発行されます。SNSで即座にシェアして拡散できます。</span>
+                            <span><strong>即座にシェア可能:</strong> 作成したLPは自動的に公開され、URLが発行されます。SNSで即座にシェアして拡散できます。</span>
                         </li>
                         <li className="flex items-start gap-3">
                             <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
-                            <span><strong>AIアシスタント:</strong> 職業・ターゲット・強みを入力するだけで、キャッチコピーや自己紹介文、リンク構成を自動生成します。</span>
+                            <span><strong>AIアシスタント:</strong> ビジネス内容・ターゲット・強みを入力するだけで、キャッチコピーや説明文、CTA構成を自動生成します。</span>
                         </li>
                         <li className="flex items-start gap-3">
                             <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
-                            <span><strong>被リンク効果:</strong> プロフィールページから外部サイトへのリンクを設置できるため、SEO効果も期待できます。</span>
+                            <span><strong>被リンク効果:</strong> LPから外部サイトへのリンクを設置できるため、SEO効果も期待できます。</span>
                         </li>
                         <li className="flex items-start gap-3">
                             <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
@@ -598,7 +598,7 @@ export const ProfileEffectiveUsePage = ({ onBack, setPage, user, onLogout, setSh
                     </ul>
                 </div>
                 <div className="text-center pt-8">
-                    <button onClick={()=>setPage('profile-editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそくプロフィールを作ってみる</button>
+                    <button onClick={()=>setPage('profile-editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそくビジネスLPを作ってみる</button>
                 </div>
             </div>
             <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} variant="light" />
@@ -609,7 +609,7 @@ export const ProfileEffectiveUsePage = ({ onBack, setPage, user, onLogout, setSh
 // --- Profile HowTo Page ---
 export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { 
-        document.title = "使い方・機能一覧 | Profile LP Maker"; 
+        document.title = "使い方・機能一覧 | LPチラシメーカー（エルチラ）"; 
         window.scrollTo(0, 0);
     }, []);
     return (
@@ -640,10 +640,10 @@ export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth,
                         <div className="flex items-center gap-2 mb-4 text-indigo-900 font-bold text-xl">
                             <Lock size={24} className="text-orange-500"/> Pro機能 (寄付で開放)
                         </div>
-                        <p className="text-xs text-indigo-700 mb-4">※プロフィールごとに任意の金額(500円〜)を寄付いただくと開放されます。</p>
+                        <p className="text-xs text-indigo-700 mb-4">※LPごとに任意の金額(500円〜)を寄付いただくと開放されます。</p>
                         <ul className="space-y-4 text-sm text-gray-800">
                             <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Download size={16}/></span><span><strong>HTML書き出し:</strong> 自社サーバーに設置可能なファイルをDL</span></li>
-                            <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Code size={16}/></span><span><strong>埋め込みタグ発行:</strong> ブログやHPにプロフィールを埋め込み</span></li>
+                            <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Code size={16}/></span><span><strong>埋め込みタグ発行:</strong> ブログやHPにLPを埋め込み</span></li>
                             <li className="flex gap-3"><span className="bg-orange-100 text-orange-600 p-1 rounded"><Heart size={16}/></span><span><strong>開発者支援:</strong> ツールの継続的なアップデートを支援</span></li>
                         </ul>
                     </div>
@@ -652,7 +652,7 @@ export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth,
                 <div className="space-y-8 text-gray-800 leading-relaxed border-t pt-8">
                     <section>
                         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            <Zap className="text-indigo-600"/> プロフィール作成の流れ
+                            <Zap className="text-indigo-600"/> ビジネスLP作成の流れ
                         </h2>
                         <div className="space-y-4">
                             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-200">
@@ -699,9 +699,9 @@ export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth,
                             <Shield className="text-indigo-600"/> 利用規約・免責事項
                         </h2>
                         <div className="space-y-4 text-sm text-gray-700">
-                            <p>「プロフィールLPメーカー」（以下、本サービス）をご利用いただく際の基本的なルールと免責事項です。ご利用前に必ずご確認ください。</p>
+                            <p>「LPチラシメーカー（エルチラ）」（以下、本サービス）をご利用いただく際の基本的なルールと免責事項です。ご利用前に必ずご確認ください。</p>
                             <ol className="space-y-3 list-decimal list-inside">
-                                <li><strong>サービスの利用について:</strong> 本サービスは無料でプロフィールLPを作成・公開できるプラットフォームです。利用には本規約への同意が必要です。</li>
+                                <li><strong>サービスの利用について:</strong> 本サービスは無料でビジネスLPを作成・公開できるプラットフォームです。利用には本規約への同意が必要です。</li>
                                 <li><strong>コンテンツの権利と責任:</strong> 作成したLPの著作権は作成者に帰属します。個人・商用を問わず利用可能ですが、公序良俗違反・権利侵害・違法な内容の掲載は禁止します。違反コンテンツは予告なく削除する場合があります。</li>
                                 <li><strong>著作権について:</strong> 使用する画像・テキスト等は適切な権利を有するものをご利用ください。第三者素材の無断使用による責任は利用者が負います。本サービスのシステム・デザイン等の著作権は運営者に帰属します。</li>
                                 <li><strong>Pro機能（寄付）について:</strong> 500円〜の任意の寄付でPro機能が開放されます。デジタルコンテンツの性質上、寄付後の返金・キャンセルはできません。決済はStripeを通じて安全に行われます。</li>
@@ -722,7 +722,7 @@ export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth,
 // --- Profile FAQ Page ---
 export const ProfileFaqPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { 
-        document.title = "よくある質問 | Profile LP Maker"; 
+        document.title = "よくある質問 | LPチラシメーカー（エルチラ）"; 
         window.scrollTo(0, 0);
     }, []);
     const [openIndex, setOpenIndex] = useState(null);

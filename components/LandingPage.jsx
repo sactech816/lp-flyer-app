@@ -161,8 +161,8 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
     <div className="profile-page-wrapper min-h-screen">
       {/* SEO用の隠しテキスト（検索エンジン向け） */}
       <div className="sr-only">
-        <h1>プロフィールLPメーカー - ずっと無料のSNSプロフィールリンクまとめ</h1>
-        <p>まとめよう、活動のすべてを。プロフィールLPメーカーはSNSや作品投稿サイトの情報を集約して、公開プロフィールがサッとかんたんに作れるサービス。litlink、profu.link、POTOFUの代わりに使える無料プロフィールリンクまとめツール。インフルエンサー、クリエイター、アーティスト、ビジネスパーソンに最適。</p>
+        <h1>LPチラシメーカー（エルチラ）- ビジネスLP作成ツール</h1>
+        <p>LPチラシメーカー（エルチラ）は、ビジネス向けランディングページを簡単に作成できる無料ツール。テンプレートから選んで、集客・販促に最適なLPを最短ルートで公開。起業家、フリーランス、中小企業、個人事業主に最適。</p>
       </div>
       
       {/* お知らせバナー */}
@@ -184,17 +184,17 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         <section className="text-center mb-20 md:mb-32 animate-fade-in">
           <div className="mb-8">
             <h2 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
-              名刺・SNS・紹介に使える<br/>
-              プロフィールLPを<br/>
+              集客・販促に使える<br/>
+              ビジネスLPを<br/>
               <span className="text-yellow-300">「テンプレート」から<br/>最短ルートで作成</span>
             </h2>
             <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-4 leading-relaxed">
               文章の型は用意済み。<br/>
-              あなたは、自分に合わせて内容を書き換えるだけ。
+              あなたは、ビジネスに合わせて内容を書き換えるだけ。
             </p>
             <p className="text-base md:text-lg text-white/90 px-4 drop-shadow-md mb-8">
               「何を書けばいいかわからない」を解消し<br/>
-              自分専用のLPをスムーズに公開できます。
+              集客に効くLPをスムーズに公開できます。
             </p>
           </div>
           
@@ -213,58 +213,58 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* テンプレート選択セクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-1">
           <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
-            テンプレートで簡単作成（フルセットが人気）
+            テンプレートで簡単作成
           </h3>
           <p className="text-center text-white/90 mb-12 text-sm md:text-base">
-            用途に合わせて最適なテンプレートをお選びください
+            業種・目的に合わせて最適なテンプレートをお選びください
           </p>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {/* ビジネス用テンプレート */}
+            {/* サービス紹介LP */}
             <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('business-consultant')}>
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
                 <Briefcase className="text-blue-600" size={32}/>
               </div>
               <h4 className="text-xl font-bold mb-3 accent-color">
-                ビジネス用
+                サービス紹介LP
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base mb-6">
-                営業・商談・名刺交換で使える<br/>
-                プロフェッショナル向けテンプレート
+                コンサル・士業・講師など<br/>
+                サービスを売るためのLP
               </p>
               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition-colors">
                 このテンプレートで作成
               </button>
             </div>
 
-            {/* 自己紹介用テンプレート */}
+            {/* 店舗集客LP */}
             <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('creator-portfolio')}>
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
-                <Heart className="text-green-600" size={32}/>
+                <Store className="text-green-600" size={32}/>
               </div>
               <h4 className="text-xl font-bold mb-3 accent-color">
-                自己紹介用
+                店舗集客LP
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base mb-6">
-                SNS・ブログ・コミュニティで使える<br/>
-                カジュアルな自己紹介テンプレート
+                飲食店・美容室・サロンなど<br/>
+                店舗への集客LP
               </p>
               <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition-colors">
                 このテンプレートで作成
               </button>
             </div>
 
-            {/* 項目フルセットテンプレート */}
+            {/* イベント告知LP */}
             <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('marketer-fullpackage')}>
               <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
                 <Sparkles className="text-purple-600" size={32}/>
               </div>
               <h4 className="text-xl font-bold mb-3 accent-color">
-                項目フルセット
+                イベント告知LP
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base mb-6">
-                全ての項目が含まれた<br/>
-                充実したプロフィールテンプレート
+                セミナー・ワークショップなど<br/>
+                イベント参加を促すLP
               </p>
               <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold transition-colors">
                 このテンプレートで作成
@@ -273,14 +273,14 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
           </div>
         </section>
 
-        {/* プロフィールLP一覧セクション */}
+        {/* ビジネスLP一覧セクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-2">
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg flex items-center justify-center gap-2">
             <Sparkles className="text-yellow-400" size={32}/>
-            作成されたプロフィールLP一覧
+            作成されたビジネスLP一覧
           </h2>
           <p className="text-white text-center mb-12 drop-shadow-md">
-            気になるプロフィールを確認してみましょう
+            気になるLPを確認してみましょう
           </p>
           
           {publicProfiles.length > 0 ? (
@@ -420,8 +420,8 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             <div className="glass-card rounded-2xl p-12 text-center">
               <Sparkles className="mx-auto mb-4 text-indigo-300" size={48}/>
               <p className="text-gray-700 text-lg">
-                まだ公開されているプロフィールがありません。<br/>
-                あなたが最初のプロフィールを作成してみませんか？
+                まだ公開されているビジネスLPがありません。<br/>
+                あなたが最初のLPを作成してみませんか？
               </p>
             </div>
           )}
@@ -430,10 +430,10 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* 特徴セクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-3">
           <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
-            ずっと無料で使える、プロフィールリンクまとめツール
+            ずっと無料で使える、ビジネスLP作成ツール
           </h3>
           <p className="text-center text-white/90 mb-12 text-sm md:text-base">
-            インフルエンサー、クリエイター、アーティスト、ビジネスパーソンに最適
+            起業家、フリーランス、中小企業、個人事業主に最適
           </p>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
@@ -446,7 +446,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 ノーコードで簡単作成
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                プログラミング知識は不要。直感的なエディタで、誰でもプロフィールページを作成できます。SNSリンクをまとめて、あなただけのページを3分で。
+                プログラミング知識は不要。直感的なエディタで、誰でもビジネスLPを作成できます。テンプレートから選んで、あなただけのLPを3分で。
               </p>
             </div>
 
@@ -459,7 +459,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 AIアシスタント搭載
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                AIがあなたの職業や強みから、魅力的なキャッチコピーや自己紹介文を自動生成。プロフィールリンクの作成がさらに簡単に。
+                AIがあなたのビジネスや強みから、魅力的なキャッチコピーや説明文を自動生成。LP作成がさらに簡単に。
               </p>
             </div>
 
@@ -472,7 +472,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 スマホ完全対応
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示。SNSプロフィールリンクをどこからでも確認できます。
+                レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示。ビジネスLPをどこからでも確認できます。
               </p>
             </div>
           </div>
@@ -481,49 +481,49 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* 利用シーンセクション */}
         <section className="mb-20 md:mb-32 animate-fade-in delay-4">
           <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
-            こんな方におすすめのプロフィールリンクまとめ
+            こんな方におすすめのビジネスLP作成ツール
           </h3>
           <p className="text-center text-white/90 mb-12 text-sm md:text-base">
-            クリエイター、インフルエンサー、ビジネスパーソンの活動をサポート
+            起業家、フリーランス、店舗経営者のビジネスをサポート
           </p>
           
           <div className="grid md:grid-cols-3 gap-6 md:gap-8">
-            {/* 利用シーン1: Kindle作家の集客に */}
+            {/* 利用シーン1: コンサル・士業 */}
             <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="text-orange-600" size={32}/>
+                <Briefcase className="text-orange-600" size={32}/>
               </div>
               <h4 className="text-xl font-bold mb-3 accent-color">
-                クリエイター・作家
+                コンサル・士業
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                作品紹介や著者プロフィールをまとめて、読者やファンへ誘導。SNSリンクをまとめて、作品の拡散にも最適です。
+                サービス内容や実績、お客様の声をまとめて、見込み客へ訴求。問い合わせや相談予約へスムーズに誘導できます。
               </p>
             </div>
 
-            {/* 利用シーン2: 店舗のリンク集に */}
+            {/* 利用シーン2: 店舗経営者 */}
             <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Store className="text-blue-600" size={32}/>
               </div>
               <h4 className="text-xl font-bold mb-3 accent-color">
-                店舗・ビジネス
+                店舗経営者
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                店舗情報やSNS、予約サイトへのリンクを1つのページに集約。QRコードで簡単にシェア。プロフィールリンクで集客アップ。
+                メニュー、料金、アクセス、予約リンクを1ページに集約。QRコードでチラシやSNSから簡単に集客できます。
               </p>
             </div>
 
-            {/* 利用シーン3: フリーランスの名刺代わりに */}
+            {/* 利用シーン3: フリーランス */}
             <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
               <div className="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Briefcase className="text-pink-600" size={32}/>
+                <Wand2 className="text-pink-600" size={32}/>
               </div>
               <h4 className="text-xl font-bold mb-3 accent-color">
-                フリーランス・個人事業主
+                フリーランス
               </h4>
               <p className="text-gray-700 leading-relaxed text-sm md:text-base">
-                ポートフォリオや実績、連絡先をまとめたプロフィールページ。デジタル名刺として、SNSプロフィールリンクを活用できます。
+                ポートフォリオや実績、サービス内容をまとめたLP。営業資料として、クライアントへの提案に活用できます。
               </p>
             </div>
           </div>
@@ -538,7 +538,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
           <div className="max-w-3xl mx-auto space-y-4">
             <details className="glass-card rounded-xl p-6 shadow-lg group">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                <span>プロフィールLPメーカーは無料で使えますか？</span>
+                <span>LPチラシメーカー（エルチラ）は無料で使えますか？</span>
                 <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-gray-700 leading-relaxed">
@@ -551,7 +551,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-gray-700 leading-relaxed">
-                はい、ログインなしでもプロフィールページを作成できます。ただし、ログインすると複数のプロフィールを管理したり、後から編集したりできるようになります。
+                はい、ログインなしでもビジネスLPを作成できます。ただし、ログインすると複数のLPを管理したり、後から編集したりできるようになります。
               </p>
             </details>
             
@@ -561,17 +561,17 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-gray-700 leading-relaxed">
-                インフルエンサー、クリエイター、アーティスト、ビジネスパーソン、フリーランス、店舗経営者など、SNSや作品投稿サイトのリンクをまとめたい方におすすめです。プロフィールリンクまとめツールとして、あなたの活動をサポートします。
+                起業家、フリーランス、コンサルタント、士業、店舗経営者、個人事業主など、ビジネスの集客・販促を強化したい方におすすめです。ビジネスLP作成ツールとして、あなたのビジネスをサポートします。
               </p>
             </details>
             
             <details className="glass-card rounded-xl p-6 shadow-lg group">
               <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                <span>他のリンクまとめツールとの違いは？</span>
+                <span>他のLP作成ツールとの違いは？</span>
                 <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-gray-700 leading-relaxed">
-                プロフィールLPメーカーは、ノーコードで簡単にプロフィールページを作成できる点は同じですが、AIアシスタント機能により、キャッチコピーや自己紹介文を自動生成できます。また、カスタマイズ性が高く、より自由なデザインが可能です。
+                LPチラシメーカー（エルチラ）は、ノーコードで簡単にビジネスLPを作成できる点に加え、AIアシスタント機能により、キャッチコピーや説明文を自動生成できます。また、テンプレートが豊富で、業種に合わせた最適なLPを素早く作成できます。
               </p>
             </details>
             
@@ -581,7 +581,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
               </summary>
               <p className="mt-4 text-gray-700 leading-relaxed">
-                はい、スマートフォンでも簡単にプロフィールページを作成・編集できます。レスポンシブデザインで、どのデバイスからでも快適にご利用いただけます。
+                はい、スマートフォンでも簡単にビジネスLPを作成・編集できます。レスポンシブデザインで、どのデバイスからでも快適にご利用いただけます。
               </p>
             </details>
           </div>
@@ -591,12 +591,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         <section className="mt-20 md:mt-32 text-center animate-fade-in delay-6">
           <div className="glass-card rounded-2xl p-8 md:p-12 shadow-xl max-w-3xl mx-auto">
             <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 drop-shadow-lg">
-              {user ? 'プロフィールを作成しましょう' : '今すぐ無料で始める'}
+              {user ? 'ビジネスLPを作成しましょう' : '今すぐ無料で始める'}
             </h3>
             <p className="text-gray-800 mb-8 text-lg drop-shadow-md">
               {user 
-                ? 'ダッシュボードから、新しいプロフィールページを作成できます。'
-                : 'ログイン不要で、すぐにプロフィールページを作成できます。SNSプロフィールリンクをまとめて、あなたの活動をアピールしましょう。'
+                ? 'ダッシュボードから、新しいビジネスLPを作成できます。'
+                : 'ログイン不要で、すぐにビジネスLPを作成できます。集客・販促に最適なLPを作って、あなたのビジネスを加速させましょう。'
               }
             </p>
             <button
@@ -616,12 +616,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             <div className="grid md:grid-cols-4 gap-8 mb-8">
               <div className="col-span-1 md:col-span-2">
                 <h4 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
-                  <Sparkles className="text-pink-500"/> プロフィールLPメーカー
+                  <Sparkles className="text-pink-500"/> LPチラシメーカー（エルチラ）
                 </h4>
                 <p className="text-sm text-gray-300 leading-relaxed mb-4">
-                  まとめよう、活動のすべてを。<br/>
-                  SNSプロフィールリンクまとめツール。<br/>
-                  ずっと無料で使える、litlink・profu.link・POTOFUの代替サービス。
+                  集客・販促を、もっと簡単に。<br/>
+                  ビジネスLP作成ツール。<br/>
+                  ずっと無料で使える、テンプレート豊富なLP作成サービス。
                 </p>
               </div>
               <div>
@@ -644,7 +644,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             </div>
             <div className="border-t border-gray-700 pt-6 text-center">
               <p className="text-xs text-gray-400">
-                &copy; {new Date().getFullYear()} プロフィールLPメーカー. All Rights Reserved.
+                &copy; {new Date().getFullYear()} LPチラシメーカー（エルチラ）. All Rights Reserved.
               </p>
             </div>
           </div>

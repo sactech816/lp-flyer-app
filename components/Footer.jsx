@@ -29,12 +29,12 @@ const Footer = ({ setPage, onCreate, user, setShowAuth, variant = 'dark' }) => {
             <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-4 gap-8">
                 <div className="col-span-1 md:col-span-2">
                     <h2 className={`${isLight ? 'text-gray-900' : 'text-white'} font-bold text-xl mb-4 flex items-center gap-2`}>
-                        <Sparkles className="text-pink-500"/> Profile LP Maker
+                        <Sparkles className="text-pink-500"/> LPチラシメーカー（エルチラ）
                     </h2>
                     <p className={`text-sm leading-relaxed mb-6 ${isLight ? 'text-gray-600' : 'opacity-80'}`}>
-                        "あなた"らしいプロフィールページを、<br/>
-                        ノーコードで誰でも簡単に作成・公開できるプラットフォーム。<br/>
-                        あなたの魅力を伝える「集客導線」を作りましょう。
+                        ビジネス向けランディングページを、<br/>
+                        ノーコードで誰でも簡単に作成・公開できるツール。<br/>
+                        集客・販促に最適なLPを最短ルートで作りましょう。
                     </p>
                     <button onClick={handleCreate} className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors">
                         無料で作成をはじめる
@@ -63,7 +63,7 @@ const Footer = ({ setPage, onCreate, user, setShowAuth, variant = 'dark' }) => {
             </div>
             
             <div className={`max-w-6xl mx-auto px-4 mt-12 pt-8 text-center text-xs ${isLight ? 'text-gray-500 border-t border-gray-200' : 'opacity-60 border-t border-gray-800'}`}>
-                &copy; {new Date().getFullYear()} Profile LP Maker. All rights reserved.
+                &copy; {new Date().getFullYear()} LPチラシメーカー（エルチラ）. All rights reserved.
             </div>
         </footer>
     );
