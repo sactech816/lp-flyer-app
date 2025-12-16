@@ -194,31 +194,36 @@ export async function saveBusinessProject({
 
     if (existingProject) {
       // 更新（Server用クライアントで）
-      const { data, error } = await serverSupabase
+      const { error: updateError } = await serverSupabase
         .from('business_projects')
         .update(projectData)
-        .eq('id', existingProject.id)
-        .select();
+        .eq('id', existingProject.id);
       
-      result = {
-        data: data && data.length > 0 ? data[0] : null,
-        error
-      };
+      if (updateError) {
+        result = { data: null, error: updateError };
+      } else {
+        // 更新後、データを再取得
+        const { data: updatedData, error: fetchError } = await serverSupabase
+          .from('business_projects')
+          .select('*')
+          .eq('id', existingProject.id)
+          .single();
+        
+        result = { data: updatedData, error: fetchError };
+      }
     } else {
       // 新規作成（Server用クライアントで）
       // #region agent log
       fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:180',message:'Attempting INSERT with SERVER client',data:{insertData:{slug:projectData.slug,user_id:projectData.user_id}},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
       // #endregion
       
-      const { data, error } = await serverSupabase
+      const { data: insertedData, error: insertError } = await serverSupabase
         .from('business_projects')
         .insert([{ ...projectData, created_at: new Date().toISOString() }])
-        .select();
+        .select()
+        .single();
       
-      result = {
-        data: data && data.length > 0 ? data[0] : null,
-        error
-      };
+      result = { data: insertedData, error: insertError };
     }
 
     // #region agent log
