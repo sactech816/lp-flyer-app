@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 
 const Footer = ({ setPage, onCreate, user, setShowAuth, variant = 'dark' }) => {
@@ -20,7 +21,7 @@ const Footer = ({ setPage, onCreate, user, setShowAuth, variant = 'dark' }) => {
         if (setPage) {
             setPage(page);
         } else {
-            window.location.href = `?page=${page}`;
+            window.location.href = `/${page}`;
         }
     };
 
@@ -44,20 +45,20 @@ const Footer = ({ setPage, onCreate, user, setShowAuth, variant = 'dark' }) => {
                 <div>
                     <h3 className={`${isLight ? 'text-gray-900 border-gray-200' : 'text-white border-gray-700'} font-bold mb-4 border-b pb-2 inline-block`}>メニュー</h3>
                     <ul className="space-y-3 text-sm">
-                        <li><button onClick={()=>handleNav('dashboard')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ ダッシュボード</button></li>
-                        <li><button onClick={()=>handleNav('landing')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ トップページ</button></li>
-                        <li><button onClick={()=>handleNav('announcements')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ お知らせ</button></li>
-                        <li><button onClick={()=>handleNav('profile-howto')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ 使い方</button></li>
-                        <li><button onClick={()=>handleNav('profile-effective')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ 効果的な利用方法</button></li>
+                        <li><Link href="/business/dashboard" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ ダッシュボード</Link></li>
+                        <li><Link href="/" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ トップページ</Link></li>
+                        <li><Link href="/announcements" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ お知らせ</Link></li>
+                        <li><Link href="/profile-howto" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ 使い方</Link></li>
+                        <li><Link href="/profile-effective" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ 効果的な利用方法</Link></li>
                     </ul>
                 </div>
 
                 <div>
                     <h3 className={`${isLight ? 'text-gray-900 border-gray-200' : 'text-white border-gray-700'} font-bold mb-4 border-b pb-2 inline-block`}>サポート・規約</h3>
                     <ul className="space-y-3 text-sm">
-                        <li><button onClick={()=>handleNav('contact')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors`}>お問い合わせ</button></li>
-                        <li><button onClick={()=>handleNav('legal')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors`}>特定商取引法に基づく表記</button></li>
-                        <li><button onClick={()=>handleNav('privacy')} className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors`}>プライバシーポリシー</button></li>
+                        <li><Link href="/contact" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors`}>お問い合わせ</Link></li>
+                        <li><Link href="/legal" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors`}>特定商取引法に基づく表記</Link></li>
+                        <li><Link href="/privacy" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors`}>プライバシーポリシー</Link></li>
                     </ul>
                 </div>
             </div>

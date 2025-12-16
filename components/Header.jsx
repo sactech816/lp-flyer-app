@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Sparkles, User, LayoutDashboard, TrendingUp, Menu, X, LogOut, HelpCircle, FileText, Lightbulb, Mail, Shield, Scale, PlusCircle, Bell, ExternalLink } from 'lucide-react';
 
 const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const handleNav = (page) => {
-        setPage(page);
+        if (setPage) {
+            setPage(page);
+        } else {
+            window.location.href = `/${page}`;
+        }
         setIsMenuOpen(false);
     };
 
@@ -13,7 +18,7 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
     return (
         <div className="bg-white border-b sticky top-0 z-50 shadow-sm">
             <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-                <div className="font-bold text-xl flex items-center gap-2 text-indigo-700 cursor-pointer" onClick={()=>handleNav('landing')}>
+                <div className="font-bold text-xl flex items-center gap-2 text-indigo-700 cursor-pointer" onClick={()=>window.location.href='/'}>
                     <Sparkles className="text-pink-500"/> LPチラシメーカー（エルチラ）
                 </div>
 
@@ -54,14 +59,14 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
                     <a href="/p/demo-user" target="_blank" rel="noopener noreferrer" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><ExternalLink size={20}/> デモページ</a>
                     
                     <p className="text-xs font-bold text-gray-400 mt-4 mb-2">コンテンツページ</p>
-                    <button onClick={()=>handleNav('announcements')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><Bell size={20}/> お知らせ</button>
-                    <button onClick={()=>handleNav('profile-howto')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><HelpCircle size={20}/> 使い方</button>
-                    <button onClick={()=>handleNav('profile-effective')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Lightbulb size={20}/> 効果的な利用方法</button>
-                    <button onClick={()=>handleNav('contact')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Mail size={20}/> お問い合わせ</button>
+                    <Link href="/announcements" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><Bell size={20}/> お知らせ</Link>
+                    <Link href="/profile-howto" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><HelpCircle size={20}/> 使い方</Link>
+                    <Link href="/profile-effective" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Lightbulb size={20}/> 効果的な利用方法</Link>
+                    <Link href="/contact" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Mail size={20}/> お問い合わせ</Link>
                     
                     <p className="text-xs font-bold text-gray-400 mt-6 mb-2">サポート・規約</p>
-                    <button onClick={()=>handleNav('legal')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-500 font-bold text-xs"><Scale size={16}/> 特定商取引法に基づく表記</button>
-                    <button onClick={()=>handleNav('privacy')} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-500 font-bold text-xs"><Shield size={16}/> プライバシーポリシー</button>
+                    <Link href="/legal" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-500 font-bold text-xs"><Scale size={16}/> 特定商取引法に基づく表記</Link>
+                    <Link href="/privacy" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-500 font-bold text-xs"><Shield size={16}/> プライバシーポリシー</Link>
                     
                     <div className="mt-8">
                     {user ? (

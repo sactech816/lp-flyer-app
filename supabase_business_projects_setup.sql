@@ -33,11 +33,11 @@ CREATE POLICY "Anyone can view business projects"
   FOR SELECT
   USING (true);
 
--- 認証済みユーザーは作成可能
-CREATE POLICY "Authenticated users can create business projects"
+-- 誰でも作成可能（匿名ユーザー対応）
+CREATE POLICY "Anyone can create business projects"
   ON business_projects
   FOR INSERT
-  WITH CHECK (auth.uid() IS NOT NULL);
+  WITH CHECK (true);
 
 -- 作成者のみ更新可能
 CREATE POLICY "Users can update their own business projects"
