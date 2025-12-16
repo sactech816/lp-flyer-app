@@ -10,9 +10,9 @@ const Footer = ({ setPage, onCreate, user, setShowAuth, variant = 'dark' }) => {
         if (onCreate) {
             onCreate();
         } else if (setPage) {
-            setPage('profile-editor');
+            window.location.href = '/business/dashboard';
         } else {
-            window.location.href = 'https://lp.makers.tokyo/?page=profile-editor';
+            window.location.href = 'https://lp-flyer.makers.tokyo/business/dashboard';
         }
     };
 

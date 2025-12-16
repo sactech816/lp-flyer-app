@@ -493,7 +493,7 @@ const AnnouncementsPage = ({ onBack, isAdmin, setPage, user, onLogout, setShowAu
 
             <Footer 
                 setPage={setPage} 
-                onCreate={() => setPage('profile-editor')} 
+                onCreate={() => window.location.href='/business/dashboard'} 
                 user={user} 
                 setShowAuth={setShowAuth}
                 variant="light"

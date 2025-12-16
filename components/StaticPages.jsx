@@ -387,7 +387,7 @@ export const FaqPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin 
                     ))}
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('editor')} user={user} setShowAuth={setShowAuth} variant="light" />
+            <Footer setPage={setPage} onCreate={()=>window.location.href='/business/dashboard'} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -598,10 +598,10 @@ export const ProfileEffectiveUsePage = ({ onBack, setPage, user, onLogout, setSh
                     </ul>
                 </div>
                 <div className="text-center pt-8">
-                    <button onClick={()=>setPage('profile-editor')} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそくビジネスLPを作ってみる</button>
+                    <button onClick={()=>window.location.href='/business/dashboard'} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-indigo-700 transition-all transform hover:scale-105">さっそくビジネスLPを作ってみる</button>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} variant="light" />
+            <Footer setPage={setPage} onCreate={()=>window.location.href='/business/dashboard'} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -714,7 +714,7 @@ export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth,
                     </section>
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} variant="light" />
+            <Footer setPage={setPage} onCreate={()=>window.location.href='/business/dashboard'} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
@@ -758,7 +758,7 @@ export const ProfileFaqPage = ({ onBack, setPage, user, onLogout, setShowAuth, i
                     ))}
                 </div>
             </div>
-            <Footer setPage={setPage} onCreate={()=>setPage('profile-editor')} user={user} setShowAuth={setShowAuth} variant="light" />
+            <Footer setPage={setPage} onCreate={()=>window.location.href='/business/dashboard'} user={user} setShowAuth={setShowAuth} variant="light" />
         </div>
     );
 };
