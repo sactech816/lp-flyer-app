@@ -860,43 +860,9 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     try {
       const slug = savedSlug || generateSlug();
       const headerBlock = blocks.find(b => b.type === 'header');
-      const name = headerBlock?.type === 'header' ? headerBlock.data.name : 'プロフィール';
+      const name = headerBlock?.type === 'header' ? headerBlock.data.name : 'ビジネスLP';
 
-      console.log('[ProfileEditor] 保存開始:', { slug, hasBlocks: blocks.length > 0 });
-
-      // ニックネームのバリデーション
-      const trimmedNickname = nickname.trim().toLowerCase();
-      if (trimmedNickname) {
-        const validation = validateNickname(trimmedNickname);
-        if (!validation.valid) {
-          alert(`ニックネームエラー: ${validation.error}`);
-          setIsSaving(false);
-          return;
-        }
-        
-        // 既存のニックネームと異なる場合のみ重複チェック
-        if (trimmedNickname !== originalNickname) {
-          // 管理者以外は変更不可
-          if (originalNickname && !isAdmin) {
-            alert('ニックネームは一度設定すると変更できません。変更が必要な場合は管理者にお問い合わせください。');
-            setIsSaving(false);
-            return;
-          }
-          
-          // 重複チェック
-          const { data: existingProfile } = await supabase
-            .from('business_projects')
-            .select('id')
-            .eq('nickname', trimmedNickname)
-            .single();
-          
-          if (existingProfile) {
-            alert('このニックネームは既に使用されています。別のニックネームを選択してください。');
-            setIsSaving(false);
-            return;
-          }
-        }
-      }
+      console.log('[BusinessLPEditor] 保存開始:', { slug, hasBlocks: blocks.length > 0 });
 
       // themeをsettingsに含める
       const settingsWithTheme = {
@@ -908,13 +874,13 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       const userId = user?.id || null;
 
       // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:855',message:'BEFORE saveBusinessProject call',data:{userId,hasUser:!!user,userEmail:user?.email,slug,nickname:trimmedNickname},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,D'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:855',message:'BEFORE saveBusinessProject call',data:{userId,hasUser:!!user,userEmail:user?.email,slug},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,D'})}).catch(()=>{});
       // #endregion
 
       // Server Action経由で保存
       const result = await saveBusinessProject({
         slug,
-        nickname: trimmedNickname || null,
+        nickname: null, // ビジネスLPではニックネームは使用しない
         content: blocks,
         settings: settingsWithTheme,
         userId,
@@ -925,7 +891,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:870',message:'AFTER saveBusinessProject call',data:{hasError:!!result.error,errorMsg:result.error,hasData:!!result.data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
 
-      console.log('[ProfileEditor] 保存結果:', result);
+      console.log('[BusinessLPEditor] 保存結果:', result);
 
       if (result.error) {
         throw new Error(result.error);
@@ -938,18 +904,18 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       }
       
       // slugを保存してから成功モーダルを表示
-      console.log('[ProfileEditor] slugを設定:', slug);
+      console.log('[BusinessLPEditor] slugを設定:', slug);
       setSavedSlug(slug);
       
       // 成功モーダルにslugを直接設定（状態更新のタイミング問題を回避）
-      console.log('[ProfileEditor] 成功モーダルを表示');
+      console.log('[BusinessLPEditor] 成功モーダルを表示');
       setShowSuccessModal(slug);
       
       if (onSave) {
         onSave({ slug, content: blocks });
       }
     } catch (error: any) {
-      console.error('[ProfileEditor] 保存エラー:', error);
+      console.error('[BusinessLPEditor] 保存エラー:', error);
       alert('保存に失敗しました: ' + error.message);
     } finally {
       setIsSaving(false);
@@ -2046,7 +2012,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 <ArrowLeft size={20}/>
               </button>
               <h2 className="font-bold text-base md:text-lg text-gray-900">
-                {initialSlug ? 'プロフィール編集' : '新規作成'}
+                {initialSlug ? '編集' : '新規作成'}
               </h2>
               {savedSlug && analytics.views > 0 && (
                 <div className="hidden md:flex items-center gap-4 ml-4 text-sm text-gray-600 flex-wrap">
@@ -2105,6 +2071,14 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                   className="bg-green-50 border border-green-200 text-green-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-green-100 text-xs md:text-sm"
                 >
                   <Share2 size={16}/> <span className="hidden sm:inline">公開URL</span>
+                </button>
+              )}
+              {savedSlug && (
+                <button 
+                  onClick={() => window.open(`/b/${savedSlug}/flyer`, '_blank')} 
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-purple-100 text-xs md:text-sm"
+                >
+                  <Printer size={16}/> <span className="hidden sm:inline">チラシ作成</span>
                 </button>
               )}
               <button 
