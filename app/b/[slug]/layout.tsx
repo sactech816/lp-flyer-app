@@ -1,5 +1,6 @@
 import { Inter, Noto_Sans_JP } from 'next/font/google';
 import '../../globals.css';
+import { supabase } from '@/lib/supabase';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -21,11 +22,8 @@ export default async function BusinessLPLayout({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const { createServerSupabaseClient } = await import('@/lib/supabase-server');
   
   let theme: { gradient?: string; backgroundImage?: string } = {};
-  
-  const supabase = await createServerSupabaseClient();
   
   if (supabase) {
     // business_projectsテーブルから取得

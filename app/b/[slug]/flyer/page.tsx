@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { supabase } from '@/lib/supabase';
 import type { Metadata } from 'next';
 import { Block, migrateOldContent } from '@/lib/types';
 import { FlyerRenderer } from '@/components/FlyerRenderer';
@@ -18,9 +18,6 @@ interface BusinessProject {
 
 // ビジネスプロジェクトデータを取得
 async function getBusinessProject(slug: string): Promise<BusinessProject | null> {
-  // Server用Supabaseクライアントを作成
-  const supabase = await createServerSupabaseClient();
-  
   if (!supabase) return null;
   
   const { data, error } = await supabase

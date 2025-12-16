@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { supabase } from '@/lib/supabase';
 import type { Metadata } from 'next';
 import { Block, migrateOldContent } from '@/lib/types';
 import { BlockRenderer } from '@/components/BlockRenderer';
@@ -159,10 +159,6 @@ const sampleProjects = {
 
 // ビジネスプロジェクトデータを取得
 async function getBusinessProject(slug: string): Promise<BusinessProject | null> {
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'b-slug-page.tsx:161',message:'getBusinessProject ENTRY',data:{slug},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'G'})}).catch(()=>{});
-  // #endregion
-  
   // サンプルビジネスLPの場合
   if (slug in sampleProjects) {
     const sample = sampleProjects[slug as keyof typeof sampleProjects];
@@ -183,19 +179,7 @@ async function getBusinessProject(slug: string): Promise<BusinessProject | null>
     };
   }
   
-  // Server用Supabaseクライアントを作成
-  const supabase = await createServerSupabaseClient();
-  
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'b-slug-page.tsx:185',message:'BEFORE database query',data:{hasSupabase:!!supabase,slug},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'F,H'})}).catch(()=>{});
-  // #endregion
-  
-  if (!supabase) {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'b-slug-page.tsx:190',message:'No supabase client',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'F'})}).catch(()=>{});
-    // #endregion
-    return null;
-  }
+  if (!supabase) return null;
   
   // business_projectsテーブルから取得
   const { data, error } = await supabase
@@ -203,10 +187,6 @@ async function getBusinessProject(slug: string): Promise<BusinessProject | null>
     .select('id, slug, content, settings')
     .eq('slug', slug)
     .single();
-
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'b-slug-page.tsx:200',message:'AFTER database query',data:{hasError:!!error,errorMsg:error?.message,errorCode:error?.code,hasData:!!data,dataId:data?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'H'})}).catch(()=>{});
-  // #endregion
 
   if (error || !data) return null;
   return data as BusinessProject;
