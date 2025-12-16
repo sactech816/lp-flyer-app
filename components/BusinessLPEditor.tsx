@@ -6,7 +6,7 @@ import {
     X, Link, UploadCloud, Eye, User, FileText, GripVertical,
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
     ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
-    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter
+    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter, Printer
 } from 'lucide-react';
 import { generateSlug, validateNickname, isAdmin as checkIsAdmin } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -2915,6 +2915,35 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 </div>
                 <p className="text-[10px] md:text-xs text-gray-500 mt-2 text-center">
                   作成したプロフィールLPをSNSでシェアして、多くの人に見てもらいましょう！
+                </p>
+              </div>
+
+              {/* チラシページへのリンク */}
+              <div className="mb-4 md:mb-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl md:rounded-2xl p-3 md:p-5">
+                <div className="flex items-center gap-2 md:gap-3 mb-3">
+                  <div className="bg-purple-500 text-white rounded-full p-1.5 md:p-2 flex-shrink-0">
+                    <Printer className="w-4 h-4 md:w-5 md:h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-sm md:text-base text-gray-900">
+                      チラシを印刷・配布しませんか？
+                    </h3>
+                    <p className="text-[10px] md:text-xs text-gray-600 mt-0.5">
+                      このビジネスLPをA4サイズのチラシにまとめました
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    window.open(`/b/${showSuccessModal}/flyer`, '_blank');
+                  }}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all flex items-center justify-center gap-2 shadow-lg text-xs md:text-sm"
+                >
+                  <Printer className="w-4 h-4 md:w-5 md:h-5" />
+                  <span>チラシページを開く</span>
+                </button>
+                <p className="text-[9px] md:text-xs text-gray-500 text-center mt-2">
+                  印刷またはPDFで保存できます
                 </p>
               </div>
 
