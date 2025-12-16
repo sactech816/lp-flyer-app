@@ -38,7 +38,10 @@ export default function BusinessDashboardPage() {
   }, []);
 
   const handleEdit = (project: { slug: string }) => {
-    router.push(`/business/dashboard/editor/${project.slug}`);
+    console.log('[Dashboard Page] handleEdit called with slug:', project.slug);
+    const targetPath = `/business/dashboard/editor/${project.slug}`;
+    console.log('[Dashboard Page] Navigating to:', targetPath);
+    router.push(targetPath);
   };
 
   const handleDelete = async (id: string, refetch?: () => Promise<void>) => {

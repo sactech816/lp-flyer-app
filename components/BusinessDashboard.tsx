@@ -1041,7 +1041,10 @@ const BusinessDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin,
                                                 
                                                 <div className="flex gap-2 mb-2">
                                                     <button 
-                                                        onClick={() => onEdit({ slug: project.slug })} 
+                                                        onClick={() => {
+                                                            console.log('[Dashboard] Edit button clicked, slug:', project.slug);
+                                                            onEdit({ slug: project.slug });
+                                                        }} 
                                                         className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1"
                                                     >
                                                         <Edit3 size={14}/> 編集

@@ -194,23 +194,31 @@ export async function saveBusinessProject({
 
     if (existingProject) {
       // 更新（Server用クライアントで）
-      result = await serverSupabase
+      const { data, error } = await serverSupabase
         .from('business_projects')
         .update(projectData)
         .eq('id', existingProject.id)
-        .select()
-        .single();
+        .select();
+      
+      result = {
+        data: data && data.length > 0 ? data[0] : null,
+        error
+      };
     } else {
       // 新規作成（Server用クライアントで）
       // #region agent log
       fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:180',message:'Attempting INSERT with SERVER client',data:{insertData:{slug:projectData.slug,user_id:projectData.user_id}},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
       // #endregion
       
-      result = await serverSupabase
+      const { data, error } = await serverSupabase
         .from('business_projects')
         .insert([{ ...projectData, created_at: new Date().toISOString() }])
-        .select()
-        .single();
+        .select();
+      
+      result = {
+        data: data && data.length > 0 ? data[0] : null,
+        error
+      };
     }
 
     // #region agent log
@@ -219,7 +227,12 @@ export async function saveBusinessProject({
 
     if (result.error) {
       console.error('[BusinessProject] Save error:', result.error);
-      return { error: result.error.message };
+      return { error: `保存に失敗しました: ${result.error.message}` };
+    }
+
+    if (!result.data) {
+      console.error('[BusinessProject] No data returned after save');
+      return { error: '保存に失敗しました: データが返されませんでした' };
     }
 
     console.log('[BusinessProject] Saved successfully:', result.data);
