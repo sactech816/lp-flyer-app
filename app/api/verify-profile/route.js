@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
+  apiVersion: '2024-12-18.acacia',
+});
 
 // ★修正: 管理者権限（Service Role）でSupabaseを操作する
 const supabaseAdmin = createClient(
@@ -12,6 +14,14 @@ const supabaseAdmin = createClient(
 
 export async function POST(req) {
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('❌ Stripe API Key is missing!');
+      return NextResponse.json(
+        { error: 'Payment system is not configured' },
+        { status: 500 }
+      );
+    }
+
     const { sessionId, profileId, userId } = await req.json();
     console.log('🔍 決済検証リクエスト:', { sessionId, profileId, userId });
 

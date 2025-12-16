@@ -1,15 +1,20 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const apiKey = process.env.STRIPE_SECRET_KEY;
-if (!apiKey) {
-  console.error("❌ Stripe API Key is missing!");
-}
-
-const stripe = new Stripe(apiKey || '');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
+  apiVersion: '2024-12-18.acacia',
+});
 
 export async function POST(req) {
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('❌ Stripe API Key is missing!');
+      return NextResponse.json(
+        { error: 'Payment system is not configured' },
+        { status: 500 }
+      );
+    }
+
     const { profileId, profileName, userId, email, price } = await req.json();
     
     // ★サーバー側でも安全のため価格チェック（無効なら1000円にする）

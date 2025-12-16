@@ -2,14 +2,9 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
-// Stripeインスタンスを遅延初期化（ビルド時エラーを防ぐ）
-function getStripe() {
-  const apiKey = process.env.STRIPE_SECRET_KEY;
-  if (!apiKey) {
-    throw new Error("❌ Stripe API Key is missing!");
-  }
-  return new Stripe(apiKey);
-}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder', {
+  apiVersion: '2024-12-18.acacia',
+});
 
 // Supabase Adminインスタンスを遅延初期化（ビルド時エラーを防ぐ）
 function getSupabaseAdmin() {
@@ -25,10 +20,17 @@ function getSupabaseAdmin() {
 
 export async function POST(req) {
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('❌ Stripe API Key is missing!');
+      return NextResponse.json(
+        { error: 'Payment system is not configured' },
+        { status: 500 }
+      );
+    }
+
     const { sessionId, quizId, userId } = await req.json();
 
     // 1. Stripeに問い合わせて、本当に支払い済みか確認
-    const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     if (session.payment_status !== 'paid') {
       return NextResponse.json({ error: 'Not paid' }, { status: 400 });
