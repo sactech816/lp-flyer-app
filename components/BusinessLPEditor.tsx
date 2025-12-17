@@ -2978,20 +2978,42 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                   }
             }
           >
-            <div className="container mx-auto max-w-lg p-4 md:p-8">
-              <div className="w-full space-y-6 md:space-y-8">
+            <div className="w-full">
+              <div className="space-y-4 md:space-y-6 lg:space-y-8">
                 {blocks.map((block, index) => (
-                  <div key={block.id} className={index > 0 ? `delay-${Math.min(index, 10)}` : ''}>
-                    <BlockRenderer block={block} profileId={savedSlug || undefined} />
+                  <div 
+                    key={block.id} 
+                    className={`${
+                      block.type === 'hero_fullwidth' || 
+                      block.type === 'cta_section' || 
+                      block.type === 'dark_section' || 
+                      block.type === 'bonus_section'
+                        ? 'w-full' 
+                        : 'container mx-auto max-w-full sm:max-w-2xl lg:max-w-4xl px-3 sm:px-4 md:px-6 lg:px-8'
+                    } ${index > 0 ? `delay-${Math.min(index, 10)}` : ''}`}
+                  >
+                    <BlockRenderer block={block} profileId={savedSlug || undefined} contentType="business" />
                   </div>
                 ))}
-                <footer className="text-center py-6 animate-fade-in delay-10">
-                  <p className="text-sm text-white/90 drop-shadow-md">
-                    &copy; {new Date().getFullYear()} All Rights Reserved.
-                  </p>
-                </footer>
               </div>
             </div>
+            
+            <footer className="text-center py-6 animate-fade-in delay-10">
+              <p className="text-sm text-white/90 drop-shadow-md mb-2">
+                &copy; {new Date().getFullYear()} ビジネスLPメーカー. All rights reserved.
+              </p>
+              <a 
+                href="https://lp.makers.tokyo/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-sm text-white/80 hover:text-white/100 drop-shadow-md transition-colors underline inline-block mb-2"
+              >
+                ビジネスLPメーカーで作成
+              </a>
+              <p className="text-xs text-white/70 drop-shadow-md">
+                ビジネスLP・チラシを簡単作成
+              </p>
+            </footer>
           </div>
         </div>
       )}
