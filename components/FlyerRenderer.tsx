@@ -461,36 +461,39 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
         <div className="no-print" style={{ 
           maxWidth: '210mm', 
           margin: '0 auto 20px', 
-          padding: '20px',
+          padding: '16px',
           background: 'white',
           borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
         }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '15px', color: '#1F2937' }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '12px', color: '#1F2937' }} className="md:text-base">
             チラシ設定
           </h3>
           
           {/* レイアウト選択 */}
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#374151' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#374151' }} className="md:text-sm">
               レイアウト
             </label>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {(['simple', 'two-column', 'image-focus'] as FlyerLayout[]).map((l) => (
                 <button
                   key={l}
                   onClick={() => setLayout(l)}
                   style={{
-                    padding: '8px 16px',
+                    padding: '6px 12px',
                     borderRadius: '6px',
                     border: layout === l ? `2px solid ${theme.primary}` : '2px solid #E5E7EB',
                     background: layout === l ? theme.background : 'white',
                     color: layout === l ? theme.primary : '#6B7280',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: layout === l ? 'bold' : 'normal',
                     cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    minHeight: '36px',
+                    flex: '1 1 auto'
                   }}
+                  className="md:text-sm md:px-4 md:py-2"
                 >
                   {l === 'simple' ? 'シンプル' : l === 'two-column' ? '2カラム' : '画像重視'}
                 </button>
@@ -499,26 +502,29 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
           </div>
 
           {/* カラーテーマ選択 */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#374151' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#374151' }} className="md:text-sm">
               カラーテーマ
             </label>
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {(['business', 'creative', 'shop', 'custom'] as FlyerColorTheme[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setColorTheme(t)}
                   style={{
-                    padding: '8px 16px',
+                    padding: '6px 12px',
                     borderRadius: '6px',
                     border: colorTheme === t ? `2px solid ${colorThemes[t].primary}` : '2px solid #E5E7EB',
                     background: colorTheme === t ? colorThemes[t].background : 'white',
                     color: colorTheme === t ? colorThemes[t].primary : '#6B7280',
-                    fontSize: '14px',
+                    fontSize: '12px',
                     fontWeight: colorTheme === t ? 'bold' : 'normal',
                     cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    minHeight: '36px',
+                    flex: '1 1 auto'
                   }}
+                  className="md:text-sm md:px-4 md:py-2"
                 >
                   {t === 'business' ? 'ビジネス' : t === 'creative' ? 'クリエイター' : t === 'shop' ? '店舗' : 'カスタム'}
                 </button>
@@ -527,21 +533,23 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
           </div>
 
           {/* アクションボタン */}
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }} className="md:flex-row md:justify-center">
             <button
               onClick={() => window.print()}
               style={{
                 backgroundColor: theme.primary,
                 color: 'white',
-                padding: '12px 24px',
+                padding: '10px 16px',
                 borderRadius: '8px',
                 border: 'none',
-                fontSize: '16px',
+                fontSize: '14px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                minHeight: '44px'
               }}
+              className="md:text-base md:px-6 md:py-3"
             >
               印刷 / PDFで保存
             </button>
@@ -551,20 +559,22 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
               style={{
                 backgroundColor: isGeneratingPDF ? '#9CA3AF' : theme.secondary,
                 color: 'white',
-                padding: '12px 24px',
+                padding: '10px 16px',
                 borderRadius: '8px',
                 border: 'none',
-                fontSize: '16px',
+                fontSize: '14px',
                 fontWeight: 'bold',
                 cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                minHeight: '44px'
               }}
+              className="md:text-base md:px-6 md:py-3"
             >
               {isGeneratingPDF ? '生成中...' : 'PDFダウンロード'}
             </button>
           </div>
-          <p style={{ marginTop: '10px', fontSize: '12px', color: '#6B7280', textAlign: 'center' }}>
+          <p style={{ marginTop: '8px', fontSize: '11px', color: '#6B7280', textAlign: 'center' }} className="md:text-xs">
             ブラウザの印刷機能で「PDFに保存」を選択するか、PDFダウンロードボタンをご利用ください
           </p>
         </div>

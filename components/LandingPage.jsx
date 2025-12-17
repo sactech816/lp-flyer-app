@@ -179,94 +179,94 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         setShowAuth={setShowAuth}
       />
       
-      <div className="container mx-auto max-w-6xl px-4 py-12 md:py-20">
+      <div className="container mx-auto max-w-6xl px-3 sm:px-4 md:px-6 py-8 md:py-12 lg:py-20">
         {/* ヒーローセクション */}
-        <section className="text-center mb-20 md:mb-32 animate-fade-in">
-          <div className="mb-8">
-            <h2 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg mb-6 leading-tight">
-              集客・販促に使える<br/>
+        <section className="text-center mb-12 md:mb-20 lg:mb-32 animate-fade-in">
+          <div className="mb-6 md:mb-8">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg mb-4 md:mb-6 leading-tight px-2">
+              集客・販促に使える<br className="sm:hidden"/>
               ビジネスLPを<br/>
-              <span className="text-yellow-300">「テンプレート」から<br/>最短ルートで作成</span>
+              <span className="text-yellow-300">「テンプレート」から<br className="sm:hidden"/>最短ルートで作成</span>
             </h2>
-            <p className="text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-4 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl text-white font-semibold px-4 drop-shadow-md mb-3 md:mb-4 leading-relaxed">
               文章の型は用意済み。<br/>
               あなたは、ビジネスに合わせて内容を書き換えるだけ。
             </p>
-            <p className="text-base md:text-lg text-white/90 px-4 drop-shadow-md mb-8">
+            <p className="text-sm sm:text-base md:text-lg text-white/90 px-4 drop-shadow-md mb-6 md:mb-8">
               「何を書けばいいかわからない」を解消し<br/>
               集客に効くLPをスムーズに公開できます。
             </p>
           </div>
           
-          <div className="flex justify-center">
+          <div className="flex justify-center px-4">
             <button
               onClick={handleGetStarted}
-              className="glass-card bg-white/95 hover:bg-white text-indigo-600 px-8 py-4 rounded-full font-bold text-lg shadow-xl transition-all transform hover:scale-105 flex items-center gap-2"
+              className="glass-card bg-white/95 hover:bg-white text-indigo-600 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 min-h-[44px]"
             >
-              <Sparkles size={20}/>
+              <Sparkles size={18} className="sm:w-5 sm:h-5"/>
               無料で作成する
-              <ArrowRight size={20}/>
+              <ArrowRight size={18} className="sm:w-5 sm:h-5"/>
             </button>
           </div>
         </section>
 
         {/* テンプレート選択セクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-1">
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
+        <section className="mb-12 md:mb-20 lg:mb-32 animate-fade-in delay-1">
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white text-center mb-3 md:mb-4 drop-shadow-lg px-2">
             テンプレートで簡単作成
           </h3>
-          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
+          <p className="text-center text-white/90 mb-8 md:mb-12 text-sm md:text-base px-4">
             業種・目的に合わせて最適なテンプレートをお選びください
           </p>
           
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {/* サービス紹介LP */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('business-consultant')}>
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors">
-                <Briefcase className="text-blue-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('business-consultant')}>
+              <div className="bg-blue-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:bg-blue-200 transition-colors">
+                <Briefcase className="text-blue-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 サービス紹介LP
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base mb-6">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base mb-4 md:mb-6">
                 コンサル・士業・講師など<br/>
                 サービスを売るためのLP
               </p>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition-colors">
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 md:py-3 rounded-lg font-bold transition-colors text-sm md:text-base min-h-[44px]">
                 このテンプレートで作成
               </button>
             </div>
 
             {/* 店舗集客LP */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('creator-portfolio')}>
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-green-200 transition-colors">
-                <Store className="text-green-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('creator-portfolio')}>
+              <div className="bg-green-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:bg-green-200 transition-colors">
+                <Store className="text-green-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 店舗集客LP
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base mb-6">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base mb-4 md:mb-6">
                 飲食店・美容室・サロンなど<br/>
                 店舗への集客LP
               </p>
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold transition-colors">
+              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 md:py-3 rounded-lg font-bold transition-colors text-sm md:text-base min-h-[44px]">
                 このテンプレートで作成
               </button>
             </div>
 
             {/* イベント告知LP */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('marketer-fullpackage')}>
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-200 transition-colors">
-                <Sparkles className="text-purple-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" onClick={() => handleGetStarted('marketer-fullpackage')}>
+              <div className="bg-purple-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 group-hover:bg-purple-200 transition-colors">
+                <Sparkles className="text-purple-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 イベント告知LP
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base mb-6">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base mb-4 md:mb-6">
                 セミナー・ワークショップなど<br/>
                 イベント参加を促すLP
               </p>
-              <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-bold transition-colors">
+              <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 md:py-3 rounded-lg font-bold transition-colors text-sm md:text-base min-h-[44px]">
                 このテンプレートで作成
               </button>
             </div>
@@ -274,18 +274,18 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* ビジネスLP一覧セクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-2">
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg flex items-center justify-center gap-2">
-            <Sparkles className="text-yellow-400" size={32}/>
+        <section className="mb-12 md:mb-20 lg:mb-32 animate-fade-in delay-2">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-white text-center mb-3 md:mb-4 drop-shadow-lg flex items-center justify-center gap-2 px-2">
+            <Sparkles className="text-yellow-400" size={24}/>
             作成されたビジネスLP一覧
           </h2>
-          <p className="text-white text-center mb-12 drop-shadow-md">
+          <p className="text-sm md:text-base text-white text-center mb-8 md:mb-12 drop-shadow-md px-4">
             気になるLPを確認してみましょう
           </p>
           
           {publicProfiles.length > 0 ? (
             <>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                 {publicProfiles.map((profile) => {
                 const category = getProfileCategory(profile);
                 const categoryInfo = getCategoryInfo(category);
@@ -344,26 +344,26 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                     </div>
                     
                     {/* カードコンテンツ */}
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="text-lg font-bold text-gray-900 line-clamp-2 flex-1">
+                    <div className="p-4 md:p-6">
+                      <div className="flex items-start justify-between mb-2 md:mb-3">
+                        <h3 className="text-base md:text-lg font-bold text-gray-900 line-clamp-2 flex-1">
                           {profileName}
                         </h3>
-                        <ExternalLink className="text-indigo-600 flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" size={20}/>
+                        <ExternalLink className="text-indigo-600 flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" size={18}/>
                       </div>
                       
                       {description && (
-                        <p className="text-sm text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                        <p className="text-xs md:text-sm text-gray-600 leading-relaxed line-clamp-3 mb-3 md:mb-4">
                           {description}
                         </p>
                       )}
                       
-                      <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                        <div className="flex items-center gap-2 text-indigo-600 font-bold text-sm">
-                          <Eye size={16}/>
+                      <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200">
+                        <div className="flex items-center gap-1.5 md:gap-2 text-indigo-600 font-bold text-xs md:text-sm">
+                          <Eye size={14} className="md:w-4 md:h-4"/>
                           プロフィールを見る
                         </div>
-                        <ArrowRight className="text-indigo-600 group-hover:translate-x-1 transition-transform" size={20}/>
+                        <ArrowRight className="text-indigo-600 group-hover:translate-x-1 transition-transform" size={18}/>
                       </div>
                     </div>
                   </a>
@@ -373,11 +373,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             
             {/* ページネーション */}
             {totalProfiles > profilesPerPage && (
-              <div className="mt-12 flex justify-center items-center gap-2">
+              <div className="mt-8 md:mt-12 flex justify-center items-center gap-1.5 md:gap-2 px-4">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg font-bold transition-all ${
+                  className={`px-3 md:px-4 py-2 rounded-lg font-bold transition-all text-sm md:text-base min-h-[44px] ${
                     currentPage === 1
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'glass-card bg-white/90 hover:bg-white text-indigo-600 shadow-md hover:shadow-lg'
@@ -386,12 +386,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                   前へ
                 </button>
                 
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 md:gap-2">
                   {Array.from({ length: Math.ceil(totalProfiles / profilesPerPage) }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-lg font-bold transition-all ${
+                      className={`w-9 h-9 md:w-10 md:h-10 rounded-lg font-bold transition-all text-sm md:text-base min-h-[44px] ${
                         currentPage === page
                           ? 'bg-indigo-600 text-white shadow-lg'
                           : 'glass-card bg-white/90 hover:bg-white text-indigo-600 shadow-md hover:shadow-lg'
@@ -405,7 +405,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalProfiles / profilesPerPage), prev + 1))}
                   disabled={currentPage === Math.ceil(totalProfiles / profilesPerPage)}
-                  className={`px-4 py-2 rounded-lg font-bold transition-all ${
+                  className={`px-3 md:px-4 py-2 rounded-lg font-bold transition-all text-sm md:text-base min-h-[44px] ${
                     currentPage === Math.ceil(totalProfiles / profilesPerPage)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'glass-card bg-white/90 hover:bg-white text-indigo-600 shadow-md hover:shadow-lg'
@@ -428,50 +428,50 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* 特徴セクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-3">
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
+        <section className="mb-12 md:mb-20 lg:mb-32 animate-fade-in delay-3">
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white text-center mb-3 md:mb-4 drop-shadow-lg px-2">
             ずっと無料で使える、ビジネスLP作成ツール
           </h3>
-          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
+          <p className="text-center text-white/90 mb-8 md:mb-12 text-sm md:text-base px-4">
             起業家、フリーランス、中小企業、個人事業主に最適
           </p>
           
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {/* 特徴1: ノーコード編集 */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Code className="text-indigo-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-indigo-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Code className="text-indigo-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 ノーコードで簡単作成
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 プログラミング知識は不要。直感的なエディタで、誰でもビジネスLPを作成できます。テンプレートから選んで、あなただけのLPを3分で。
               </p>
             </div>
 
             {/* 特徴2: AIアシスタント */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Wand2 className="text-purple-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-purple-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Wand2 className="text-purple-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 AIアシスタント搭載
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 AIがあなたのビジネスや強みから、魅力的なキャッチコピーや説明文を自動生成。LP作成がさらに簡単に。
               </p>
             </div>
 
             {/* 特徴3: スマホ完全対応 */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Smartphone className="text-green-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-green-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Smartphone className="text-green-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 スマホ完全対応
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 レスポンシブデザインで、スマートフォンでもPCでも、キレイに表示。ビジネスLPをどこからでも確認できます。
               </p>
             </div>
@@ -479,50 +479,50 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* 利用シーンセクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-4">
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-4 drop-shadow-lg">
+        <section className="mb-12 md:mb-20 lg:mb-32 animate-fade-in delay-4">
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white text-center mb-3 md:mb-4 drop-shadow-lg px-2">
             こんな方におすすめのビジネスLP作成ツール
           </h3>
-          <p className="text-center text-white/90 mb-12 text-sm md:text-base">
+          <p className="text-center text-white/90 mb-8 md:mb-12 text-sm md:text-base px-4">
             起業家、フリーランス、店舗経営者のビジネスをサポート
           </p>
           
-          <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {/* 利用シーン1: コンサル・士業 */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Briefcase className="text-orange-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-orange-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Briefcase className="text-orange-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 コンサル・士業
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 サービス内容や実績、お客様の声をまとめて、見込み客へ訴求。問い合わせや相談予約へスムーズに誘導できます。
               </p>
             </div>
 
             {/* 利用シーン2: 店舗経営者 */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Store className="text-blue-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-blue-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Store className="text-blue-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 店舗経営者
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 メニュー、料金、アクセス、予約リンクを1ページに集約。QRコードでチラシやSNSから簡単に集客できます。
               </p>
             </div>
 
             {/* 利用シーン3: フリーランス */}
-            <div className="glass-card rounded-2xl p-6 md:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-              <div className="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Wand2 className="text-pink-600" size={32}/>
+            <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+              <div className="bg-pink-100 w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <Wand2 className="text-pink-600" size={28}/>
               </div>
-              <h4 className="text-xl font-bold mb-3 accent-color">
+              <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                 フリーランス
               </h4>
-              <p className="text-gray-700 leading-relaxed text-sm md:text-base">
+              <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 ポートフォリオや実績、サービス内容をまとめたLP。営業資料として、クライアントへの提案に活用できます。
               </p>
             </div>
@@ -530,57 +530,57 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* FAQセクション */}
-        <section className="mb-20 md:mb-32 animate-fade-in delay-5">
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-12 drop-shadow-lg">
+        <section className="mb-12 md:mb-20 lg:mb-32 animate-fade-in delay-5">
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white text-center mb-8 md:mb-12 drop-shadow-lg px-2">
             よくある質問
           </h3>
           
-          <div className="max-w-3xl mx-auto space-y-4">
-            <details className="glass-card rounded-xl p-6 shadow-lg group">
-              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                <span>LPチラシメーカー（エルチラ）は無料で使えますか？</span>
-                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+          <div className="max-w-3xl mx-auto space-y-3 md:space-y-4">
+            <details className="glass-card rounded-xl p-4 md:p-6 shadow-lg group">
+              <summary className="font-bold text-sm md:text-base lg:text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between min-h-[44px]">
+                <span className="pr-2">LPチラシメーカー（エルチラ）は無料で使えますか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform flex-shrink-0">▼</span>
               </summary>
-              <p className="mt-4 text-gray-700 leading-relaxed">
+              <p className="mt-3 md:mt-4 text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed">
                 はい、無料でご利用いただけます。ログインいただくと修正などができるようになります。また、寄付を行っていただくとHTMLダウンロードなどが行える機能が付与されます。</p>
             </details>
             
-            <details className="glass-card rounded-xl p-6 shadow-lg group">
-              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                <span>ログインしなくても使えますか？</span>
-                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+            <details className="glass-card rounded-xl p-4 md:p-6 shadow-lg group">
+              <summary className="font-bold text-sm md:text-base lg:text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between min-h-[44px]">
+                <span className="pr-2">ログインしなくても使えますか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform flex-shrink-0">▼</span>
               </summary>
-              <p className="mt-4 text-gray-700 leading-relaxed">
+              <p className="mt-3 md:mt-4 text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed">
                 はい、ログインなしでもビジネスLPを作成できます。ただし、ログインすると複数のLPを管理したり、後から編集したりできるようになります。
               </p>
             </details>
             
-            <details className="glass-card rounded-xl p-6 shadow-lg group">
-              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                <span>どんな人におすすめですか？</span>
-                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+            <details className="glass-card rounded-xl p-4 md:p-6 shadow-lg group">
+              <summary className="font-bold text-sm md:text-base lg:text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between min-h-[44px]">
+                <span className="pr-2">どんな人におすすめですか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform flex-shrink-0">▼</span>
               </summary>
-              <p className="mt-4 text-gray-700 leading-relaxed">
+              <p className="mt-3 md:mt-4 text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed">
                 起業家、フリーランス、コンサルタント、士業、店舗経営者、個人事業主など、ビジネスの集客・販促を強化したい方におすすめです。ビジネスLP作成ツールとして、あなたのビジネスをサポートします。
               </p>
             </details>
             
-            <details className="glass-card rounded-xl p-6 shadow-lg group">
-              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                <span>他のLP作成ツールとの違いは？</span>
-                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+            <details className="glass-card rounded-xl p-4 md:p-6 shadow-lg group">
+              <summary className="font-bold text-sm md:text-base lg:text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between min-h-[44px]">
+                <span className="pr-2">他のLP作成ツールとの違いは？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform flex-shrink-0">▼</span>
               </summary>
-              <p className="mt-4 text-gray-700 leading-relaxed">
+              <p className="mt-3 md:mt-4 text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed">
                 LPチラシメーカー（エルチラ）は、ノーコードで簡単にビジネスLPを作成できる点に加え、AIアシスタント機能により、キャッチコピーや説明文を自動生成できます。また、テンプレートが豊富で、業種に合わせた最適なLPを素早く作成できます。
               </p>
             </details>
             
-            <details className="glass-card rounded-xl p-6 shadow-lg group">
-              <summary className="font-bold text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between">
-                <span>スマホでも作成できますか？</span>
-                <span className="text-indigo-600 group-open:rotate-180 transition-transform">▼</span>
+            <details className="glass-card rounded-xl p-4 md:p-6 shadow-lg group">
+              <summary className="font-bold text-sm md:text-base lg:text-lg text-gray-900 cursor-pointer list-none flex items-center justify-between min-h-[44px]">
+                <span className="pr-2">スマホでも作成できますか？</span>
+                <span className="text-indigo-600 group-open:rotate-180 transition-transform flex-shrink-0">▼</span>
               </summary>
-              <p className="mt-4 text-gray-700 leading-relaxed">
+              <p className="mt-3 md:mt-4 text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed">
                 はい、スマートフォンでも簡単にビジネスLPを作成・編集できます。レスポンシブデザインで、どのデバイスからでも快適にご利用いただけます。
               </p>
             </details>
@@ -588,12 +588,12 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         </section>
 
         {/* CTAセクション */}
-        <section className="mt-20 md:mt-32 text-center animate-fade-in delay-6">
-          <div className="glass-card rounded-2xl p-8 md:p-12 shadow-xl max-w-3xl mx-auto">
-            <h3 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 drop-shadow-lg">
+        <section className="mt-12 md:mt-20 lg:mt-32 text-center animate-fade-in delay-6">
+          <div className="glass-card rounded-2xl p-6 md:p-8 lg:p-12 shadow-xl max-w-3xl mx-auto">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 text-gray-900 drop-shadow-lg px-2">
               {user ? 'ビジネスLPを作成しましょう' : '今すぐ無料で始める'}
             </h3>
-            <p className="text-gray-800 mb-8 text-lg drop-shadow-md">
+            <p className="text-sm md:text-base lg:text-lg text-gray-800 mb-6 md:mb-8 drop-shadow-md px-2">
               {user 
                 ? 'ダッシュボードから、新しいビジネスLPを作成できます。'
                 : 'ログイン不要で、すぐにビジネスLPを作成できます。集客・販促に最適なLPを作って、あなたのビジネスを加速させましょう。'
@@ -601,11 +601,11 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             </p>
             <button
               onClick={handleGetStarted}
-              className="bg-white hover:bg-gray-50 text-indigo-600 px-10 py-5 rounded-full font-bold text-xl shadow-xl transition-all transform hover:scale-105 flex items-center gap-3 mx-auto"
+              className="bg-white hover:bg-gray-50 text-indigo-600 px-8 md:px-10 py-4 md:py-5 rounded-full font-bold text-lg md:text-xl shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 md:gap-3 mx-auto min-h-[44px]"
             >
-              <Sparkles size={24}/>
+              <Sparkles size={20} className="md:w-6 md:h-6"/>
               {user ? 'ダッシュボードへ' : '無料で作成する'}
-              <ArrowRight size={24}/>
+              <ArrowRight size={20} className="md:w-6 md:h-6"/>
             </button>
           </div>
         </section>

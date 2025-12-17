@@ -396,8 +396,8 @@ export default async function ProfilePage({
         </div>
       )}
       
-      <div className="container mx-auto max-w-lg p-4 md:p-8">
-        <div className="w-full space-y-6 md:space-y-8">
+      <div className="container mx-auto max-w-full sm:max-w-2xl lg:max-w-3xl p-3 sm:p-4 md:p-6 lg:p-8">
+        <div className="w-full space-y-4 md:space-y-6 lg:space-y-8">
           {migratedContent.map((block, index) => (
             <div key={block.id || index} className={index > 0 ? `delay-${Math.min(index, 10)}` : ''}>
               <BlockRenderer block={block} profileId={profile.id} />

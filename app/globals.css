@@ -52,7 +52,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1rem;
   border-radius: 9999px;
   font-weight: 600;
   text-align: center;
@@ -62,12 +62,25 @@ body {
   transition: all 0.3s ease;
   color: #333;
   text-decoration: none;
+  min-height: 44px;
+}
+
+@media (min-width: 768px) {
+  .link-button {
+    padding: 1rem 1.5rem;
+  }
 }
 
 .link-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   background-color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-button:hover {
+    transform: none;
+  }
 }
 
 .accent-color {
@@ -98,5 +111,58 @@ body {
 @media print {
   .no-print {
     display: none !important;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  
+  .flyer-container {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 20mm;
+    page-break-after: always;
+    box-shadow: none !important;
+  }
+  
+  /* ページ区切りの制御 */
+  .glass-card,
+  .flyer-section,
+  .flyer-footer {
+    page-break-inside: avoid;
+  }
+  
+  /* 画像の最適化 */
+  img {
+    max-width: 100%;
+    page-break-inside: avoid;
+  }
+  
+  /* リンクの印刷時表示 */
+  a[href]:after {
+    content: none !important;
+  }
+}
+
+/* アニメーションの最適化 - モーション削減設定に対応 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-fade-in {
+    animation: none;
+    opacity: 1;
+    transform: translateY(0);
   }
 }
