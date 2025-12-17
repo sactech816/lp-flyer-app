@@ -714,7 +714,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             ...block.data,
             items: block.data.items.filter((_, i) => i !== itemIndex)
           }
-        };
+        } as Block; // 型アサーションを追加
       }
       return block;
     }));
