@@ -1272,7 +1272,7 @@ export const templates: Template[] = [
               id: generateBlockId(),
               imageUrl: 'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop',
               category: '製造業',
-              categoryColor: 'blue',
+              categoryColor: 'cyan',
               title: 'A社様 - 業務効率化プロジェクト',
               description: '生産性が30%向上し、コスト削減にも成功しました。'
             },
