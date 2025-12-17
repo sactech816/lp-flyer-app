@@ -174,8 +174,8 @@ const App = () => {
                     // 通常のリダイレクト処理
                     const page = currentSearch.get('page');
                     if (!page || page === 'landing') {
-                        console.log('🏠 ビジネスLPダッシュボードにリダイレクト');
-                        window.location.href = '/business/dashboard';
+                        console.log('🏠 ビジネスLPエディターにリダイレクト');
+                        window.location.href = '/business/dashboard/editor/new';
                     }
                 }
               });
@@ -369,13 +369,13 @@ const App = () => {
             <LandingPage 
                 user={user}
                 setShowAuth={setShowAuth}
-                onNavigateToDashboard={() => window.location.href='/business/dashboard'}
+                onNavigateToDashboard={() => window.location.href='/business/dashboard/editor/new'}
                 onCreate={(templateId) => {
                     // テンプレートIDがある場合は状態に保存
                     if (templateId) {
                         sessionStorage.setItem('selectedTemplateId', templateId);
                     }
-                    window.location.href='/business/dashboard';
+                    window.location.href='/business/dashboard/editor/new';
                 }}
             />
         )}

@@ -1057,6 +1057,45 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     alert(`公開URLをクリップボードにコピーしました！\n\n${url}`);
   };
 
+  // LP削除処理
+  const handleDeleteProject = async () => {
+    if (!savedSlug) {
+      alert('保存されていないLPは削除できません');
+      return;
+    }
+    
+    if (!user) {
+      alert('ログインが必要です');
+      return;
+    }
+
+    const confirmMessage = 'このLPを完全に削除しますか？\n\nこの操作は取り消せません。';
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      // Supabaseのprofilesテーブルから削除
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('slug', savedSlug)
+        .eq('user_id', user.id); // 所有者のみ削除可能
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      alert('LPを削除しました');
+      
+      // トップページにリダイレクト
+      window.location.href = '/';
+    } catch (error: any) {
+      console.error('削除エラー:', error);
+      alert('削除に失敗しました: ' + error.message);
+    }
+  };
+
   // ブロック編集フォーム
   const renderBlockEditor = (block: Block) => {
     switch (block.type) {
@@ -2601,6 +2640,14 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                   >
                     <Settings size={16}/> <span className="hidden sm:inline">設定</span>
                   </button>
+                  {user && (
+                    <button 
+                      onClick={handleDeleteProject} 
+                      className="bg-red-50 border border-red-200 text-red-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-red-100 text-xs md:text-sm"
+                    >
+                      <Trash2 size={16}/> <span className="hidden sm:inline">削除</span>
+                    </button>
+                  )}
                 </>
               )}
               <button 
