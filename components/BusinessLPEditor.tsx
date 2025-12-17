@@ -687,17 +687,17 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
         const newItem = { id: generateBlockId() };
         
         if (block.type === 'problem_cards') {
-          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '😰', title: '新しい問題', description: '説明文', borderColor: 'blue' }] }};
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '😰', title: '新しい問題', description: '説明文', borderColor: 'blue' }] }} as Block;
         } else if (block.type === 'dark_section') {
-          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '💡', title: '新しい項目', description: '説明文' }] }};
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '💡', title: '新しい項目', description: '説明文' }] }} as Block;
         } else if (block.type === 'case_study_cards') {
-          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, imageUrl: '', category: 'カテゴリー', categoryColor: 'cyan', title: '新しい事例', description: '説明文' }] }};
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, imageUrl: '', category: 'カテゴリー', categoryColor: 'cyan', title: '新しい事例', description: '説明文' }] }} as Block;
         } else if (block.type === 'bonus_section') {
-          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい特典', description: '説明文' }] }};
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい特典', description: '説明文' }] }} as Block;
         } else if (block.type === 'checklist_section') {
-          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい項目', description: '' }] }};
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい項目', description: '' }] }} as Block;
         } else if (block.type === 'features') {
-          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい特徴', description: '説明文' }] }};
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい特徴', description: '説明文' }] }} as Block;
         }
       }
       return block;
@@ -732,7 +732,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
               i === itemIndex ? { ...item, ...updates } : item
             )
           }
-        };
+        } as Block;
       }
       return block;
     }));
