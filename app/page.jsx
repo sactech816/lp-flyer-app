@@ -10,10 +10,8 @@ import { ADMIN_EMAIL } from '../lib/constants';
 import AuthModal from '../components/AuthModal';
 import Portal from '../components/Portal';
 import Dashboard from '../components/Dashboard';
-import ProfileDashboard from '../components/ProfileDashboard';
 import QuizPlayer from '../components/QuizPlayer';
 import Editor from '../components/Editor';
-import ProfileEditor from '../components/ProfileEditor';
 import LandingPage from '../components/LandingPage';
 import AnnouncementsPage from '../components/AnnouncementsPage';
 import { 
@@ -29,7 +27,6 @@ const App = () => {
   const [view, setView] = useState('loading'); 
   const [selectedQuiz, setSelectedQuiz] = useState(null);
   const [editingQuiz, setEditingQuiz] = useState(null);
-  const [editingProfileSlug, setEditingProfileSlug] = useState(null);
   const [quizzes, setQuizzes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -333,70 +330,6 @@ const App = () => {
       }
   };
 
-  // プロフィール削除処理（サービスロールAPI経由）
-  const handleProfileDelete = async (id, refetch) => {
-      if(!confirm('本当に削除しますか？')) return;
-      if(!supabase) return;
-      
-      try {
-          console.log('[CLIENT] 削除処理開始:', { id });
-          
-          const { data: { session } } = await supabase.auth.getSession();
-          const token = session?.access_token;
-          console.log('[CLIENT] セッション取得:', { hasToken: !!token });
-          
-          // 未ログインユーザーの場合は匿名IDを使用
-          const anonymousId = localStorage.getItem('anonymous_user_id');
-          console.log('[CLIENT] 匿名ID:', anonymousId);
-          
-          const headers = {
-              'Content-Type': 'application/json'
-          };
-          
-          if (token) {
-              headers['Authorization'] = `Bearer ${token}`;
-          }
-
-          console.log('[CLIENT] APIリクエスト送信中...');
-          const res = await fetch('/api/delete-profile', {
-              method: 'POST',
-              headers,
-              body: JSON.stringify({ id, anonymousId })
-          });
-          
-          console.log('[CLIENT] APIレスポンス:', { status: res.status, ok: res.ok });
-          
-          let result = {};
-          try {
-              const text = await res.text();
-              if (text) {
-                  result = JSON.parse(text);
-              }
-          } catch (parseError) {
-              console.error('[CLIENT] JSON解析エラー:', parseError);
-          }
-          
-          console.log('[CLIENT] レスポンスデータ:', result);
-          
-          if (!res.ok) {
-              throw new Error(result?.error || '削除に失敗しました');
-          }
-
-          alert('削除しました');
-          
-          console.log('[CLIENT] refetch実行:', { hasRefetch: !!refetch, refetchType: typeof refetch });
-          if (refetch && typeof refetch === 'function') {
-              await refetch();
-              console.log('[CLIENT] refetch完了');
-          } else {
-              console.log('[CLIENT] ページリロード');
-              window.location.reload();
-          }
-      } catch(e) {
-          console.error('[CLIENT] 削除エラー:', e);
-          alert('削除エラー: ' + e.message);
-      }
-  };
 
   // ローディング画面
   if (view === 'loading') {
@@ -438,7 +371,6 @@ const App = () => {
                 setShowAuth={setShowAuth}
                 onNavigateToDashboard={() => window.location.href='/business/dashboard'}
                 onCreate={(templateId) => {
-                    setEditingProfileSlug(null);
                     // テンプレートIDがある場合は状態に保存
                     if (templateId) {
                         sessionStorage.setItem('selectedTemplateId', templateId);
@@ -471,29 +403,6 @@ const App = () => {
                 onEdit={(q)=>{ setEditingQuiz(q); navigateTo('editor'); }} 
                 onDelete={handleDelete} 
                 isAdmin={isAdmin}
-            />
-        )}
-        
-        {view === 'dashboard' && (
-            <ProfileDashboard 
-                user={user} 
-                isAdmin={isAdmin}
-                setPage={(p) => navigateTo(p)} 
-                onLogout={async ()=>{ 
-                    if(!supabase) return;
-                    try {
-                        await supabase.auth.signOut(); 
-                        setUser(null);
-                        alert('ログアウトしました');
-                        navigateTo('landing');
-                    } catch(e) {
-                        console.error('ログアウトエラー:', e);
-                        alert('ログアウトに失敗しました');
-                    }
-                }} 
-                onEdit={(profile)=>{setEditingProfileSlug(profile.slug); navigateTo('profile-editor');}} 
-                onDelete={(id, refetch) => handleProfileDelete(id, refetch)}
-                onCreate={()=>{setEditingProfileSlug(null); navigateTo('profile-editor');}}
             />
         )}
         
@@ -675,24 +584,6 @@ const App = () => {
             />
         )}
         
-        {view === 'profile-editor' && (
-            <ProfileEditor 
-                user={user}
-                initialSlug={editingProfileSlug}
-                setShowAuth={setShowAuth}
-                onBack={()=>{ 
-                    if (user) {
-                        window.location.href = '/business/dashboard';
-                    } else {
-                        navigateTo('landing');
-                    }
-                    setEditingProfileSlug(null);
-                }}
-                onSave={(data) => {
-                    console.log('プロフィール保存完了:', data);
-                }}
-            />
-        )}
     </div>
   );
 };
