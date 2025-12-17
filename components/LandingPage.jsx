@@ -8,7 +8,6 @@ import AnnouncementBanner from './AnnouncementBanner';
 
 const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [createClickCount, setCreateClickCount] = useState(0);
   const [publicProfiles, setPublicProfiles] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalProfiles, setTotalProfiles] = useState(0);
@@ -123,20 +122,9 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         onCreate(templateId);
       }
     } else {
-      // 未ログインの場合
-      setCreateClickCount(prev => prev + 1);
-      
-      // 3回以上クリックしたらログイン画面を表示
-      if (createClickCount >= 2) {
-        if (setShowAuth) {
-          setShowAuth(true);
-        }
-        setCreateClickCount(0); // リセット
-      } else {
-        // それ以外はエディタページに直接遷移
-        if (onCreate) {
-          onCreate(templateId);
-        }
+      // 未ログインの場合もエディタページに直接遷移
+      if (onCreate) {
+        onCreate(templateId);
       }
     }
   };

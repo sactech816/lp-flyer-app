@@ -34,7 +34,11 @@ export default function NewBusinessLPPage() {
   }, []);
 
   const handleBack = () => {
-    router.push('/business/dashboard');
+    if (user) {
+      router.push('/business/dashboard');
+    } else {
+      router.push('/');
+    }
   };
 
   const handleSave = (data: { slug: string; content: any[] }) => {
@@ -47,23 +51,6 @@ export default function NewBusinessLPPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-indigo-600">
         <Loader2 className="animate-spin mb-4" size={48} />
         <p className="font-bold">読み込み中...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full mx-4 text-center">
-          <h2 className="text-2xl font-bold mb-4 text-gray-900">ログインが必要です</h2>
-          <p className="text-gray-600 mb-6">ビジネスLPを作成するにはログインしてください。</p>
-          <button
-            onClick={() => router.push('/')}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-700 transition-all"
-          >
-            トップページに戻る
-          </button>
-        </div>
       </div>
     );
   }

@@ -24,7 +24,7 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
 
                 {/* PC版：主要なボタンを外部に配置 */}
                 <div className="hidden md:flex items-center gap-4 text-sm font-bold text-gray-600">
-                    <button onClick={()=>{window.location.href='/business/dashboard'; setIsMenuOpen(false);}} className="text-gray-600 hover:text-indigo-600 flex items-center gap-1">
+                    <button onClick={()=>{window.location.href='/business/dashboard/editor/new'; setIsMenuOpen(false);}} className="text-gray-600 hover:text-indigo-600 flex items-center gap-1">
                         <PlusCircle size={16}/> 新規作成
                     </button>
                     {user ? (
@@ -54,7 +54,7 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
             {isMenuOpen && (
                 <div className="bg-white border-t absolute w-full left-0 top-16 shadow-xl py-4 px-6 flex flex-col gap-2 animate-fade-in z-50 h-[calc(100vh-64px)] overflow-y-auto pb-20">
                     <p className="text-xs font-bold text-gray-400 mt-4 mb-2">メニュー</p>
-                    <button onClick={()=>{window.location.href='/business/dashboard'; setIsMenuOpen(false);}} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><PlusCircle size={20}/> 新規作成</button>
+                    <button onClick={()=>{window.location.href='/business/dashboard/editor/new'; setIsMenuOpen(false);}} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><PlusCircle size={20}/> 新規作成</button>
                     <button onClick={()=>{window.location.href='/business/dashboard'; setIsMenuOpen(false);}} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><LayoutDashboard size={20}/> マイページ</button>
                     <a href="/p/demo-user" target="_blank" rel="noopener noreferrer" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><ExternalLink size={20}/> デモページ</a>
                     

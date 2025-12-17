@@ -974,7 +974,7 @@ function HeroFullwidthBlock({ block, profileId }: { block: Extract<Block, { type
   }
 
   return (
-    <section className="animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6">
+    <section className="animate-fade-in mb-4 md:mb-6">
       <div className="relative py-16 md:py-24 lg:py-32 px-4 md:px-6" style={backgroundStyle}>
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 md:mb-6 drop-shadow-lg px-2 leading-tight">

@@ -396,10 +396,17 @@ export default async function BusinessLPPage({
         </div>
       )}
       
-      <div className="container mx-auto max-w-full sm:max-w-2xl lg:max-w-4xl p-3 sm:p-4 md:p-6 lg:p-8">
-        <div className="w-full space-y-4 md:space-y-6 lg:space-y-8">
+      <div className="w-full">
+        <div className="space-y-4 md:space-y-6 lg:space-y-8">
           {migratedContent.map((block, index) => (
-            <div key={block.id || index} className={index > 0 ? `delay-${Math.min(index, 10)}` : ''}>
+            <div 
+              key={block.id || index} 
+              className={`${
+                block.type === 'hero_fullwidth' 
+                  ? 'w-full' 
+                  : 'container mx-auto max-w-full sm:max-w-2xl lg:max-w-4xl px-3 sm:px-4 md:px-6 lg:px-8'
+              } ${index > 0 ? `delay-${Math.min(index, 10)}` : ''}`}
+            >
               <BlockRenderer block={block} profileId={project.id} contentType="business" />
             </div>
           ))}

@@ -6,7 +6,8 @@ import {
     X, Link, UploadCloud, Eye, User, FileText, GripVertical,
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
     ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
-    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter
+    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter,
+    AlertCircle, Layers, Briefcase, Gift, CheckSquare, MapPin
 } from 'lucide-react';
 import { generateSlug, validateNickname, isAdmin as checkIsAdmin } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -417,6 +418,103 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             type: 'quiz',
             data: { quizId: '', quizSlug: '', title: '' }
           };
+        case 'hero_fullwidth':
+          return {
+            id: generateBlockId(),
+            type: 'hero_fullwidth',
+            data: { 
+              headline: 'あなたのキャッチコピーをここに', 
+              subheadline: 'サブテキストを入力してください',
+              imageUrl: '',
+              ctaText: '',
+              ctaUrl: '',
+              backgroundImage: '',
+              backgroundColor: ''
+            }
+          };
+        case 'problem_cards':
+          return {
+            id: generateBlockId(),
+            type: 'problem_cards',
+            data: {
+              title: '',
+              subtitle: '',
+              items: [
+                { id: generateBlockId(), icon: '😰', title: '問題1', description: '説明文を入力', borderColor: 'blue' }
+              ]
+            }
+          };
+        case 'dark_section':
+          return {
+            id: generateBlockId(),
+            type: 'dark_section',
+            data: {
+              title: 'セクションタイトル',
+              subtitle: '',
+              backgroundColor: 'gray-800',
+              accentColor: 'orange',
+              items: [
+                { id: generateBlockId(), icon: '💡', title: '項目1', description: '説明文を入力' }
+              ]
+            }
+          };
+        case 'case_study_cards':
+          return {
+            id: generateBlockId(),
+            type: 'case_study_cards',
+            data: {
+              title: '事例紹介',
+              items: [
+                { id: generateBlockId(), imageUrl: '', category: 'カテゴリー', categoryColor: 'cyan', title: '事例タイトル', description: '説明文を入力' }
+              ]
+            }
+          };
+        case 'bonus_section':
+          return {
+            id: generateBlockId(),
+            type: 'bonus_section',
+            data: {
+              title: '特典のご案内',
+              subtitle: '',
+              backgroundGradient: 'linear-gradient(to right, #10b981, #3b82f6)',
+              items: [
+                { id: generateBlockId(), icon: '✓', title: '特典1', description: '説明文を入力' }
+              ],
+              qrImageUrl: '',
+              qrText: '',
+              ctaText: '',
+              ctaUrl: ''
+            }
+          };
+        case 'checklist_section':
+          return {
+            id: generateBlockId(),
+            type: 'checklist_section',
+            data: {
+              title: 'チェックリスト',
+              backgroundColor: '',
+              items: [
+                { id: generateBlockId(), icon: '✓', title: '項目1', description: '' }
+              ],
+              columns: 1
+            }
+          };
+        case 'google_map':
+          return {
+            id: generateBlockId(),
+            type: 'google_map',
+            data: {
+              address: '',
+              placeId: '',
+              lat: undefined,
+              lng: undefined,
+              zoom: 15,
+              mapType: 'roadmap',
+              title: 'アクセス',
+              description: '',
+              showDirections: true
+            }
+          };
         default:
           return {
             id: generateBlockId(),
@@ -515,6 +613,62 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             ...block.data,
             links: block.data.links.map((link, i) => 
               i === linkIndex ? { ...link, [field]: value } : link
+            )
+          }
+        };
+      }
+      return block;
+    }));
+  };
+
+  // 配列アイテムの追加（items配列を持つブロック用）
+  const addItemToBlock = (blockId: string) => {
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId) {
+        const newItem = { id: generateBlockId() };
+        
+        if (block.type === 'problem_cards') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '😰', title: '新しい問題', description: '説明文', borderColor: 'blue' }] }};
+        } else if (block.type === 'dark_section') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '💡', title: '新しい項目', description: '説明文' }] }};
+        } else if (block.type === 'case_study_cards') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, imageUrl: '', category: 'カテゴリー', categoryColor: 'cyan', title: '新しい事例', description: '説明文' }] }};
+        } else if (block.type === 'bonus_section') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい特典', description: '説明文' }] }};
+        } else if (block.type === 'checklist_section') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい項目', description: '' }] }};
+        }
+      }
+      return block;
+    }));
+  };
+
+  // 配列アイテムの削除（items配列を持つブロック用）
+  const removeItemFromBlock = (blockId: string, itemIndex: number) => {
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId && 'items' in block.data && Array.isArray(block.data.items)) {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            items: block.data.items.filter((_, i) => i !== itemIndex)
+          }
+        };
+      }
+      return block;
+    }));
+  };
+
+  // 配列アイテムの更新（items配列を持つブロック用）
+  const updateItemInBlock = (blockId: string, itemIndex: number, updates: any) => {
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId && 'items' in block.data && Array.isArray(block.data.items)) {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            items: block.data.items.map((item, i) => 
+              i === itemIndex ? { ...item, ...updates } : item
             )
           }
         };
@@ -1624,6 +1778,239 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
           </div>
         );
 
+      case 'hero_fullwidth':
+        return (
+          <div className="space-y-4">
+            <Input label="ヘッドライン" val={block.data.headline || ''} onChange={v => updateBlock(block.id, { headline: v })} ph="あなたのキャッチコピーをここに" />
+            <Input label="サブヘッドライン" val={block.data.subheadline || ''} onChange={v => updateBlock(block.id, { subheadline: v })} ph="サブテキストを入力してください" />
+            <Input label="画像URL" val={block.data.imageUrl || ''} onChange={v => updateBlock(block.id, { imageUrl: v })} ph="https://..." />
+            <Input label="背景画像URL" val={block.data.backgroundImage || ''} onChange={v => updateBlock(block.id, { backgroundImage: v })} ph="https://..." />
+            <Input label="背景色" val={block.data.backgroundColor || ''} onChange={v => updateBlock(block.id, { backgroundColor: v })} ph="linear-gradient(...)" />
+            <Input label="CTAボタンテキスト" val={block.data.ctaText || ''} onChange={v => updateBlock(block.id, { ctaText: v })} ph="今すぐ始める" />
+            <Input label="CTAボタンURL" val={block.data.ctaUrl || ''} onChange={v => updateBlock(block.id, { ctaUrl: v })} ph="https://..." />
+          </div>
+        );
+
+      case 'problem_cards':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="こんな気まずい瞬間、ありませんか？" />
+            <Input label="サブタイトル" val={block.data.subtitle || ''} onChange={v => updateBlock(block.id, { subtitle: v })} ph="その悩み、あなただけではありません。" />
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">問題カード</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">カード {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（絵文字）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded mb-2 text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                  <select className="w-full border p-2 rounded text-sm" value={item.borderColor || 'blue'} onChange={e => updateItemInBlock(block.id, idx, { borderColor: e.target.value })}>
+                    <option value="blue">青</option>
+                    <option value="red">赤</option>
+                    <option value="green">緑</option>
+                    <option value="orange">オレンジ</option>
+                    <option value="purple">紫</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'dark_section':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="セクションタイトル" />
+            <Input label="サブタイトル" val={block.data.subtitle || ''} onChange={v => updateBlock(block.id, { subtitle: v })} ph="サブタイトル" />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景色</label>
+              <select className="w-full border p-3 rounded-lg" value={block.data.backgroundColor || 'gray-800'} onChange={e => updateBlock(block.id, { backgroundColor: e.target.value })}>
+                <option value="gray-800">グレー800</option>
+                <option value="gray-900">グレー900</option>
+                <option value="black">黒</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">アクセントカラー</label>
+              <select className="w-full border p-3 rounded-lg" value={block.data.accentColor || 'orange'} onChange={e => updateBlock(block.id, { accentColor: e.target.value })}>
+                <option value="orange">オレンジ</option>
+                <option value="blue">青</option>
+                <option value="purple">紫</option>
+                <option value="green">緑</option>
+              </select>
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">項目</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">項目 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（絵文字）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'case_study_cards':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="事例紹介" />
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">事例カード</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">事例 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="画像URL" value={item.imageUrl || ''} onChange={e => updateItemInBlock(block.id, idx, { imageUrl: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="カテゴリー" value={item.category || ''} onChange={e => updateItemInBlock(block.id, idx, { category: e.target.value })} />
+                  <select className="w-full border p-2 rounded mb-2 text-sm" value={item.categoryColor || 'cyan'} onChange={e => updateItemInBlock(block.id, idx, { categoryColor: e.target.value })}>
+                    <option value="pink">ピンク</option>
+                    <option value="cyan">シアン</option>
+                    <option value="green">緑</option>
+                    <option value="orange">オレンジ</option>
+                    <option value="purple">紫</option>
+                  </select>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'bonus_section':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="特典のご案内" />
+            <Input label="サブタイトル" val={block.data.subtitle || ''} onChange={v => updateBlock(block.id, { subtitle: v })} ph="サブタイトル" />
+            <Input label="背景グラデーション" val={block.data.backgroundGradient || ''} onChange={v => updateBlock(block.id, { backgroundGradient: v })} ph="linear-gradient(to right, #10b981, #3b82f6)" />
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">特典項目</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">特典 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（✓など）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+            <Input label="QRコード画像URL" val={block.data.qrImageUrl || ''} onChange={v => updateBlock(block.id, { qrImageUrl: v })} ph="https://..." />
+            <Input label="QRコードテキスト" val={block.data.qrText || ''} onChange={v => updateBlock(block.id, { qrText: v })} ph="スマホで読み取ってください" />
+            <Input label="CTAボタンテキスト" val={block.data.ctaText || ''} onChange={v => updateBlock(block.id, { ctaText: v })} ph="今すぐ受け取る" />
+            <Input label="CTAボタンURL" val={block.data.ctaUrl || ''} onChange={v => updateBlock(block.id, { ctaUrl: v })} ph="https://..." />
+          </div>
+        );
+
+      case 'checklist_section':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="チェックリスト" />
+            <Input label="背景色" val={block.data.backgroundColor || ''} onChange={v => updateBlock(block.id, { backgroundColor: v })} ph="rgba(255, 255, 255, 0.95)" />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">カラム数</label>
+              <select className="w-full border p-3 rounded-lg" value={block.data.columns || 1} onChange={e => updateBlock(block.id, { columns: Number(e.target.value) })}>
+                <option value={1}>1カラム</option>
+                <option value={2}>2カラム</option>
+              </select>
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">チェック項目</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">項目 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（✓など）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文（オプション）" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'google_map':
+        return (
+          <div className="space-y-4">
+            <Input label="住所" val={block.data.address || ''} onChange={v => updateBlock(block.id, { address: v })} ph="東京都渋谷区..." />
+            <Input label="Google Place ID（オプション）" val={block.data.placeId || ''} onChange={v => updateBlock(block.id, { placeId: v })} ph="ChIJ..." />
+            <div className="grid grid-cols-2 gap-2">
+              <Input label="緯度" val={block.data.lat?.toString() || ''} onChange={v => updateBlock(block.id, { lat: v ? parseFloat(v) : undefined })} ph="35.6762" type="number" />
+              <Input label="経度" val={block.data.lng?.toString() || ''} onChange={v => updateBlock(block.id, { lng: v ? parseFloat(v) : undefined })} ph="139.6503" type="number" />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">ズームレベル (1-20)</label>
+              <input type="range" min="1" max="20" value={block.data.zoom || 15} onChange={e => updateBlock(block.id, { zoom: parseInt(e.target.value) })} className="w-full" />
+              <span className="text-sm text-gray-600">{block.data.zoom || 15}</span>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">マップタイプ</label>
+              <select className="w-full border p-3 rounded-lg" value={block.data.mapType || 'roadmap'} onChange={e => updateBlock(block.id, { mapType: e.target.value })}>
+                <option value="roadmap">標準地図</option>
+                <option value="satellite">航空写真</option>
+                <option value="hybrid">ハイブリッド</option>
+                <option value="terrain">地形</option>
+              </select>
+            </div>
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="アクセス" />
+            <Input label="説明文" val={block.data.description || ''} onChange={v => updateBlock(block.id, { description: v })} ph="JR渋谷駅から徒歩5分" />
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id={`showDir-${block.id}`} checked={block.data.showDirections || false} onChange={e => updateBlock(block.id, { showDirections: e.target.checked })} />
+              <label htmlFor={`showDir-${block.id}`} className="text-sm font-bold text-gray-900">経路案内ボタンを表示</label>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -1991,6 +2378,27 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
             <button onClick={() => addBlock('quiz')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
               <Sparkles size={14} className="md:w-4 md:h-4"/> <span>診断クイズ</span>
             </button>
+            <button onClick={() => addBlock('hero_fullwidth')} className="bg-purple-50 border border-purple-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-purple-100 flex items-center gap-1 md:gap-2">
+              <Star size={14} className="md:w-4 md:h-4 text-purple-600"/> <span>ヒロー（フル幅）</span>
+            </button>
+            <button onClick={() => addBlock('problem_cards')} className="bg-blue-50 border border-blue-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-blue-100 flex items-center gap-1 md:gap-2">
+              <AlertCircle size={14} className="md:w-4 md:h-4 text-blue-600"/> <span>問題提起カード</span>
+            </button>
+            <button onClick={() => addBlock('dark_section')} className="bg-gray-700 border border-gray-600 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-600 flex items-center gap-1 md:gap-2 text-white">
+              <Layers size={14} className="md:w-4 md:h-4"/> <span>ダークセクション</span>
+            </button>
+            <button onClick={() => addBlock('case_study_cards')} className="bg-cyan-50 border border-cyan-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-cyan-100 flex items-center gap-1 md:gap-2">
+              <Briefcase size={14} className="md:w-4 md:h-4 text-cyan-600"/> <span>事例紹介カード</span>
+            </button>
+            <button onClick={() => addBlock('bonus_section')} className="bg-green-50 border border-green-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-green-100 flex items-center gap-1 md:gap-2">
+              <Gift size={14} className="md:w-4 md:h-4 text-green-600"/> <span>特典セクション</span>
+            </button>
+            <button onClick={() => addBlock('checklist_section')} className="bg-blue-50 border border-blue-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-blue-100 flex items-center gap-1 md:gap-2">
+              <CheckSquare size={14} className="md:w-4 md:h-4 text-blue-600"/> <span>チェックリスト</span>
+            </button>
+            <button onClick={() => addBlock('google_map')} className="bg-red-50 border border-red-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-red-100 flex items-center gap-1 md:gap-2">
+              <MapPin size={14} className="md:w-4 md:h-4 text-red-600"/> <span>Googleマップ</span>
+            </button>
           </div>
         </div>
 
@@ -2027,6 +2435,13 @@ const ProfileEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Profi
                         {block.type === 'pricing' && '料金表'}
                         {block.type === 'testimonial' && 'お客様の声'}
                         {block.type === 'quiz' && '診断クイズ'}
+                        {block.type === 'hero_fullwidth' && 'ヒーロー（フル幅）'}
+                        {block.type === 'problem_cards' && '問題提起カード'}
+                        {block.type === 'dark_section' && 'ダークセクション'}
+                        {block.type === 'case_study_cards' && '事例紹介カード'}
+                        {block.type === 'bonus_section' && '特典セクション'}
+                        {block.type === 'checklist_section' && 'チェックリスト'}
+                        {block.type === 'google_map' && 'Googleマップ'}
                       </span>
                     </button>
                   </div>

@@ -6,7 +6,8 @@ import {
     X, Link, UploadCloud, Eye, User, FileText, GripVertical,
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
     ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
-    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter, Printer
+    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter, Printer,
+    AlertCircle, Layers, Briefcase, Gift, CheckSquare, MapPin
 } from 'lucide-react';
 import { generateSlug, validateNickname, isAdmin as checkIsAdmin } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -52,6 +53,16 @@ interface BusinessLPEditorProps {
   setShowAuth: (show: boolean) => void;
 }
 
+// 背景色/グラデーションのプリセット
+const backgroundPresets = [
+  { id: 'purple', name: 'パープル', value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+  { id: 'blue', name: 'ブルー', value: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' },
+  { id: 'indigo', name: 'インディゴ', value: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)' },
+  { id: 'orange', name: 'オレンジ', value: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)' },
+  { id: 'green', name: 'グリーン', value: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' },
+  { id: 'dark', name: 'ダーク', value: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)' },
+];
+
 const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: BusinessLPEditorProps) => {
   useEffect(() => { 
     document.title = "ビジネスLP作成・編集 | ビジネスLPメーカー"; 
@@ -78,10 +89,6 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
   const [settings, setSettings] = useState<{ gtmId?: string; fbPixelId?: string; lineTagId?: string }>({});
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
-  const [showImagePicker, setShowImagePicker] = useState(false);
-  const [searchingImages, setSearchingImages] = useState(false);
-  const [imageResults, setImageResults] = useState<any[]>([]);
-  const [imagePickerContext, setImagePickerContext] = useState<{ blockId: string; field: string; searchQuery: string } | null>(null);
   const [analytics, setAnalytics] = useState<{ 
     views: number; 
     clicks: number; 
@@ -470,6 +477,103 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
               listItems: [] 
             }
           };
+        case 'hero_fullwidth':
+          return {
+            id: generateBlockId(),
+            type: 'hero_fullwidth',
+            data: { 
+              headline: 'あなたのキャッチコピーをここに', 
+              subheadline: 'サブテキストを入力してください',
+              imageUrl: '',
+              ctaText: '',
+              ctaUrl: '',
+              backgroundImage: '',
+              backgroundColor: ''
+            }
+          };
+        case 'problem_cards':
+          return {
+            id: generateBlockId(),
+            type: 'problem_cards',
+            data: {
+              title: '',
+              subtitle: '',
+              items: [
+                { id: generateBlockId(), icon: '😰', title: '問題1', description: '説明文を入力', borderColor: 'blue' }
+              ]
+            }
+          };
+        case 'dark_section':
+          return {
+            id: generateBlockId(),
+            type: 'dark_section',
+            data: {
+              title: 'セクションタイトル',
+              subtitle: '',
+              backgroundColor: 'gray-800',
+              accentColor: 'orange',
+              items: [
+                { id: generateBlockId(), icon: '💡', title: '項目1', description: '説明文を入力' }
+              ]
+            }
+          };
+        case 'case_study_cards':
+          return {
+            id: generateBlockId(),
+            type: 'case_study_cards',
+            data: {
+              title: '事例紹介',
+              items: [
+                { id: generateBlockId(), imageUrl: '', category: 'カテゴリー', categoryColor: 'cyan', title: '事例タイトル', description: '説明文を入力' }
+              ]
+            }
+          };
+        case 'bonus_section':
+          return {
+            id: generateBlockId(),
+            type: 'bonus_section',
+            data: {
+              title: '特典のご案内',
+              subtitle: '',
+              backgroundGradient: 'linear-gradient(to right, #10b981, #3b82f6)',
+              items: [
+                { id: generateBlockId(), icon: '✓', title: '特典1', description: '説明文を入力' }
+              ],
+              qrImageUrl: '',
+              qrText: '',
+              ctaText: '',
+              ctaUrl: ''
+            }
+          };
+        case 'checklist_section':
+          return {
+            id: generateBlockId(),
+            type: 'checklist_section',
+            data: {
+              title: 'チェックリスト',
+              backgroundColor: '',
+              items: [
+                { id: generateBlockId(), icon: '✓', title: '項目1', description: '' }
+              ],
+              columns: 1
+            }
+          };
+        case 'google_map':
+          return {
+            id: generateBlockId(),
+            type: 'google_map',
+            data: {
+              address: '',
+              placeId: '',
+              lat: undefined,
+              lng: undefined,
+              zoom: 15,
+              mapType: 'roadmap',
+              title: 'アクセス',
+              description: '',
+              showDirections: true
+            }
+          };
         default:
           return {
             id: generateBlockId(),
@@ -576,6 +680,64 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     }));
   };
 
+  // 配列アイテムの追加（items配列を持つブロック用）
+  const addItemToBlock = (blockId: string) => {
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId) {
+        const newItem = { id: generateBlockId() };
+        
+        if (block.type === 'problem_cards') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '😰', title: '新しい問題', description: '説明文', borderColor: 'blue' }] }};
+        } else if (block.type === 'dark_section') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '💡', title: '新しい項目', description: '説明文' }] }};
+        } else if (block.type === 'case_study_cards') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, imageUrl: '', category: 'カテゴリー', categoryColor: 'cyan', title: '新しい事例', description: '説明文' }] }};
+        } else if (block.type === 'bonus_section') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい特典', description: '説明文' }] }};
+        } else if (block.type === 'checklist_section') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい項目', description: '' }] }};
+        } else if (block.type === 'features') {
+          return { ...block, data: { ...block.data, items: [...block.data.items, { ...newItem, icon: '✓', title: '新しい特徴', description: '説明文' }] }};
+        }
+      }
+      return block;
+    }));
+  };
+
+  // 配列アイテムの削除（items配列を持つブロック用）
+  const removeItemFromBlock = (blockId: string, itemIndex: number) => {
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId && 'items' in block.data && Array.isArray(block.data.items)) {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            items: block.data.items.filter((_, i) => i !== itemIndex)
+          }
+        };
+      }
+      return block;
+    }));
+  };
+
+  // 配列アイテムの更新（items配列を持つブロック用）
+  const updateItemInBlock = (blockId: string, itemIndex: number, updates: any) => {
+    setBlocks(prev => prev.map(block => {
+      if (block.id === blockId && 'items' in block.data && Array.isArray(block.data.items)) {
+        return {
+          ...block,
+          data: {
+            ...block.data,
+            items: block.data.items.map((item, i) => 
+              i === itemIndex ? { ...item, ...updates } : item
+            )
+          }
+        };
+      }
+      return block;
+    }));
+  };
+
   // 画像アップロード（ブロック用）
   const handleImageUpload = async (blockId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -640,67 +802,6 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     });
   };
 
-  // 画像自動選定
-  const handleAutoSelectImage = async (blockId: string, field: string, searchQuery: string) => {
-    setSearchingImages(true);
-    setImagePickerContext({ blockId, field, searchQuery });
-    
-    try {
-      const response = await fetch('/api/search-images', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchQuery })
-      });
-      
-      if (!response.ok) {
-        throw new Error('画像検索に失敗しました');
-      }
-      
-      const data = await response.json();
-      
-      if (data.images && data.images.length > 0) {
-        setImageResults(data.images);
-        setShowImagePicker(true);
-      } else {
-        alert('画像が見つかりませんでした');
-      }
-    } catch (error: any) {
-      console.error('画像検索エラー:', error);
-      alert('画像の検索に失敗しました: ' + error.message);
-    } finally {
-      setSearchingImages(false);
-    }
-  };
-
-  // 画像選択の適用
-  const applySelectedImage = (imageUrl: string) => {
-    if (!imagePickerContext) return;
-    
-    const { blockId, field } = imagePickerContext;
-    const block = blocks.find(b => b.id === blockId);
-    
-    if (!block) return;
-    
-    // ブロックタイプに応じて更新
-    if (block.type === 'header' && field === 'avatar') {
-      updateBlock(blockId, { avatar: imageUrl });
-    } else if (block.type === 'kindle' && field === 'imageUrl') {
-      updateBlock(blockId, { imageUrl });
-    } else if (block.type === 'line_card' && field === 'qrImageUrl') {
-      updateBlock(blockId, { qrImageUrl: imageUrl });
-    } else if (block.type === 'testimonial' && field.startsWith('item-')) {
-      // お客様の声の画像
-      const itemIndex = parseInt(field.split('-')[1]);
-      const newItems = [...(block.data.items || [])];
-      if (newItems[itemIndex]) {
-        newItems[itemIndex] = { ...newItems[itemIndex], imageUrl };
-        updateBlock(blockId, { items: newItems });
-      }
-    }
-    
-    setShowImagePicker(false);
-    setImagePickerContext(null);
-  };
 
   // ランダム画像選択（モーダルなし）
   const handleRandomImage = (blockId: string, field: string) => {
@@ -738,6 +839,29 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       }
     } else if (block.type === 'image' && field === 'url') {
       updateBlock(blockId, { url: selected });
+    } else if (block.type === 'hero_fullwidth') {
+      if (field === 'backgroundImage') {
+        updateBlock(blockId, { backgroundImage: selected });
+      } else if (field === 'imageUrl') {
+        updateBlock(blockId, { imageUrl: selected });
+      }
+    } else if (block.type === 'two_column' && field === 'imageUrl') {
+      updateBlock(blockId, { imageUrl: selected });
+    } else if (block.type === 'case_study_cards' && field.startsWith('item-')) {
+      const itemIndex = parseInt(field.split('-')[1]);
+      const newItems = [...(block.data.items || [])];
+      if (newItems[itemIndex]) {
+        newItems[itemIndex] = { ...newItems[itemIndex], imageUrl: selected };
+        updateBlock(blockId, { items: newItems });
+      }
+    } else if (block.type === 'hero') {
+      if (field === 'imageUrl') {
+        updateBlock(blockId, { imageUrl: selected });
+      } else if (field === 'backgroundImage') {
+        updateBlock(blockId, { backgroundImage: selected });
+      }
+    } else if (block.type === 'bonus_section' && field === 'qrImageUrl') {
+      updateBlock(blockId, { qrImageUrl: selected });
     }
   };
 
@@ -1667,12 +1791,24 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
               rows={3}
               ph="キャッチコピーを補足する説明文"
             />
-            <Input 
-              label="ヒーロー画像URL（書籍カバーなど）" 
-              val={block.data.imageUrl || ''} 
-              onChange={v => updateBlock(block.id, { imageUrl: v })} 
-              ph="https://..." 
-            />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">ヒーロー画像URL（書籍カバーなど）</label>
+              <div className="flex gap-2">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.imageUrl || ''} 
+                  onChange={e => updateBlock(block.id, { imageUrl: e.target.value })} 
+                  placeholder="https://..." 
+                />
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'imageUrl')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
+              </div>
+            </div>
             <Input 
               label="CTAボタンテキスト" 
               val={block.data.ctaText || ''} 
@@ -1685,19 +1821,49 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
               onChange={v => updateBlock(block.id, { ctaUrl: v })} 
               ph="https://..." 
             />
-            <Input 
-              label="背景画像URL（オプション）" 
-              val={block.data.backgroundImage || ''} 
-              onChange={v => updateBlock(block.id, { backgroundImage: v })} 
-              ph="https://..." 
-            />
-            <Textarea 
-              label="背景色/グラデーション" 
-              val={block.data.backgroundColor || ''} 
-              onChange={v => updateBlock(block.id, { backgroundColor: v })} 
-              rows={2}
-              ph="例: linear-gradient(-45deg, #1e293b, #334155)"
-            />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景画像URL（オプション）</label>
+              <div className="flex gap-2">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.backgroundImage || ''} 
+                  onChange={e => updateBlock(block.id, { backgroundImage: e.target.value })} 
+                  placeholder="https://..." 
+                />
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'backgroundImage')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景色/グラデーション</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {backgroundPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => updateBlock(block.id, { backgroundColor: preset.value })}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border-2 text-white ${
+                      block.data.backgroundColor === preset.value
+                        ? 'ring-2 ring-indigo-300 shadow-md'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{ background: preset.value }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <input 
+                className="w-full border border-gray-300 p-3 rounded-lg text-black focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400 text-sm"
+                value={block.data.backgroundColor || ''} 
+                onChange={e => updateBlock(block.id, { backgroundColor: e.target.value })} 
+                placeholder="カスタム: linear-gradient(-45deg, #1e293b, #334155)"
+              />
+            </div>
           </div>
         );
 
@@ -1811,13 +1977,31 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
               onChange={v => updateBlock(block.id, { buttonUrl: v })} 
               ph="https://..." 
             />
-            <Textarea 
-              label="背景グラデーション" 
-              val={block.data.backgroundGradient || ''} 
-              onChange={v => updateBlock(block.id, { backgroundGradient: v })} 
-              rows={2}
-              ph="例: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-            />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景グラデーション</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {backgroundPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => updateBlock(block.id, { backgroundGradient: preset.value })}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border-2 text-white ${
+                      block.data.backgroundGradient === preset.value
+                        ? 'ring-2 ring-indigo-300 shadow-md'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{ background: preset.value }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <input 
+                className="w-full border border-gray-300 p-3 rounded-lg text-black focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400 text-sm"
+                value={block.data.backgroundGradient || ''} 
+                onChange={e => updateBlock(block.id, { backgroundGradient: e.target.value })} 
+                placeholder="カスタム: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+              />
+            </div>
           </div>
         );
 
@@ -1835,12 +2019,24 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 <option value="image-right">テキスト左 / 画像右</option>
               </select>
             </div>
-            <Input 
-              label="画像URL" 
-              val={block.data.imageUrl || ''} 
-              onChange={v => updateBlock(block.id, { imageUrl: v })} 
-              ph="https://..." 
-            />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">画像URL</label>
+              <div className="flex gap-2">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.imageUrl || ''} 
+                  onChange={e => updateBlock(block.id, { imageUrl: e.target.value })} 
+                  placeholder="https://..." 
+                />
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'imageUrl')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
+              </div>
+            </div>
             <Input 
               label="タイトル" 
               val={block.data.title || ''} 
@@ -1892,6 +2088,406 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
           </div>
         );
 
+      case 'hero_fullwidth':
+        return (
+          <div className="space-y-4">
+            <Input label="ヘッドライン" val={block.data.headline || ''} onChange={v => updateBlock(block.id, { headline: v })} ph="あなたのキャッチコピーをここに" />
+            <Input label="サブヘッドライン" val={block.data.subheadline || ''} onChange={v => updateBlock(block.id, { subheadline: v })} ph="サブテキストを入力してください" />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">画像URL</label>
+              <div className="flex gap-2">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.imageUrl || ''} 
+                  onChange={e => updateBlock(block.id, { imageUrl: e.target.value })} 
+                  placeholder="https://..." 
+                />
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'imageUrl')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景画像URL</label>
+              <div className="flex gap-2">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.backgroundImage || ''} 
+                  onChange={e => updateBlock(block.id, { backgroundImage: e.target.value })} 
+                  placeholder="https://..." 
+                />
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'backgroundImage')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景色</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {backgroundPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => updateBlock(block.id, { backgroundColor: preset.value })}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border-2 text-white ${
+                      block.data.backgroundColor === preset.value
+                        ? 'ring-2 ring-indigo-300 shadow-md'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{ background: preset.value }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <input 
+                className="w-full border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                value={block.data.backgroundColor || ''} 
+                onChange={e => updateBlock(block.id, { backgroundColor: e.target.value })} 
+                placeholder="カスタム: linear-gradient(...)"
+              />
+            </div>
+            <Input label="CTAボタンテキスト" val={block.data.ctaText || ''} onChange={v => updateBlock(block.id, { ctaText: v })} ph="今すぐ始める" />
+            <Input label="CTAボタンURL" val={block.data.ctaUrl || ''} onChange={v => updateBlock(block.id, { ctaUrl: v })} ph="https://..." />
+          </div>
+        );
+
+      case 'problem_cards':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="こんな気まずい瞬間、ありませんか？" />
+            <Input label="サブタイトル" val={block.data.subtitle || ''} onChange={v => updateBlock(block.id, { subtitle: v })} ph="その悩み、あなただけではありません。" />
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">問題カード</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">カード {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（絵文字）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded mb-2 text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                  <select className="w-full border p-2 rounded text-sm" value={item.borderColor || 'blue'} onChange={e => updateItemInBlock(block.id, idx, { borderColor: e.target.value })}>
+                    <option value="blue">青</option>
+                    <option value="red">赤</option>
+                    <option value="green">緑</option>
+                    <option value="orange">オレンジ</option>
+                    <option value="purple">紫</option>
+                  </select>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'dark_section':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="セクションタイトル" />
+            <Input label="サブタイトル" val={block.data.subtitle || ''} onChange={v => updateBlock(block.id, { subtitle: v })} ph="サブタイトル" />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景色</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {backgroundPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => updateBlock(block.id, { backgroundColor: preset.value })}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border-2 text-white ${
+                      block.data.backgroundColor === preset.value
+                        ? 'ring-2 ring-indigo-300 shadow-md'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{ background: preset.value }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <input 
+                className="w-full border border-gray-300 p-3 rounded-lg text-black focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400 text-sm"
+                value={block.data.backgroundColor || ''} 
+                onChange={e => updateBlock(block.id, { backgroundColor: e.target.value })} 
+                placeholder="カスタム: #1e293b または gray-800"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">アクセントカラー</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {backgroundPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => updateBlock(block.id, { accentColor: preset.value })}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border-2 text-white ${
+                      block.data.accentColor === preset.value
+                        ? 'ring-2 ring-indigo-300 shadow-md'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{ background: preset.value }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <input 
+                className="w-full border border-gray-300 p-3 rounded-lg text-black focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400 text-sm"
+                value={block.data.accentColor || ''} 
+                onChange={e => updateBlock(block.id, { accentColor: e.target.value })} 
+                placeholder="カスタム: #f97316 または orange"
+              />
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">項目</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">項目 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（絵文字）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'case_study_cards':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="事例紹介" />
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">事例カード</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">事例 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <div className="mb-2">
+                    <div className="flex gap-2">
+                      <input className="flex-1 border p-2 rounded text-sm" placeholder="画像URL" value={item.imageUrl || ''} onChange={e => updateItemInBlock(block.id, idx, { imageUrl: e.target.value })} />
+                      <button 
+                        onClick={() => handleRandomImage(block.id, `item-${idx}`)}
+                        className="bg-purple-50 border border-purple-200 text-purple-700 px-3 py-2 rounded font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap text-xs transition-all"
+                      >
+                        <Sparkles size={14}/>
+                        <span>自動</span>
+                      </button>
+                    </div>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="カテゴリー" value={item.category || ''} onChange={e => updateItemInBlock(block.id, idx, { category: e.target.value })} />
+                  <select className="w-full border p-2 rounded mb-2 text-sm" value={item.categoryColor || 'cyan'} onChange={e => updateItemInBlock(block.id, idx, { categoryColor: e.target.value })}>
+                    <option value="pink">ピンク</option>
+                    <option value="cyan">シアン</option>
+                    <option value="green">緑</option>
+                    <option value="orange">オレンジ</option>
+                    <option value="purple">紫</option>
+                  </select>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'bonus_section':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="特典のご案内" />
+            <Input label="サブタイトル" val={block.data.subtitle || ''} onChange={v => updateBlock(block.id, { subtitle: v })} ph="サブタイトル" />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景グラデーション</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {backgroundPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => updateBlock(block.id, { backgroundGradient: preset.value })}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border-2 text-white ${
+                      block.data.backgroundGradient === preset.value
+                        ? 'ring-2 ring-indigo-300 shadow-md'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{ background: preset.value }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <input 
+                className="w-full border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                value={block.data.backgroundGradient || ''} 
+                onChange={e => updateBlock(block.id, { backgroundGradient: e.target.value })} 
+                placeholder="カスタム: linear-gradient(to right, #10b981, #3b82f6)"
+              />
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">特典項目</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">特典 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（✓など）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">QRコード画像URL</label>
+              <div className="flex gap-2">
+                <input 
+                  className="flex-1 border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                  value={block.data.qrImageUrl || ''} 
+                  onChange={e => updateBlock(block.id, { qrImageUrl: e.target.value })} 
+                  placeholder="https://..." 
+                />
+                <button 
+                  onClick={() => handleRandomImage(block.id, 'qrImageUrl')}
+                  className="bg-purple-50 border border-purple-200 text-purple-700 px-4 py-3 rounded-lg font-bold hover:bg-purple-100 flex items-center justify-center gap-1 whitespace-nowrap shrink-0 transition-all"
+                >
+                  <Sparkles size={16}/>
+                  <span>自動</span>
+                </button>
+              </div>
+            </div>
+            <Input label="QRコードテキスト" val={block.data.qrText || ''} onChange={v => updateBlock(block.id, { qrText: v })} ph="スマホで読み取ってください" />
+            <Input label="CTAボタンテキスト" val={block.data.ctaText || ''} onChange={v => updateBlock(block.id, { ctaText: v })} ph="今すぐ受け取る" />
+            <Input label="CTAボタンURL" val={block.data.ctaUrl || ''} onChange={v => updateBlock(block.id, { ctaUrl: v })} ph="https://..." />
+          </div>
+        );
+
+      case 'checklist_section':
+        return (
+          <div className="space-y-4">
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="チェックリスト" />
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">背景色</label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {backgroundPresets.map(preset => (
+                  <button
+                    key={preset.id}
+                    onClick={() => updateBlock(block.id, { backgroundColor: preset.value })}
+                    className={`px-4 py-2 rounded-lg font-bold text-sm transition-all border-2 text-white ${
+                      block.data.backgroundColor === preset.value
+                        ? 'ring-2 ring-indigo-300 shadow-md'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                    style={{ background: preset.value }}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+              <input 
+                className="w-full border border-gray-300 p-3 rounded-lg text-black font-bold focus:ring-2 focus:ring-indigo-500 outline-none bg-white placeholder-gray-400"
+                value={block.data.backgroundColor || ''} 
+                onChange={e => updateBlock(block.id, { backgroundColor: e.target.value })} 
+                placeholder="カスタム: rgba(255, 255, 255, 0.95) または #ffffff"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">カラム数</label>
+              <select className="w-full border p-3 rounded-lg" value={block.data.columns || 1} onChange={e => updateBlock(block.id, { columns: Number(e.target.value) })}>
+                <option value={1}>1カラム</option>
+                <option value={2}>2カラム</option>
+              </select>
+            </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-sm font-bold text-gray-900">チェック項目</label>
+                <button onClick={() => addItemToBlock(block.id)} className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600">
+                  <Plus size={14} className="inline mr-1"/> 追加
+                </button>
+              </div>
+              {block.data.items.map((item: any, idx: number) => (
+                <div key={item.id} className="border rounded-lg p-3 mb-2 bg-gray-50">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs font-bold text-gray-600">項目 {idx + 1}</span>
+                    <button onClick={() => removeItemFromBlock(block.id, idx)} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={14}/>
+                    </button>
+                  </div>
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="アイコン（✓など）" value={item.icon || ''} onChange={e => updateItemInBlock(block.id, idx, { icon: e.target.value })} />
+                  <input className="w-full border p-2 rounded mb-2 text-sm" placeholder="タイトル" value={item.title || ''} onChange={e => updateItemInBlock(block.id, idx, { title: e.target.value })} />
+                  <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文（オプション）" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case 'google_map':
+        return (
+          <div className="space-y-4">
+            <Input label="住所" val={block.data.address || ''} onChange={v => updateBlock(block.id, { address: v })} ph="東京都渋谷区..." />
+            <Input label="Google Place ID（オプション）" val={block.data.placeId || ''} onChange={v => updateBlock(block.id, { placeId: v })} ph="ChIJ..." />
+            <div className="grid grid-cols-2 gap-2">
+              <Input label="緯度" val={block.data.lat?.toString() || ''} onChange={v => updateBlock(block.id, { lat: v ? parseFloat(v) : undefined })} ph="35.6762" type="number" />
+              <Input label="経度" val={block.data.lng?.toString() || ''} onChange={v => updateBlock(block.id, { lng: v ? parseFloat(v) : undefined })} ph="139.6503" type="number" />
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">ズームレベル (1-20)</label>
+              <input type="range" min="1" max="20" value={block.data.zoom || 15} onChange={e => updateBlock(block.id, { zoom: parseInt(e.target.value) })} className="w-full" />
+              <span className="text-sm text-gray-600">{block.data.zoom || 15}</span>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-gray-900 block mb-2">マップタイプ</label>
+              <select className="w-full border p-3 rounded-lg" value={block.data.mapType || 'roadmap'} onChange={e => updateBlock(block.id, { mapType: e.target.value })}>
+                <option value="roadmap">標準地図</option>
+                <option value="satellite">航空写真</option>
+                <option value="hybrid">ハイブリッド</option>
+                <option value="terrain">地形</option>
+              </select>
+            </div>
+            <Input label="タイトル" val={block.data.title || ''} onChange={v => updateBlock(block.id, { title: v })} ph="アクセス" />
+            <Input label="説明文" val={block.data.description || ''} onChange={v => updateBlock(block.id, { description: v })} ph="JR渋谷駅から徒歩5分" />
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id={`showDir-${block.id}`} checked={block.data.showDirections || false} onChange={e => updateBlock(block.id, { showDirections: e.target.checked })} />
+              <label htmlFor={`showDir-${block.id}`} className="text-sm font-bold text-gray-900">経路案内ボタンを表示</label>
+            </div>
+          </div>
+        );
+
       default:
         return null;
     }
@@ -1907,58 +2503,6 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
 
   return (
     <div className={`bg-gray-100 flex font-sans text-gray-900 ${isMobile && showPreview ? 'flex-col h-screen' : 'min-h-screen flex-col lg:flex-row'}`}>
-      {/* 画像選択モーダル */}
-      {showImagePicker && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4" onClick={() => setShowImagePicker(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <ImageIcon size={20} className="text-indigo-600"/> 画像を選択
-              </h3>
-              <button onClick={() => setShowImagePicker(false)} className="p-2 hover:bg-gray-100 rounded-full">
-                <X size={20}/>
-              </button>
-            </div>
-            
-            <div className="p-6">
-              <p className="text-sm text-gray-600 mb-4">
-                「{imagePickerContext?.searchQuery || '検索中'}」に関連する画像
-              </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {imageResults.map((img) => (
-                  <div 
-                    key={img.id} 
-                    className="relative group cursor-pointer overflow-hidden rounded-lg border-2 border-gray-200 hover:border-indigo-500 transition-all"
-                    onClick={() => applySelectedImage(img.urls.regular)}
-                  >
-                    <img 
-                      src={img.urls.small || img.urls.regular} 
-                      alt={img.alt_description} 
-                      className="w-full h-40 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
-                      <button className="opacity-0 group-hover:opacity-100 bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm transition-all transform scale-90 group-hover:scale-100">
-                        選択
-                      </button>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                      <p className="text-white text-xs truncate">
-                        Photo by {img.user.name}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {imageResults.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                  画像が見つかりませんでした
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* 左側: 編集エリア */}
       <div className={`flex-1 overflow-y-auto transition-all ${showPreview && !isMobile ? 'lg:w-1/2' : 'w-full'} ${isMobile && showPreview ? 'flex-shrink-0' : ''}`}>
         {/* 未ログインユーザー向けバナー */}
@@ -2279,6 +2823,27 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             <button onClick={() => addBlock('two_column')} className="bg-gradient-to-r from-green-500 to-teal-500 text-white border-0 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:from-green-600 hover:to-teal-600 flex items-center gap-1 md:gap-2">
               <ImageIcon2 size={14} className="md:w-4 md:h-4"/> <span>2カラム</span>
             </button>
+            <button onClick={() => addBlock('hero_fullwidth')} className="bg-purple-50 border border-purple-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-purple-100 flex items-center gap-1 md:gap-2">
+              <Star size={14} className="md:w-4 md:h-4 text-purple-600"/> <span>ヒーロー（フル幅）</span>
+            </button>
+            <button onClick={() => addBlock('problem_cards')} className="bg-blue-50 border border-blue-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-blue-100 flex items-center gap-1 md:gap-2">
+              <AlertCircle size={14} className="md:w-4 md:h-4 text-blue-600"/> <span>問題提起カード</span>
+            </button>
+            <button onClick={() => addBlock('dark_section')} className="bg-gray-700 border border-gray-600 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-600 flex items-center gap-1 md:gap-2 text-white">
+              <Layers size={14} className="md:w-4 md:h-4"/> <span>ダークセクション</span>
+            </button>
+            <button onClick={() => addBlock('case_study_cards')} className="bg-cyan-50 border border-cyan-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-cyan-100 flex items-center gap-1 md:gap-2">
+              <Briefcase size={14} className="md:w-4 md:h-4 text-cyan-600"/> <span>事例紹介カード</span>
+            </button>
+            <button onClick={() => addBlock('bonus_section')} className="bg-green-50 border border-green-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-green-100 flex items-center gap-1 md:gap-2">
+              <Gift size={14} className="md:w-4 md:h-4 text-green-600"/> <span>特典セクション</span>
+            </button>
+            <button onClick={() => addBlock('checklist_section')} className="bg-blue-50 border border-blue-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-blue-100 flex items-center gap-1 md:gap-2">
+              <CheckSquare size={14} className="md:w-4 md:h-4 text-blue-600"/> <span>チェックリスト</span>
+            </button>
+            <button onClick={() => addBlock('google_map')} className="bg-red-50 border border-red-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-red-100 flex items-center gap-1 md:gap-2">
+              <MapPin size={14} className="md:w-4 md:h-4 text-red-600"/> <span>Googleマップ</span>
+            </button>
           </div>
         </div>
 
@@ -2319,6 +2884,13 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                         {block.type === 'features' && '特徴・ベネフィット'}
                         {block.type === 'cta_section' && 'CTAセクション'}
                         {block.type === 'two_column' && '2カラムレイアウト'}
+                        {block.type === 'hero_fullwidth' && 'ヒーロー（フル幅）'}
+                        {block.type === 'problem_cards' && '問題提起カード'}
+                        {block.type === 'dark_section' && 'ダークセクション'}
+                        {block.type === 'case_study_cards' && '事例紹介カード'}
+                        {block.type === 'bonus_section' && '特典セクション'}
+                        {block.type === 'checklist_section' && 'チェックリスト'}
+                        {block.type === 'google_map' && 'Googleマップ'}
                       </span>
                     </button>
                   </div>
