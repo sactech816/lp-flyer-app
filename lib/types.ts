@@ -138,6 +138,100 @@ export type TwoColumnBlockData = {
   listItems?: string[]; // リストアイテム（オプション）
 };
 
+// フルワイドヒーローセクションブロックデータ
+export type HeroFullwidthBlockData = {
+  headline: string; // メインキャッチコピー
+  subheadline: string; // サブテキスト
+  imageUrl?: string; // ヒーロー画像URL（書籍カバーなど）
+  ctaText?: string; // CTAボタンテキスト
+  ctaUrl?: string; // CTAボタンURL
+  backgroundImage?: string; // 背景画像URL（100%幅）
+  backgroundColor?: string; // 背景色（グラデーション含む）
+};
+
+// 問題提起カードブロックデータ
+export type ProblemCardsBlockData = {
+  title?: string; // セクションタイトル
+  subtitle?: string; // サブタイトル
+  items: {
+    id: string;
+    icon?: string; // アイコン（絵文字）
+    title: string; // カードタイトル
+    description: string; // 説明文
+    borderColor?: string; // 左ボーダー色（例: 'blue', 'red'）
+  }[];
+};
+
+// ダークセクションブロックデータ
+export type DarkSectionBlockData = {
+  title: string; // セクションタイトル
+  subtitle?: string; // サブタイトル
+  backgroundColor?: 'gray-800' | 'gray-900' | 'black'; // 背景色
+  accentColor?: 'orange' | 'blue' | 'purple' | 'green'; // アクセントカラー
+  items: {
+    id: string;
+    title: string;
+    description: string;
+    icon?: string; // アイコン（絵文字）
+  }[];
+};
+
+// 事例紹介カードブロックデータ
+export type CaseStudyCardsBlockData = {
+  title?: string; // セクションタイトル
+  items: {
+    id: string;
+    imageUrl: string; // 事例画像
+    category: string; // カテゴリー（タグ）
+    categoryColor?: 'pink' | 'cyan' | 'green' | 'orange' | 'purple'; // タグ色
+    title: string; // 事例タイトル
+    description: string; // 説明文
+  }[];
+};
+
+// 特典セクションブロックデータ
+export type BonusSectionBlockData = {
+  title: string; // セクションタイトル
+  subtitle?: string; // サブタイトル
+  backgroundGradient?: string; // 背景グラデーション
+  items: {
+    id: string;
+    icon?: string; // アイコン（✓など）
+    title: string;
+    description: string;
+  }[];
+  qrImageUrl?: string; // QRコード画像URL
+  qrText?: string; // QRコード説明文
+  ctaText?: string; // CTAボタンテキスト
+  ctaUrl?: string; // CTAボタンURL
+};
+
+// チェックリストセクションブロックデータ
+export type ChecklistSectionBlockData = {
+  title?: string; // セクションタイトル
+  backgroundColor?: string; // 背景色
+  items: {
+    id: string;
+    icon?: string; // Font Awesomeアイコンクラス or 絵文字
+    title: string;
+    description?: string;
+  }[];
+  columns?: 1 | 2; // カラム数
+};
+
+// Googleマップブロックデータ
+export type GoogleMapBlockData = {
+  address?: string; // 住所
+  placeId?: string; // Google Place ID
+  lat?: number; // 緯度
+  lng?: number; // 経度
+  zoom?: number; // ズームレベル（デフォルト: 15）
+  mapType?: 'roadmap' | 'satellite' | 'hybrid' | 'terrain'; // マップタイプ
+  title?: string; // セクションタイトル（例: "アクセス"）
+  description?: string; // 説明文（例: "JR渋谷駅から徒歩5分"）
+  showDirections?: boolean; // 経路案内リンク表示
+};
+
 // ブロックの型定義（Union型）
 export type Block = 
   | { id: string; type: 'header'; data: HeaderBlockData }
@@ -155,7 +249,14 @@ export type Block =
   | { id: string; type: 'hero'; data: HeroBlockData }
   | { id: string; type: 'features'; data: FeaturesBlockData }
   | { id: string; type: 'cta_section'; data: CTASectionBlockData }
-  | { id: string; type: 'two_column'; data: TwoColumnBlockData };
+  | { id: string; type: 'two_column'; data: TwoColumnBlockData }
+  | { id: string; type: 'hero_fullwidth'; data: HeroFullwidthBlockData }
+  | { id: string; type: 'problem_cards'; data: ProblemCardsBlockData }
+  | { id: string; type: 'dark_section'; data: DarkSectionBlockData }
+  | { id: string; type: 'case_study_cards'; data: CaseStudyCardsBlockData }
+  | { id: string; type: 'bonus_section'; data: BonusSectionBlockData }
+  | { id: string; type: 'checklist_section'; data: ChecklistSectionBlockData }
+  | { id: string; type: 'google_map'; data: GoogleMapBlockData };
 
 // プロフィール設定の型定義
 export type ProfileSettings = {

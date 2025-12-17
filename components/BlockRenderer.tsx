@@ -290,6 +290,27 @@ export function BlockRenderer({ block, profileId, contentType = 'profile' }: { b
     case 'two_column':
       return <TwoColumnBlock block={block} />;
 
+    case 'google_map':
+      return <GoogleMapBlock block={block} />;
+
+    case 'hero_fullwidth':
+      return <HeroFullwidthBlock block={block} profileId={profileId} />;
+
+    case 'problem_cards':
+      return <ProblemCardsBlock block={block} />;
+
+    case 'dark_section':
+      return <DarkSectionBlock block={block} />;
+
+    case 'case_study_cards':
+      return <CaseStudyCardsBlock block={block} />;
+
+    case 'bonus_section':
+      return <BonusSectionBlock block={block} profileId={profileId} />;
+
+    case 'checklist_section':
+      return <ChecklistSectionBlock block={block} />;
+
     default:
       return null;
   }
@@ -847,6 +868,434 @@ function TwoColumnBlock({ block }: { block: Extract<Block, { type: 'two_column' 
               </ul>
             )}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Googleマップブロックコンポーネント
+function GoogleMapBlock({ block }: { block: Extract<Block, { type: 'google_map' }> }) {
+  // マップURLを生成
+  const getMapUrl = () => {
+    if (block.data.address) {
+      // 住所ベースの埋め込み（APIキー不要）
+      return `https://maps.google.com/maps?q=${encodeURIComponent(block.data.address)}&output=embed&z=${block.data.zoom || 15}`;
+    } else if (block.data.lat && block.data.lng) {
+      // 緯度経度ベースの埋め込み
+      return `https://maps.google.com/maps?q=${block.data.lat},${block.data.lng}&output=embed&z=${block.data.zoom || 15}`;
+    }
+    // デフォルト: 東京駅
+    return 'https://maps.google.com/maps?q=東京駅&output=embed&z=15';
+  };
+
+  const getDirectionsUrl = () => {
+    if (block.data.address) {
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(block.data.address)}`;
+    } else if (block.data.lat && block.data.lng) {
+      return `https://www.google.com/maps/dir/?api=1&destination=${block.data.lat},${block.data.lng}`;
+    }
+    return '#';
+  };
+
+  return (
+    <section className="animate-fade-in">
+      <div className="glass-card rounded-2xl p-4 md:p-6 shadow-lg">
+        {(block.data.title || block.data.description) && (
+          <div className="mb-4 md:mb-6 text-center">
+            {block.data.title && (
+              <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                {block.data.title}
+              </h3>
+            )}
+            {block.data.description && (
+              <p className="text-sm md:text-base text-gray-600">
+                {block.data.description}
+              </p>
+            )}
+          </div>
+        )}
+        
+        {/* レスポンシブマップコンテナ */}
+        <div className="relative w-full rounded-xl overflow-hidden shadow-md" style={{ paddingBottom: '56.25%' }}>
+          <iframe
+            src={getMapUrl()}
+            className="absolute top-0 left-0 w-full h-full"
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title={block.data.title || 'Google Map'}
+          />
+        </div>
+
+        {/* 経路案内ボタン */}
+        {block.data.showDirections && (
+          <div className="mt-4 text-center">
+            <a
+              href={getDirectionsUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm md:text-base px-4 md:px-6 py-2 md:py-3 rounded-lg shadow-lg transition-all transform hover:scale-105 min-h-[44px]"
+            >
+              <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+              経路案内
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// フルワイドヒーローセクションブロックコンポーネント
+function HeroFullwidthBlock({ block, profileId }: { block: Extract<Block, { type: 'hero_fullwidth' }>; profileId?: string }) {
+  const handleCtaClick = async () => {
+    if (profileId && profileId !== 'demo' && block.data.ctaUrl) {
+      try {
+        await saveAnalytics(profileId, 'click', { url: block.data.ctaUrl });
+      } catch (error) {
+        console.error('[HeroFullwidthClick] Tracking exception:', error);
+      }
+    }
+  };
+
+  const backgroundStyle: React.CSSProperties = {};
+  if (block.data.backgroundImage) {
+    backgroundStyle.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${block.data.backgroundImage})`;
+    backgroundStyle.backgroundSize = 'cover';
+    backgroundStyle.backgroundPosition = 'center';
+  } else if (block.data.backgroundColor) {
+    backgroundStyle.background = block.data.backgroundColor;
+  } else {
+    backgroundStyle.background = 'linear-gradient(-45deg, #1e293b, #334155, #475569, #334155)';
+  }
+
+  return (
+    <section className="animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6">
+      <div className="relative py-16 md:py-24 lg:py-32 px-4 md:px-6" style={backgroundStyle}>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 md:mb-6 drop-shadow-lg px-2 leading-tight">
+            {block.data.headline || 'あなたのキャッチコピーをここに'}
+          </h2>
+          <p className="text-lg md:text-xl lg:text-2xl text-white mb-6 md:mb-8 drop-shadow-md px-2">
+            {block.data.subheadline || 'サブテキストを入力してください'}
+          </p>
+          
+          {block.data.imageUrl && (
+            <div className="flex justify-center mb-6 md:mb-8">
+              <img 
+                src={block.data.imageUrl} 
+                alt="Hero" 
+                className="rounded-lg shadow-2xl w-48 md:w-64 lg:w-80 object-cover"
+                style={{ filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.25))' }}
+              />
+            </div>
+          )}
+
+          {block.data.ctaText && block.data.ctaUrl && (
+            <a
+              href={block.data.ctaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleCtaClick}
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-base md:text-lg lg:text-xl py-3 px-6 md:py-4 md:px-8 rounded-full shadow-lg transition-all transform hover:scale-105 min-h-[44px]"
+            >
+              {block.data.ctaText}
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// 問題提起カードブロックコンポーネント
+function ProblemCardsBlock({ block }: { block: Extract<Block, { type: 'problem_cards' }> }) {
+  if (!block.data.items || block.data.items.length === 0) {
+    return null;
+  }
+
+  const getBorderColor = (color?: string) => {
+    switch (color) {
+      case 'red': return 'border-red-500';
+      case 'blue': return 'border-blue-500';
+      case 'green': return 'border-green-500';
+      case 'orange': return 'border-orange-500';
+      case 'purple': return 'border-purple-500';
+      default: return 'border-blue-500';
+    }
+  };
+
+  return (
+    <section className="animate-fade-in">
+      <div className="space-y-4 md:space-y-6">
+        {block.data.title && (
+          <div className="text-center mb-4 md:mb-6">
+            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+              {block.data.title}
+            </h3>
+            {block.data.subtitle && (
+              <p className="text-sm md:text-base text-gray-600">
+                {block.data.subtitle}
+              </p>
+            )}
+          </div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+          {block.data.items.map((item) => (
+            <div 
+              key={item.id} 
+              className={`glass-card rounded-2xl p-4 md:p-6 lg:p-8 shadow-lg border-l-4 ${getBorderColor(item.borderColor)}`}
+            >
+              {item.icon && (
+                <div className="text-2xl md:text-3xl mb-2 md:mb-3">
+                  {item.icon}
+                </div>
+              )}
+              <h4 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
+                {item.title}
+              </h4>
+              <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ダークセクションブロックコンポーネント
+function DarkSectionBlock({ block }: { block: Extract<Block, { type: 'dark_section' }> }) {
+  if (!block.data.items || block.data.items.length === 0) {
+    return null;
+  }
+
+  const bgColor = block.data.backgroundColor === 'black' ? 'bg-black' : 
+                  block.data.backgroundColor === 'gray-900' ? 'bg-gray-900' : 'bg-gray-800';
+  
+  const getAccentColor = (color?: string) => {
+    switch (color) {
+      case 'orange': return 'text-orange-400';
+      case 'blue': return 'text-blue-400';
+      case 'purple': return 'text-purple-400';
+      case 'green': return 'text-green-400';
+      default: return 'text-orange-400';
+    }
+  };
+
+  const accentClass = getAccentColor(block.data.accentColor);
+
+  return (
+    <section className={`animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6 ${bgColor} text-white`}>
+      <div className="py-12 md:py-16 lg:py-20 px-4 md:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 md:mb-12">
+            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">
+              {block.data.title}
+            </h3>
+            {block.data.subtitle && (
+              <p className="text-base md:text-lg text-gray-300 max-w-3xl mx-auto">
+                {block.data.subtitle}
+              </p>
+            )}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+            {block.data.items.map((item) => (
+              <div key={item.id} className="bg-gray-700 p-4 md:p-6 rounded-xl">
+                {item.icon && (
+                  <div className="text-2xl md:text-3xl mb-2 md:mb-3">
+                    {item.icon}
+                  </div>
+                )}
+                <h4 className={`text-lg md:text-xl font-bold ${accentClass} mb-2`}>
+                  {item.title}
+                </h4>
+                <p className="text-sm md:text-base text-gray-300 leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// 事例紹介カードブロックコンポーネント
+function CaseStudyCardsBlock({ block }: { block: Extract<Block, { type: 'case_study_cards' }> }) {
+  if (!block.data.items || block.data.items.length === 0) {
+    return null;
+  }
+
+  const getCategoryColor = (color?: string) => {
+    switch (color) {
+      case 'pink': return 'text-pink-600';
+      case 'cyan': return 'text-cyan-600';
+      case 'green': return 'text-green-600';
+      case 'orange': return 'text-orange-600';
+      case 'purple': return 'text-purple-600';
+      default: return 'text-blue-600';
+    }
+  };
+
+  return (
+    <section className="animate-fade-in">
+      <div className="space-y-4 md:space-y-6">
+        {block.data.title && (
+          <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 text-center mb-6 md:mb-8">
+            {block.data.title}
+          </h3>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+          {block.data.items.map((item) => (
+            <div 
+              key={item.id} 
+              className="glass-card rounded-2xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300"
+            >
+              <img 
+                src={item.imageUrl} 
+                alt={item.title}
+                className="w-full h-40 md:h-48 object-cover"
+              />
+              <div className="p-4 md:p-6">
+                <span className={`text-xs md:text-sm ${getCategoryColor(item.categoryColor)} font-bold`}>
+                  {item.category}
+                </span>
+                <h4 className="text-lg md:text-xl font-bold text-gray-900 my-2">
+                  {item.title}
+                </h4>
+                <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// 特典セクションブロックコンポーネント
+function BonusSectionBlock({ block, profileId }: { block: Extract<Block, { type: 'bonus_section' }>; profileId?: string }) {
+  const handleCtaClick = async () => {
+    if (profileId && profileId !== 'demo' && block.data.ctaUrl) {
+      try {
+        await saveAnalytics(profileId, 'click', { url: block.data.ctaUrl });
+      } catch (error) {
+        console.error('[BonusClick] Tracking exception:', error);
+      }
+    }
+  };
+
+  const backgroundStyle: React.CSSProperties = {};
+  if (block.data.backgroundGradient) {
+    backgroundStyle.background = block.data.backgroundGradient;
+  } else {
+    backgroundStyle.background = 'linear-gradient(to right, #10b981, #3b82f6)';
+  }
+
+  return (
+    <section className="animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6">
+      <div className="py-12 md:py-16 px-4 md:px-6 text-center" style={backgroundStyle}>
+        <div className="max-w-4xl mx-auto">
+          <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
+            {block.data.title}
+          </h3>
+          {block.data.subtitle && (
+            <p className="text-base md:text-lg text-white/90 mb-6 md:mb-8 max-w-2xl mx-auto">
+              {block.data.subtitle}
+            </p>
+          )}
+          
+          <div className="bg-white/95 text-gray-800 p-6 md:p-8 rounded-2xl shadow-lg text-left max-w-2xl mx-auto">
+            <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
+              {block.data.items.map((item) => (
+                <li key={item.id} className="flex items-start gap-3">
+                  <span className="text-green-500 text-xl md:text-2xl flex-shrink-0 mt-1">
+                    {item.icon || '✓'}
+                  </span>
+                  <div className="flex-1">
+                    <h5 className="font-bold text-base md:text-lg mb-1">{item.title}</h5>
+                    <p className="text-sm md:text-base text-gray-600">{item.description}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            {block.data.qrImageUrl && (
+              <div className="text-center mb-4 md:mb-6">
+                <img 
+                  src={block.data.qrImageUrl} 
+                  alt="QRコード" 
+                  className="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-lg border-4 border-white shadow-lg"
+                />
+                {block.data.qrText && (
+                  <p className="text-xs md:text-sm text-gray-600 mt-2">{block.data.qrText}</p>
+                )}
+              </div>
+            )}
+
+            {block.data.ctaText && block.data.ctaUrl && (
+              <div className="text-center">
+                <a
+                  href={block.data.ctaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleCtaClick}
+                  className="inline-block bg-green-500 hover:bg-green-600 text-white font-bold text-sm md:text-base py-3 px-6 md:px-8 rounded-full shadow-lg transition-all transform hover:scale-105 min-h-[44px]"
+                >
+                  {block.data.ctaText}
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// チェックリストセクションブロックコンポーネント
+function ChecklistSectionBlock({ block }: { block: Extract<Block, { type: 'checklist_section' }> }) {
+  if (!block.data.items || block.data.items.length === 0) {
+    return null;
+  }
+
+  const columns = block.data.columns === 1 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2';
+
+  return (
+    <section className="animate-fade-in">
+      <div className="glass-card rounded-2xl p-4 md:p-6 lg:p-8 shadow-lg" style={{ backgroundColor: block.data.backgroundColor || 'rgba(255, 255, 255, 0.95)' }}>
+        {block.data.title && (
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 text-center mb-6 md:mb-8">
+            {block.data.title}
+          </h3>
+        )}
+        <div className={`grid ${columns} gap-3 md:gap-4`}>
+          {block.data.items.map((item) => (
+            <div key={item.id} className="flex items-start gap-3 md:gap-4 bg-gray-50 p-3 md:p-4 rounded-lg">
+              <span className="text-blue-500 text-xl md:text-2xl flex-shrink-0 mt-1">
+                {item.icon || '✓'}
+              </span>
+              <div className="flex-1 min-w-0">
+                <h5 className="font-bold text-sm md:text-base text-gray-900 mb-1">
+                  {item.title}
+                </h5>
+                {item.description && (
+                  <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
+                    {item.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
