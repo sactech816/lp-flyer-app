@@ -2427,7 +2427,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             </div>
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">カラム数</label>
-              <select className="w-full border p-3 rounded-lg" value={block.data.columns || 1} onChange={e => updateBlock(block.id, { columns: Number(e.target.value) })}>
+              <select className="w-full border p-3 rounded-lg" value={block.data.columns || 1} onChange={e => updateBlock(block.id, { columns: Number(e.target.value) as 1 | 2 })}>
                 <option value={1}>1カラム</option>
                 <option value={2}>2カラム</option>
               </select>
@@ -2472,7 +2472,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             </div>
             <div>
               <label className="text-sm font-bold text-gray-900 block mb-2">マップタイプ</label>
-              <select className="w-full border p-3 rounded-lg" value={block.data.mapType || 'roadmap'} onChange={e => updateBlock(block.id, { mapType: e.target.value })}>
+              <select className="w-full border p-3 rounded-lg" value={block.data.mapType || 'roadmap'} onChange={e => updateBlock(block.id, { mapType: e.target.value as 'roadmap' | 'satellite' | 'hybrid' | 'terrain' })}>
                 <option value="roadmap">標準地図</option>
                 <option value="satellite">航空写真</option>
                 <option value="hybrid">ハイブリッド</option>

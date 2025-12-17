@@ -166,8 +166,8 @@ export type ProblemCardsBlockData = {
 export type DarkSectionBlockData = {
   title: string; // セクションタイトル
   subtitle?: string; // サブタイトル
-  backgroundColor?: 'gray-800' | 'gray-900' | 'black'; // 背景色
-  accentColor?: 'orange' | 'blue' | 'purple' | 'green'; // アクセントカラー
+  backgroundColor?: string; // 背景色（グラデーション、HEXコード、CSSカラー名など）
+  accentColor?: string; // アクセントカラー（グラデーション、HEXコード、CSSカラー名など）
   items: {
     id: string;
     title: string;
