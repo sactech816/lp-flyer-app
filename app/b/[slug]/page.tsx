@@ -5,6 +5,7 @@ import { Block, migrateOldContent } from '@/lib/types';
 import { BlockRenderer } from '@/components/BlockRenderer';
 import { ProfileViewTracker } from '@/components/ProfileViewTracker';
 import { TrackingScripts } from '@/components/TrackingScripts';
+import { ScrollToTopButton } from '@/components/ScrollToTopButton';
 import Link from 'next/link';
 
 interface BusinessProject {
@@ -350,7 +351,7 @@ export default async function BusinessLPPage({
   
   return (
     <>
-      <ProfileViewTracker profileId={project.id} contentType="business" />
+      <ProfileViewTracker profileId={project.slug} contentType="business" />
       <TrackingScripts settings={project.settings} />
       
       {/* サンプルビジネスLP選択バー */}
@@ -420,7 +421,7 @@ export default async function BusinessLPPage({
                     : 'container mx-auto max-w-full sm:max-w-2xl lg:max-w-4xl px-3 sm:px-4 md:px-6 lg:px-8'
                 } ${index > 0 ? `delay-${Math.min(index, 10)}` : ''}`}
               >
-                <BlockRenderer block={block} profileId={project.id} contentType="business" />
+                <BlockRenderer block={block} profileId={project.slug} contentType="business" />
               </div>
             );
           })}
@@ -444,6 +445,9 @@ export default async function BusinessLPPage({
           ビジネスLP・チラシを簡単作成
         </p>
       </footer>
+
+      {/* スクロールトップボタン */}
+      <ScrollToTopButton />
     </>
   );
 }

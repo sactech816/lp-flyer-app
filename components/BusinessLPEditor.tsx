@@ -7,7 +7,7 @@ import {
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
     ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
     HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter,
-    AlertCircle, Layers, Briefcase, Gift, CheckSquare, MapPin
+    AlertCircle, Layers, Briefcase, Gift, CheckSquare, MapPin, ArrowUp
 } from 'lucide-react';
 import { generateSlug, validateNickname, isAdmin as checkIsAdmin } from '../lib/utils';
 import { supabase } from '../lib/supabase';
@@ -110,6 +110,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
   const [nickname, setNickname] = useState<string>('');
   const [originalNickname, setOriginalNickname] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const uploadOwnerId = user?.id || 'public';
 
   // 共通アップロード関数（RLS回避のためサーバールート経由）
@@ -153,6 +154,23 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       setIsAdmin(checkIsAdmin(user.id));
     }
   }, [user]);
+
+  // スクロールトップボタンの表示制御
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // ページトップにスクロール
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // デフォルトのプロフィールコンテンツ
   const getDefaultContent = (): Block[] => [
@@ -982,11 +1000,12 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const slug = savedSlug || generateSlug();
+      // 既存のslugを優先し、新規の場合のみ新しいslugを生成
+      const slugToUse = savedSlug || generateSlug();
       const headerBlock = blocks.find(b => b.type === 'header');
       const name = headerBlock?.type === 'header' ? headerBlock.data.name : 'ビジネスLP';
 
-      console.log('[BusinessLPEditor] 保存開始:', { slug, hasBlocks: blocks.length > 0 });
+      console.log('[BusinessLPEditor] 保存開始:', { slugToUse, savedSlug, hasBlocks: blocks.length > 0, blocksCount: blocks.length });
 
       // themeをsettingsに含める
       const settingsWithTheme = {
@@ -997,23 +1016,15 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       // ログインユーザーの場合のみuser_idを設定、未ログインの場合はnullにする
       const userId = user?.id || null;
 
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:855',message:'BEFORE saveBusinessProject call',data:{userId,hasUser:!!user,userEmail:user?.email,slug},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,D'})}).catch(()=>{});
-      // #endregion
-
       // Server Action経由で保存
       const result = await saveBusinessProject({
-        slug,
+        slug: slugToUse,
         nickname: null, // ビジネスLPではニックネームは使用しない
         content: blocks,
         settings: settingsWithTheme,
         userId,
         featuredOnTop
       });
-      
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:870',message:'AFTER saveBusinessProject call',data:{hasError:!!result.error,errorMsg:result.error,hasData:!!result.data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
 
       console.log('[BusinessLPEditor] 保存結果:', result);
 
@@ -1021,22 +1032,25 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
         throw new Error(result.error);
       }
       
+      // 保存成功後、返されたslugを確実に状態に反映
+      const confirmedSlug = result.data?.slug || slugToUse;
+      
       // アナリティクスを再取得（slugベースで検索）
-      if (result.data?.slug) {
-        const analyticsData = await getBusinessAnalytics(result.data.slug);
+      if (confirmedSlug) {
+        const analyticsData = await getBusinessAnalytics(confirmedSlug);
         setAnalytics(analyticsData);
       }
       
       // slugを保存してから成功モーダルを表示
-      console.log('[BusinessLPEditor] slugを設定:', slug);
-      setSavedSlug(slug);
+      console.log('[BusinessLPEditor] slugを設定:', confirmedSlug);
+      setSavedSlug(confirmedSlug);
       
       // 成功モーダルにslugを直接設定（状態更新のタイミング問題を回避）
       console.log('[BusinessLPEditor] 成功モーダルを表示');
-      setShowSuccessModal(slug);
+      setShowSuccessModal(confirmedSlug);
       
       if (onSave) {
-        onSave({ slug, content: blocks });
+        onSave({ slug: confirmedSlug, content: blocks });
       }
     } catch (error: any) {
       console.error('[BusinessLPEditor] 保存エラー:', error);
@@ -3794,6 +3808,17 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             </div>
           </div>
         </div>
+      )}
+
+      {/* スクロールトップボタン */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-all hover:scale-110 animate-fade-in"
+          title="ページトップへ"
+        >
+          <ArrowUp size={24} />
+        </button>
       )}
     </div>
   );
