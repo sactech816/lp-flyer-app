@@ -398,66 +398,32 @@ export default async function BusinessLPPage({
       
       <div className="w-full">
         <div className="space-y-4 md:space-y-6 lg:space-y-8">
-          {migratedContent.map((block, index) => (
-            <div 
-              key={block.id || index} 
-              className={`${
-                block.type === 'hero_fullwidth' 
-                  ? 'w-full' 
-                  : 'container mx-auto max-w-full sm:max-w-2xl lg:max-w-4xl px-3 sm:px-4 md:px-6 lg:px-8'
-              } ${index > 0 ? `delay-${Math.min(index, 10)}` : ''}`}
-            >
-              <BlockRenderer block={block} profileId={project.id} contentType="business" />
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* チラシ印刷セクション */}
-      <div className="container mx-auto max-w-4xl px-4 md:px-8 pb-8">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-6 md:p-8 border border-white/20">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              チラシを印刷・配布しませんか？
-            </h3>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              このビジネスLPの内容をA4サイズのチラシにまとめました。印刷して配布したり、PDFで保存してデジタル配信も可能です。
-            </p>
-            <Link
-              href={`/b/${slug}/flyer`}
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              チラシを作成・印刷する
-            </Link>
-            <div className="mt-4 flex items-center justify-center gap-6 text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                A4サイズ対応
-              </span>
-              <span className="flex items-center gap-1">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                QRコード付き
-              </span>
-              <span className="flex items-center gap-1">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                PDF保存可能
-              </span>
-            </div>
-          </div>
+          {migratedContent.map((block, index) => {
+            // フル幅判定: hero_fullwidthまたは各ブロックのisFullWidthオプションで判定
+            const isFullWidthBlock = 
+              block.type === 'hero_fullwidth' || 
+              (block.type === 'hero' && block.data.isFullWidth) ||
+              (block.type === 'features' && block.data.isFullWidth) ||
+              (block.type === 'testimonial' && block.data.isFullWidth) ||
+              (block.type === 'problem_cards' && block.data.isFullWidth) ||
+              (block.type === 'cta_section' && block.data.isFullWidth) ||
+              (block.type === 'dark_section' && block.data.isFullWidth) ||
+              (block.type === 'bonus_section' && block.data.isFullWidth) ||
+              (block.type === 'checklist_section' && block.data.isFullWidth);
+            
+            return (
+              <div 
+                key={block.id || index} 
+                className={`${
+                  isFullWidthBlock 
+                    ? 'w-full' 
+                    : 'container mx-auto max-w-full sm:max-w-2xl lg:max-w-4xl px-3 sm:px-4 md:px-6 lg:px-8'
+                } ${index > 0 ? `delay-${Math.min(index, 10)}` : ''}`}
+              >
+                <BlockRenderer block={block} profileId={project.id} contentType="business" />
+              </div>
+            );
+          })}
         </div>
       </div>
       
