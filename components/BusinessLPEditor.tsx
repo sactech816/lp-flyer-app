@@ -6,7 +6,7 @@ import {
     X, Link, UploadCloud, Eye, User, FileText, GripVertical,
     ChevronUp, ChevronDown, Image as ImageIcon, Youtube, MoveUp, MoveDown, Sparkles,
     ChevronRight, Palette, Image as ImageIcon2, BookOpen, Mail, Settings, QrCode, BarChart2,
-    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter, Printer,
+    HelpCircle, DollarSign, MessageSquare, ChevronDown as ChevronDownIcon, Star, Twitter,
     AlertCircle, Layers, Briefcase, Gift, CheckSquare, MapPin
 } from 'lucide-react';
 import { generateSlug, validateNickname, isAdmin as checkIsAdmin } from '../lib/utils';
@@ -331,9 +331,9 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             setOriginalNickname(data.nickname);
           }
           
-          // アナリティクスを取得
-          if (data.id) {
-            const analyticsData = await getBusinessAnalytics(data.id);
+          // アナリティクスを取得（slugベースで検索）
+          if (data.slug) {
+            const analyticsData = await getBusinessAnalytics(data.slug);
             setAnalytics(analyticsData);
           }
         }
@@ -1021,9 +1021,9 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
         throw new Error(result.error);
       }
       
-      // アナリティクスを再取得
-      if (result.data?.id) {
-        const analyticsData = await getBusinessAnalytics(result.data.id);
+      // アナリティクスを再取得（slugベースで検索）
+      if (result.data?.slug) {
+        const analyticsData = await getBusinessAnalytics(result.data.slug);
         setAnalytics(analyticsData);
       }
       
@@ -2080,6 +2080,19 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 placeholder="カスタム: linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
               />
             </div>
+            {/* フル幅オプション */}
+            <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
+              <input
+                type="checkbox"
+                id={`cta-fullwidth-${block.id}`}
+                checked={block.data.isFullWidth || false}
+                onChange={e => updateBlock(block.id, { isFullWidth: e.target.checked })}
+                className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+              />
+              <label htmlFor={`cta-fullwidth-${block.id}`} className="text-sm font-bold text-gray-700 cursor-pointer">
+                フル幅で表示する
+              </label>
+            </div>
           </div>
         );
 
@@ -2362,6 +2375,19 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 </div>
               ))}
             </div>
+            {/* フル幅オプション */}
+            <div className="flex items-center gap-3 p-3 bg-gray-700 rounded-lg border border-gray-600">
+              <input
+                type="checkbox"
+                id={`dark-fullwidth-${block.id}`}
+                checked={block.data.isFullWidth || false}
+                onChange={e => updateBlock(block.id, { isFullWidth: e.target.checked })}
+                className="w-5 h-5 rounded border-gray-400 text-gray-600 focus:ring-gray-500"
+              />
+              <label htmlFor={`dark-fullwidth-${block.id}`} className="text-sm font-bold text-gray-200 cursor-pointer">
+                フル幅で表示する
+              </label>
+            </div>
           </div>
         );
 
@@ -2484,6 +2510,19 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             <Input label="QRコードテキスト" val={block.data.qrText || ''} onChange={v => updateBlock(block.id, { qrText: v })} ph="スマホで読み取ってください" />
             <Input label="CTAボタンテキスト" val={block.data.ctaText || ''} onChange={v => updateBlock(block.id, { ctaText: v })} ph="今すぐ受け取る" />
             <Input label="CTAボタンURL" val={block.data.ctaUrl || ''} onChange={v => updateBlock(block.id, { ctaUrl: v })} ph="https://..." />
+            {/* フル幅オプション */}
+            <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
+              <input
+                type="checkbox"
+                id={`bonus-fullwidth-${block.id}`}
+                checked={block.data.isFullWidth || false}
+                onChange={e => updateBlock(block.id, { isFullWidth: e.target.checked })}
+                className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+              />
+              <label htmlFor={`bonus-fullwidth-${block.id}`} className="text-sm font-bold text-gray-700 cursor-pointer">
+                フル幅で表示する
+              </label>
+            </div>
           </div>
         );
 
@@ -2543,6 +2582,19 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                   <textarea className="w-full border p-2 rounded text-sm" placeholder="説明文（オプション）" value={item.description || ''} onChange={e => updateItemInBlock(block.id, idx, { description: e.target.value })} rows={2}/>
                 </div>
               ))}
+            </div>
+            {/* フル幅オプション */}
+            <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <input
+                type="checkbox"
+                id={`checklist-fullwidth-${block.id}`}
+                checked={block.data.isFullWidth || false}
+                onChange={e => updateBlock(block.id, { isFullWidth: e.target.checked })}
+                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor={`checklist-fullwidth-${block.id}`} className="text-sm font-bold text-gray-700 cursor-pointer">
+                フル幅で表示する
+              </label>
             </div>
           </div>
         );
@@ -2714,14 +2766,6 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                   className="bg-green-50 border border-green-200 text-green-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-green-100 text-xs md:text-sm"
                 >
                   <Share2 size={16}/> <span className="hidden sm:inline">公開URL</span>
-                </button>
-              )}
-              {savedSlug && (
-                <button 
-                  onClick={() => window.open(`/b/${savedSlug}/flyer`, '_blank')} 
-                  className="bg-purple-50 border border-purple-200 text-purple-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-purple-100 text-xs md:text-sm"
-                >
-                  <Printer size={16}/> <span className="hidden sm:inline">チラシ作成</span>
                 </button>
               )}
               <button 
@@ -3129,16 +3173,17 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             <div className="w-full">
               <div className="space-y-4 md:space-y-6 lg:space-y-8">
                 {blocks.map((block, index) => {
-                  // フル幅判定: 従来のフル幅ブロック + 各ブロックのisFullWidthオプション
+                  // フル幅判定: hero_fullwidthまたは各ブロックのisFullWidthオプションで判定
                   const isFullWidthBlock = 
                     block.type === 'hero_fullwidth' || 
-                    block.type === 'cta_section' || 
-                    block.type === 'dark_section' || 
-                    block.type === 'bonus_section' ||
                     (block.type === 'hero' && block.data.isFullWidth) ||
                     (block.type === 'features' && block.data.isFullWidth) ||
                     (block.type === 'testimonial' && block.data.isFullWidth) ||
-                    (block.type === 'problem_cards' && block.data.isFullWidth);
+                    (block.type === 'problem_cards' && block.data.isFullWidth) ||
+                    (block.type === 'cta_section' && block.data.isFullWidth) ||
+                    (block.type === 'dark_section' && block.data.isFullWidth) ||
+                    (block.type === 'bonus_section' && block.data.isFullWidth) ||
+                    (block.type === 'checklist_section' && block.data.isFullWidth);
                   
                   return (
                     <div 
@@ -3641,35 +3686,6 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 </div>
                 <p className="text-[10px] md:text-xs text-gray-500 mt-2 text-center">
                   作成したプロフィールLPをSNSでシェアして、多くの人に見てもらいましょう！
-                </p>
-              </div>
-
-              {/* チラシページへのリンク */}
-              <div className="mb-4 md:mb-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl md:rounded-2xl p-3 md:p-5">
-                <div className="flex items-center gap-2 md:gap-3 mb-3">
-                  <div className="bg-purple-500 text-white rounded-full p-1.5 md:p-2 flex-shrink-0">
-                    <Printer className="w-4 h-4 md:w-5 md:h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-sm md:text-base text-gray-900">
-                      チラシを印刷・配布しませんか？
-                    </h3>
-                    <p className="text-[10px] md:text-xs text-gray-600 mt-0.5">
-                      このビジネスLPをA4サイズのチラシにまとめました
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => {
-                    window.open(`/b/${showSuccessModal}/flyer`, '_blank');
-                  }}
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2.5 md:py-3 rounded-lg md:rounded-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all flex items-center justify-center gap-2 shadow-lg text-xs md:text-sm"
-                >
-                  <Printer className="w-4 h-4 md:w-5 md:h-5" />
-                  <span>チラシページを開く</span>
-                </button>
-                <p className="text-[9px] md:text-xs text-gray-500 text-center mt-2">
-                  印刷またはPDFで保存できます
                 </p>
               </div>
 

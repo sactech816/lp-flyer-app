@@ -6,8 +6,9 @@ import { Block, ProfileSettings } from '@/lib/types';
 import { generateSlug } from '@/lib/utils';
 
 // ビジネスプロジェクトのアナリティクスを保存
+// slugベースで保存（business_projectsのIDはBIGSERIALのため、slugを識別子として使用）
 export async function saveBusinessAnalytics(
-  projectId: string, 
+  slug: string, 
   eventType: 'view' | 'click' | 'scroll' | 'time' | 'read', 
   eventData?: { 
     url?: string; 
@@ -21,18 +22,19 @@ export async function saveBusinessAnalytics(
     return { error: 'Database not available' };
   }
 
-  // UUIDの形式チェック
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(projectId)) {
-    console.error('[Business Analytics] Invalid UUID format:', projectId);
-    return { error: 'Invalid project ID format' };
+  // slugの形式チェック（空文字チェック）
+  if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+    console.error('[Business Analytics] Invalid slug:', slug);
+    return { error: 'Invalid slug format' };
   }
 
   try {
-    console.log('[Business Analytics] Saving:', { projectId, eventType, eventData });
+    console.log('[Business Analytics] Saving:', { slug, eventType, eventData });
     
+    // slugをprofile_idカラムに保存（TEXTとして扱う）
+    // content_type='business'で区別
     const insertData = {
-      profile_id: projectId, // カラム名はprofile_idだが、ビジネスプロジェクトIDを格納
+      profile_id: slug, // slugをprofile_idに格納（ビジネスLPはslugで識別）
       event_type: eventType,
       event_data: eventData || {},
       content_type: 'business', // ビジネスLPのアナリティクスとして記録
@@ -58,20 +60,21 @@ export async function saveBusinessAnalytics(
 }
 
 // ビジネスプロジェクトのアナリティクスを取得
-export async function getBusinessAnalytics(projectId: string) {
+// slugベースで取得（business_projectsのIDはBIGSERIALのため、slugを識別子として使用）
+export async function getBusinessAnalytics(slug: string) {
   if (!supabase) {
     console.error('[Business Analytics] Supabase not available');
     return { views: 0, clicks: 0, avgScrollDepth: 0, avgTimeSpent: 0, readRate: 0, clickRate: 0 };
   }
 
   try {
-    console.log('[Business Analytics] Fetching for project:', projectId);
+    console.log('[Business Analytics] Fetching for slug:', slug);
     
-    // ビジネスLPのアナリティクスのみを取得
+    // slugでビジネスLPのアナリティクスを取得
     const { data: allEvents, error } = await supabase
       .from('analytics')
       .select('*')
-      .eq('profile_id', projectId) // カラム名はprofile_idだが、ビジネスプロジェクトIDで検索
+      .eq('profile_id', slug) // slugをprofile_idカラムで検索
       .eq('content_type', 'business'); // ビジネスLPのデータのみ取得
 
     if (error) {

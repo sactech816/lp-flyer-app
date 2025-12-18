@@ -3,10 +3,25 @@
 import React, { useState, useEffect } from 'react';
 import { Block } from '@/lib/types';
 import { saveAnalytics } from '@/app/actions/analytics';
+import { saveBusinessAnalytics } from '@/app/actions/business';
 import { saveLead } from '@/app/actions/leads';
 import { ChevronDown as ChevronDownIcon, Star } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { supabase } from '@/lib/supabase';
+
+// アナリティクス保存のヘルパー関数（コンテンツタイプに応じて適切な関数を呼び出す）
+async function saveAnalyticsForContentType(
+  contentType: 'profile' | 'business',
+  profileIdOrSlug: string,
+  eventType: 'view' | 'click' | 'scroll' | 'time' | 'read',
+  eventData?: { url?: string; scrollDepth?: number; timeSpent?: number; readPercentage?: number; }
+) {
+  if (contentType === 'business') {
+    return saveBusinessAnalytics(profileIdOrSlug, eventType, eventData);
+  } else {
+    return saveAnalytics(profileIdOrSlug, eventType, eventData);
+  }
+}
 import dynamic from 'next/dynamic';
 
 // QuizPlayerを動的インポート（SSRを無効化、.jsxファイルなので拡張子を指定）
@@ -146,7 +161,7 @@ export function BlockRenderer({ block, profileId, contentType = 'profile' }: { b
               if (profileId && profileId !== 'demo') {
                 console.log('[LinkClick] Tracking click:', link.url);
                 try {
-                  const result = await saveAnalytics(profileId, 'click', { url: link.url });
+                  const result = await saveAnalyticsForContentType(contentType, profileId, 'click', { url: link.url });
                   console.log('[LinkClick] Tracked:', result);
                   if (result.error) {
                     console.error('[LinkClick] Tracking error:', result.error);
@@ -236,7 +251,7 @@ export function BlockRenderer({ block, profileId, contentType = 'profile' }: { b
                     if (profileId && profileId !== 'demo') {
                       console.log('[KindleClick] Tracking click:', amazonUrl);
                       try {
-                        const result = await saveAnalytics(profileId, 'click', { url: amazonUrl });
+                        const result = await saveAnalyticsForContentType(contentType, profileId, 'click', { url: amazonUrl });
                         console.log('[KindleClick] Tracked:', result);
                         if (result.error) {
                           console.error('[KindleClick] Tracking error:', result.error);
@@ -264,7 +279,7 @@ export function BlockRenderer({ block, profileId, contentType = 'profile' }: { b
       return <LeadFormBlock block={block} profileId={profileId} />;
 
     case 'line_card':
-      return <LineCardBlock block={block} profileId={profileId} />;
+      return <LineCardBlock block={block} profileId={profileId} contentType={contentType} />;
 
     case 'faq':
       return <FAQBlock block={block} />;
@@ -279,13 +294,13 @@ export function BlockRenderer({ block, profileId, contentType = 'profile' }: { b
       return <QuizBlock block={block} />;
 
     case 'hero':
-      return <HeroBlock block={block} profileId={profileId} />;
+      return <HeroBlock block={block} profileId={profileId} contentType={contentType} />;
 
     case 'features':
       return <FeaturesBlock block={block} />;
 
     case 'cta_section':
-      return <CTASectionBlock block={block} profileId={profileId} />;
+      return <CTASectionBlock block={block} profileId={profileId} contentType={contentType} />;
 
     case 'two_column':
       return <TwoColumnBlock block={block} />;
@@ -294,7 +309,7 @@ export function BlockRenderer({ block, profileId, contentType = 'profile' }: { b
       return <GoogleMapBlock block={block} />;
 
     case 'hero_fullwidth':
-      return <HeroFullwidthBlock block={block} profileId={profileId} />;
+      return <HeroFullwidthBlock block={block} profileId={profileId} contentType={contentType} />;
 
     case 'problem_cards':
       return <ProblemCardsBlock block={block} />;
@@ -306,7 +321,7 @@ export function BlockRenderer({ block, profileId, contentType = 'profile' }: { b
       return <CaseStudyCardsBlock block={block} />;
 
     case 'bonus_section':
-      return <BonusSectionBlock block={block} profileId={profileId} />;
+      return <BonusSectionBlock block={block} profileId={profileId} contentType={contentType} />;
 
     case 'checklist_section':
       return <ChecklistSectionBlock block={block} />;
@@ -469,12 +484,12 @@ function TestimonialBlock({ block }: { block: Extract<Block, { type: 'testimonia
 }
 
 // LINE登録カードブロックコンポーネント
-function LineCardBlock({ block, profileId }: { block: Extract<Block, { type: 'line_card' }>; profileId?: string }) {
+function LineCardBlock({ block, profileId, contentType = 'profile' }: { block: Extract<Block, { type: 'line_card' }>; profileId?: string; contentType?: 'profile' | 'business' }) {
   const handleClick = async () => {
     if (profileId && profileId !== 'demo') {
       console.log('[LineClick] Tracking click:', block.data.url);
       try {
-        const result = await saveAnalytics(profileId, 'click', { url: block.data.url });
+        const result = await saveAnalyticsForContentType(contentType, profileId, 'click', { url: block.data.url });
         console.log('[LineClick] Tracked:', result);
         if (result.error) {
           console.error('[LineClick] Tracking error:', result.error);
@@ -679,12 +694,12 @@ function QuizBlock({ block }: { block: Extract<Block, { type: 'quiz' }> }) {
 }
 
 // ヒーローセクションブロックコンポーネント
-function HeroBlock({ block, profileId }: { block: Extract<Block, { type: 'hero' }>; profileId?: string }) {
+function HeroBlock({ block, profileId, contentType = 'profile' }: { block: Extract<Block, { type: 'hero' }>; profileId?: string; contentType?: 'profile' | 'business' }) {
   const handleCtaClick = async () => {
     if (profileId && profileId !== 'demo' && block.data.ctaUrl) {
       console.log('[HeroClick] Tracking CTA click:', block.data.ctaUrl);
       try {
-        const result = await saveAnalytics(profileId, 'click', { url: block.data.ctaUrl });
+        const result = await saveAnalyticsForContentType(contentType, profileId, 'click', { url: block.data.ctaUrl });
         console.log('[HeroClick] Tracked:', result);
         if (result.error) {
           console.error('[HeroClick] Tracking error:', result.error);
@@ -812,12 +827,12 @@ function FeaturesBlock({ block }: { block: Extract<Block, { type: 'features' }> 
 }
 
 // CTAセクションブロックコンポーネント
-function CTASectionBlock({ block, profileId }: { block: Extract<Block, { type: 'cta_section' }>; profileId?: string }) {
+function CTASectionBlock({ block, profileId, contentType = 'profile' }: { block: Extract<Block, { type: 'cta_section' }>; profileId?: string; contentType?: 'profile' | 'business' }) {
   const handleClick = async () => {
     if (profileId && profileId !== 'demo' && block.data.buttonUrl) {
       console.log('[CTAClick] Tracking CTA click:', block.data.buttonUrl);
       try {
-        const result = await saveAnalytics(profileId, 'click', { url: block.data.buttonUrl });
+        const result = await saveAnalyticsForContentType(contentType, profileId, 'click', { url: block.data.buttonUrl });
         console.log('[CTAClick] Tracked:', result);
         if (result.error) {
           console.error('[CTAClick] Tracking error:', result.error);
@@ -828,6 +843,8 @@ function CTASectionBlock({ block, profileId }: { block: Extract<Block, { type: '
     }
   };
 
+  const isFullWidth = block.data.isFullWidth || false;
+
   const backgroundStyle: React.CSSProperties = {};
   if (block.data.backgroundGradient) {
     backgroundStyle.background = block.data.backgroundGradient;
@@ -837,9 +854,17 @@ function CTASectionBlock({ block, profileId }: { block: Extract<Block, { type: '
     backgroundStyle.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
   }
 
+  const sectionClass = isFullWidth 
+    ? "animate-fade-in w-full"
+    : "animate-fade-in";
+  
+  const containerClass = isFullWidth
+    ? "py-10 md:py-12 lg:py-16 px-4 md:px-6 text-center"
+    : "py-10 md:py-12 lg:py-16 px-4 md:px-6 text-center rounded-2xl shadow-lg";
+
   return (
-    <section className="animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6">
-      <div className="py-10 md:py-12 lg:py-16 px-4 md:px-6 text-center" style={backgroundStyle}>
+    <section className={sectionClass}>
+      <div className={containerClass} style={backgroundStyle}>
         <div className="max-w-3xl mx-auto">
           <h3 className="text-xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4 px-2">
             {block.data.title || 'CTAタイトル'}
@@ -978,11 +1003,11 @@ function GoogleMapBlock({ block }: { block: Extract<Block, { type: 'google_map' 
 }
 
 // フルワイドヒーローセクションブロックコンポーネント
-function HeroFullwidthBlock({ block, profileId }: { block: Extract<Block, { type: 'hero_fullwidth' }>; profileId?: string }) {
+function HeroFullwidthBlock({ block, profileId, contentType = 'profile' }: { block: Extract<Block, { type: 'hero_fullwidth' }>; profileId?: string; contentType?: 'profile' | 'business' }) {
   const handleCtaClick = async () => {
     if (profileId && profileId !== 'demo' && block.data.ctaUrl) {
       try {
-        await saveAnalytics(profileId, 'click', { url: block.data.ctaUrl });
+        await saveAnalyticsForContentType(contentType, profileId, 'click', { url: block.data.ctaUrl });
       } catch (error) {
         console.error('[HeroFullwidthClick] Tracking exception:', error);
       }
@@ -1102,6 +1127,8 @@ function DarkSectionBlock({ block }: { block: Extract<Block, { type: 'dark_secti
     return null;
   }
 
+  const isFullWidth = block.data.isFullWidth || false;
+
   const bgColor = block.data.backgroundColor === 'black' ? 'bg-black' : 
                   block.data.backgroundColor === 'gray-900' ? 'bg-gray-900' : 'bg-gray-800';
   
@@ -1117,8 +1144,12 @@ function DarkSectionBlock({ block }: { block: Extract<Block, { type: 'dark_secti
 
   const accentClass = getAccentColor(block.data.accentColor);
 
+  const sectionClass = isFullWidth 
+    ? `animate-fade-in w-full ${bgColor} text-white`
+    : `animate-fade-in ${bgColor} text-white rounded-2xl shadow-lg overflow-hidden`;
+
   return (
-    <section className={`animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6 ${bgColor} text-white`}>
+    <section className={sectionClass}>
       <div className="py-12 md:py-16 lg:py-20 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 md:mb-12">
@@ -1210,16 +1241,18 @@ function CaseStudyCardsBlock({ block }: { block: Extract<Block, { type: 'case_st
 }
 
 // 特典セクションブロックコンポーネント
-function BonusSectionBlock({ block, profileId }: { block: Extract<Block, { type: 'bonus_section' }>; profileId?: string }) {
+function BonusSectionBlock({ block, profileId, contentType = 'profile' }: { block: Extract<Block, { type: 'bonus_section' }>; profileId?: string; contentType?: 'profile' | 'business' }) {
   const handleCtaClick = async () => {
     if (profileId && profileId !== 'demo' && block.data.ctaUrl) {
       try {
-        await saveAnalytics(profileId, 'click', { url: block.data.ctaUrl });
+        await saveAnalyticsForContentType(contentType, profileId, 'click', { url: block.data.ctaUrl });
       } catch (error) {
         console.error('[BonusClick] Tracking exception:', error);
       }
     }
   };
+
+  const isFullWidth = block.data.isFullWidth || false;
 
   const backgroundStyle: React.CSSProperties = {};
   if (block.data.backgroundGradient) {
@@ -1228,9 +1261,17 @@ function BonusSectionBlock({ block, profileId }: { block: Extract<Block, { type:
     backgroundStyle.background = 'linear-gradient(to right, #10b981, #3b82f6)';
   }
 
+  const sectionClass = isFullWidth 
+    ? "animate-fade-in w-full"
+    : "animate-fade-in";
+  
+  const containerClass = isFullWidth
+    ? "py-12 md:py-16 px-4 md:px-6 text-center"
+    : "py-12 md:py-16 px-4 md:px-6 text-center rounded-2xl shadow-lg";
+
   return (
-    <section className="animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6">
-      <div className="py-12 md:py-16 px-4 md:px-6 text-center" style={backgroundStyle}>
+    <section className={sectionClass}>
+      <div className={containerClass} style={backgroundStyle}>
         <div className="max-w-4xl mx-auto">
           <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
             {block.data.title}
@@ -1295,17 +1336,26 @@ function ChecklistSectionBlock({ block }: { block: Extract<Block, { type: 'check
     return null;
   }
 
+  const isFullWidth = block.data.isFullWidth || false;
   const columns = block.data.columns === 1 ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2';
 
+  const sectionClass = isFullWidth 
+    ? "animate-fade-in w-full"
+    : "animate-fade-in";
+  
+  const containerClass = isFullWidth
+    ? "p-4 md:p-6 lg:p-8"
+    : "glass-card rounded-2xl p-4 md:p-6 lg:p-8 shadow-lg";
+
   return (
-    <section className="animate-fade-in">
-      <div className="glass-card rounded-2xl p-4 md:p-6 lg:p-8 shadow-lg" style={{ backgroundColor: block.data.backgroundColor || 'rgba(255, 255, 255, 0.95)' }}>
+    <section className={sectionClass}>
+      <div className={containerClass} style={{ backgroundColor: block.data.backgroundColor || 'rgba(255, 255, 255, 0.95)' }}>
         {block.data.title && (
           <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 text-center mb-6 md:mb-8">
             {block.data.title}
           </h3>
         )}
-        <div className={`grid ${columns} gap-3 md:gap-4`}>
+        <div className={`grid ${columns} gap-3 md:gap-4 max-w-4xl mx-auto`}>
           {block.data.items.map((item) => (
             <div key={item.id} className="flex items-start gap-3 md:gap-4 bg-gray-50 p-3 md:p-4 rounded-lg">
               <span className="text-blue-500 text-xl md:text-2xl flex-shrink-0 mt-1">

@@ -130,6 +130,7 @@ export type CTASectionBlockData = {
   buttonUrl: string; // ボタンURL
   backgroundColor?: string; // 背景色
   backgroundGradient?: string; // 背景グラデーション
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 // 2カラムレイアウトブロックデータ
@@ -178,6 +179,7 @@ export type DarkSectionBlockData = {
     description: string;
     icon?: string; // アイコン（絵文字）
   }[];
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 // 事例紹介カードブロックデータ
@@ -208,6 +210,7 @@ export type BonusSectionBlockData = {
   qrText?: string; // QRコード説明文
   ctaText?: string; // CTAボタンテキスト
   ctaUrl?: string; // CTAボタンURL
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 // チェックリストセクションブロックデータ
@@ -221,6 +224,7 @@ export type ChecklistSectionBlockData = {
     description?: string;
   }[];
   columns?: 1 | 2; // カラム数
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 // Googleマップブロックデータ
