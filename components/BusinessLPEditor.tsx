@@ -2625,7 +2625,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 </div>
               )}
             </div>
-            <div className="flex gap-2 flex-wrap md:justify-end">
+            <div className="flex items-center gap-4 flex-wrap">
               {savedSlug && (
                 <>
                   <button 
