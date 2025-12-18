@@ -1089,15 +1089,24 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     }
 
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:1091',message:'Before DELETE',data:{savedSlug,userId:user.id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B,C'})}).catch(()=>{});
+      // #endregion
+
       // Supabaseのbusiness_projectsテーブルから削除
-      const { error } = await supabase
+      const result = await supabase
         .from('business_projects')
         .delete()
         .eq('slug', savedSlug)
-        .eq('user_id', user.id); // 所有者のみ削除可能
+        .eq('user_id', user.id) // 所有者のみ削除可能
+        .select();
 
-      if (error) {
-        throw new Error(error.message);
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:1103',message:'After DELETE',data:{resultData:result.data,resultError:result.error,resultStatus:result.status},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B'})}).catch(()=>{});
+      // #endregion
+
+      if (result.error) {
+        throw new Error(result.error.message);
       }
 
       alert('LPを削除しました');
@@ -1105,6 +1114,9 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       // ダッシュボードにリダイレクト
       window.location.href = '/business/dashboard';
     } catch (error: any) {
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'BusinessLPEditor.tsx:1115',message:'DELETE error caught',data:{errorMessage:error.message,errorName:error.name},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B,C'})}).catch(()=>{});
+      // #endregion
       console.error('削除エラー:', error);
       alert('削除に失敗しました: ' + error.message);
     }
