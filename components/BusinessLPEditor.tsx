@@ -1089,9 +1089,9 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     }
 
     try {
-      // Supabaseのprofilesテーブルから削除
+      // Supabaseのbusiness_projectsテーブルから削除
       const { error } = await supabase
-        .from('profiles')
+        .from('business_projects')
         .delete()
         .eq('slug', savedSlug)
         .eq('user_id', user.id); // 所有者のみ削除可能
@@ -1102,8 +1102,8 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
 
       alert('LPを削除しました');
       
-      // トップページにリダイレクト
-      window.location.href = '/';
+      // ダッシュボードにリダイレクト
+      window.location.href = '/business/dashboard';
     } catch (error: any) {
       console.error('削除エラー:', error);
       alert('削除に失敗しました: ' + error.message);
