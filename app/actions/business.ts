@@ -17,7 +17,17 @@ export async function saveBusinessAnalytics(
     readPercentage?: number;
   }
 ) {
+  // #region agent log
+  const fs = await import('fs');
+  const logEntry = {location:'business.ts:saveBusinessAnalytics:entry',message:'saveBusinessAnalytics called',data:{slug,eventType,eventData,supabaseAvailable:!!supabase},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'};
+  try { fs.appendFileSync('d:\\obsidian\\bussiness-lp-maker\\.cursor\\debug.log', JSON.stringify(logEntry)+'\n'); } catch(e){}
+  // #endregion
+
   if (!supabase) {
+    // #region agent log
+    const logEntry2 = {location:'business.ts:saveBusinessAnalytics:noSupabase',message:'Supabase not available',data:{NEXT_PUBLIC_SUPABASE_URL:process.env.NEXT_PUBLIC_SUPABASE_URL?'set':'not set',NEXT_PUBLIC_SUPABASE_ANON_KEY:process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?'set':'not set'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B'};
+    try { fs.appendFileSync('d:\\obsidian\\bussiness-lp-maker\\.cursor\\debug.log', JSON.stringify(logEntry2)+'\n'); } catch(e){}
+    // #endregion
     console.error('[Business Analytics] Supabase not available');
     return { error: 'Database not available' };
   }
@@ -41,10 +51,20 @@ export async function saveBusinessAnalytics(
       created_at: new Date().toISOString()
     };
     
+    // #region agent log
+    const logEntry3 = {location:'business.ts:saveBusinessAnalytics:beforeInsert',message:'About to insert analytics',data:{insertData},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C'};
+    try { fs.appendFileSync('d:\\obsidian\\bussiness-lp-maker\\.cursor\\debug.log', JSON.stringify(logEntry3)+'\n'); } catch(e){}
+    // #endregion
+    
     const { data, error } = await supabase
       .from('analytics')
       .insert([insertData])
       .select();
+
+    // #region agent log
+    const logEntry4 = {location:'business.ts:saveBusinessAnalytics:afterInsert',message:'Insert result',data:{hasData:!!data,dataLength:data?.length,error:error?{message:error.message,code:error.code,details:error.details,hint:error.hint}:null},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'C,D'};
+    try { fs.appendFileSync('d:\\obsidian\\bussiness-lp-maker\\.cursor\\debug.log', JSON.stringify(logEntry4)+'\n'); } catch(e){}
+    // #endregion
 
     if (error) {
       console.error('[Business Analytics] Save error:', error);
@@ -54,6 +74,10 @@ export async function saveBusinessAnalytics(
     console.log('[Business Analytics] Saved successfully:', data);
     return { success: true, data };
   } catch (error: any) {
+    // #region agent log
+    const logEntry5 = {location:'business.ts:saveBusinessAnalytics:exception',message:'Exception caught',data:{error:String(error),stack:error.stack},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B,C,D'};
+    try { fs.appendFileSync('d:\\obsidian\\bussiness-lp-maker\\.cursor\\debug.log', JSON.stringify(logEntry5)+'\n'); } catch(e){}
+    // #endregion
     console.error('[Business Analytics] Exception:', error);
     return { error: error.message };
   }

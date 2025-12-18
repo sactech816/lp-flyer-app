@@ -9,36 +9,36 @@ import { templates } from '../constants/templates';
 
 const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [publicProfiles, setPublicProfiles] = useState([]);
+  const [publicBusinessProjects, setPublicBusinessProjects] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalProfiles, setTotalProfiles] = useState(0);
-  const profilesPerPage = 6;
+  const [totalProjects, setTotalProjects] = useState(0);
+  const projectsPerPage = 6;
 
   useEffect(() => {
     setIsLoading(false);
-    // 公開されているプロフィールを取得
-    fetchPublicProfiles();
+    // 公開されているビジネスLPを取得
+    fetchPublicBusinessProjects();
   }, [currentPage]);
 
-  const fetchPublicProfiles = async () => {
+  const fetchPublicBusinessProjects = async () => {
     if (!supabase) return;
     try {
-      const from = (currentPage - 1) * profilesPerPage;
-      const to = from + profilesPerPage - 1;
+      const from = (currentPage - 1) * projectsPerPage;
+      const to = from + projectsPerPage - 1;
       
-      // featured_on_topがtrueのプロフィールを取得
+      // featured_on_topがtrueのビジネスLPを取得
       let { data, error, count } = await supabase
-        .from('profiles')
+        .from('business_projects')
         .select('*', { count: 'exact' })
         .eq('featured_on_top', true)
         .order('updated_at', { ascending: false })
         .range(from, to);
       
-      // featured_on_topカラムがない場合は、すべてのプロフィールを取得
+      // featured_on_topカラムがない場合は、すべてのビジネスLPを取得
       if (error && error.message?.includes('column')) {
-        console.log('featured_on_topカラムがないため、すべてのプロフィールを取得します');
+        console.log('featured_on_topカラムがないため、すべてのビジネスLPを取得します');
         const result = await supabase
-          .from('profiles')
+          .from('business_projects')
           .select('*', { count: 'exact' })
           .order('updated_at', { ascending: false })
           .range(from, to);
@@ -48,50 +48,50 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
       }
       
       if (!error && data) {
-        console.log('プロフィールを取得しました:', data.length, '件');
-        setPublicProfiles(data);
-        setTotalProfiles(count || 0);
+        console.log('ビジネスLPを取得しました:', data.length, '件');
+        setPublicBusinessProjects(data);
+        setTotalProjects(count || 0);
       } else if (error) {
-        console.error('プロフィール取得エラー:', error);
+        console.error('ビジネスLP取得エラー:', error);
       }
     } catch (e) {
-      console.error('プロフィール取得エラー:', e);
+      console.error('ビジネスLP取得エラー:', e);
     }
   };
 
-  // プロフィール名を取得
-  const getProfileName = (profile) => {
-    if (!profile.content || !Array.isArray(profile.content)) return '無題のプロフィール';
-    const headerBlock = profile.content.find(b => b.type === 'header');
-    return headerBlock?.data?.name || '無題のプロフィール';
+  // プロジェクト名を取得
+  const getProjectName = (project) => {
+    if (!project.content || !Array.isArray(project.content)) return '無題のビジネスLP';
+    const headerBlock = project.content.find(b => b.type === 'header');
+    return headerBlock?.data?.name || '無題のビジネスLP';
   };
 
-  // プロフィールの説明を取得
-  const getProfileDescription = (profile) => {
-    if (!profile.content || !Array.isArray(profile.content)) return '';
-    const textBlock = profile.content.find(b => b.type === 'text' || b.type === 'text_card');
+  // プロジェクトの説明を取得
+  const getProjectDescription = (project) => {
+    if (!project.content || !Array.isArray(project.content)) return '';
+    const textBlock = project.content.find(b => b.type === 'text' || b.type === 'text_card');
     const description = textBlock?.data?.text || '';
     // 最初の100文字まで表示
     return description.length > 100 ? description.substring(0, 100) + '...' : description;
   };
 
-  // プロフィールのカテゴリーを取得
-  const getProfileCategory = (profile) => {
-    if (!profile.content || !Array.isArray(profile.content)) return null;
-    const headerBlock = profile.content.find(b => b.type === 'header');
+  // プロジェクトのカテゴリーを取得
+  const getProjectCategory = (project) => {
+    if (!project.content || !Array.isArray(project.content)) return null;
+    const headerBlock = project.content.find(b => b.type === 'header');
     return headerBlock?.data?.category || null;
   };
 
-  // プロフィールのアバター画像を取得
-  const getProfileAvatar = (profile) => {
-    if (!profile.content || !Array.isArray(profile.content)) return null;
-    const headerBlock = profile.content.find(b => b.type === 'header');
+  // プロジェクトのアバター画像を取得
+  const getProjectAvatar = (project) => {
+    if (!project.content || !Array.isArray(project.content)) return null;
+    const headerBlock = project.content.find(b => b.type === 'header');
     return headerBlock?.data?.avatar || null;
   };
 
-  // プロフィールのテーマ（背景画像またはグラデーション）を取得
-  const getProfileTheme = (profile) => {
-    const theme = profile.settings?.theme;
+  // プロジェクトのテーマ（背景画像またはグラデーション）を取得
+  const getProjectTheme = (project) => {
+    const theme = project.settings?.theme;
     if (theme?.backgroundImage) {
       return { type: 'image', value: theme.backgroundImage };
     }
@@ -255,15 +255,15 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             実際に作成されたビジネスLPの事例を確認してみましょう
           </p>
           
-          {publicProfiles.length > 0 ? (
+          {publicBusinessProjects.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                {publicProfiles.map((profile) => {
-                const category = getProfileCategory(profile);
+                {publicBusinessProjects.map((project) => {
+                const category = getProjectCategory(project);
                 const categoryInfo = getCategoryInfo(category);
-                const profileName = getProfileName(profile);
-                const description = getProfileDescription(profile);
-                const theme = getProfileTheme(profile);
+                const projectName = getProjectName(project);
+                const description = getProjectDescription(project);
+                const theme = getProjectTheme(project);
                 
                 // 背景スタイルを決定（テーマ > カテゴリー別グラデーション）
                 const getBackgroundStyle = () => {
@@ -294,8 +294,8 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 
                 return (
                   <a
-                    key={profile.id}
-                    href={`/p/${profile.slug}`}
+                    key={project.id}
+                    href={`/b/${project.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="glass-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 cursor-pointer group"
@@ -319,7 +319,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                     <div className="p-4 md:p-6">
                       <div className="flex items-start justify-between mb-2 md:mb-3">
                         <h3 className="text-base md:text-lg font-bold text-gray-900 line-clamp-2 flex-1">
-                          {profileName}
+                          {projectName}
                         </h3>
                         <ExternalLink className="text-indigo-600 flex-shrink-0 ml-2 opacity-0 group-hover:opacity-100 transition-opacity" size={18}/>
                       </div>
@@ -333,7 +333,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                       <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-200">
                         <div className="flex items-center gap-1.5 md:gap-2 text-indigo-600 font-bold text-xs md:text-sm">
                           <Eye size={14} className="md:w-4 md:h-4"/>
-                          プロフィールを見る
+                          LPを見る
                         </div>
                         <ArrowRight className="text-indigo-600 group-hover:translate-x-1 transition-transform" size={18}/>
                       </div>
@@ -344,7 +344,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
             </div>
             
             {/* ページネーション */}
-            {totalProfiles > profilesPerPage && (
+            {totalProjects > projectsPerPage && (
               <div className="mt-8 md:mt-12 flex justify-center items-center gap-1.5 md:gap-2 px-4">
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -359,7 +359,7 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 </button>
                 
                 <div className="flex gap-1.5 md:gap-2">
-                  {Array.from({ length: Math.ceil(totalProfiles / profilesPerPage) }, (_, i) => i + 1).map((page) => (
+                  {Array.from({ length: Math.ceil(totalProjects / projectsPerPage) }, (_, i) => i + 1).map((page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
@@ -375,10 +375,10 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                 </div>
                 
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalProfiles / profilesPerPage), prev + 1))}
-                  disabled={currentPage === Math.ceil(totalProfiles / profilesPerPage)}
+                  onClick={() => setCurrentPage(prev => Math.min(Math.ceil(totalProjects / projectsPerPage), prev + 1))}
+                  disabled={currentPage === Math.ceil(totalProjects / projectsPerPage)}
                   className={`px-3 md:px-4 py-2 rounded-lg font-bold transition-all text-sm md:text-base min-h-[44px] ${
-                    currentPage === Math.ceil(totalProfiles / profilesPerPage)
+                    currentPage === Math.ceil(totalProjects / projectsPerPage)
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'glass-card bg-white/90 hover:bg-white text-indigo-600 shadow-md hover:shadow-lg'
                   }`}
