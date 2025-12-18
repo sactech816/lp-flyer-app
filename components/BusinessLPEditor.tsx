@@ -3760,7 +3760,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                       onClick={() => {
                         if (user) {
                           // ログイン済みの場合はダッシュボードへ
-                          window.location.href = '/dashboard';
+                          window.location.href = '/business/dashboard';
                         } else {
                           // 未ログインの場合はログイン画面を表示
                           setShowSuccessModal(null);
