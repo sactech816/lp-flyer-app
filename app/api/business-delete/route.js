@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
+const ADMIN_EMAIL = "info@kei-sho.co.jp";
+
 // Supabase Adminインスタンスを遅延初期化（ビルド時エラーを防ぐ）
 function getSupabaseAdmin() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -20,7 +22,7 @@ function getSupabaseAdmin() {
 
 export async function POST(request) {
   try {
-    const { id, anonymousId, userId: clientUserId } = await request.json();
+    const { id, anonymousId, userId: clientUserId, isAdmin } = await request.json();
 
     if (!id) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
@@ -32,6 +34,7 @@ export async function POST(request) {
     // 認証トークンを取得
     const authHeader = request.headers.get('authorization');
     let userId = null;
+    let userEmail = null;
 
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '');
@@ -39,6 +42,7 @@ export async function POST(request) {
       
       if (!authError && user) {
         userId = user.id;
+        userEmail = user.email;
       }
     }
     
@@ -46,6 +50,9 @@ export async function POST(request) {
     if (!userId && clientUserId) {
       userId = clientUserId;
     }
+    
+    // 管理者チェック（トークンから取得したメールアドレス、またはクライアントから渡されたisAdminフラグ）
+    const isAdminUser = (userEmail && userEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase()) || isAdmin;
 
     // ビジネスプロジェクトを取得して所有者を確認
     const { data: project, error: fetchError } = await supabase
@@ -59,10 +66,9 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    // 所有者確認（user_idがnullの場合は誰でも削除可能）
-    // また、クライアントから渡されたuserIdとプロジェクトのuser_idが一致する場合も許可
-    if (project.user_id && project.user_id !== userId && !anonymousId) {
-      console.log('Delete permission denied:', { projectUserId: project.user_id, userId, anonymousId });
+    // 所有者確認（管理者は全て削除可能、user_idがnullの場合は誰でも削除可能）
+    if (!isAdminUser && project.user_id && project.user_id !== userId && !anonymousId) {
+      console.log('Delete permission denied:', { projectUserId: project.user_id, userId, anonymousId, isAdminUser });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
