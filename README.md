@@ -1,5 +1,21 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## 📚 ドキュメント
+
+ビジネスLPメーカーの開発ガイドは以下を参照してください：
+
+- **[ドキュメント索引](BUSINESS_LP_DOCS_INDEX.md)** - まずここから開始
+- [統合ガイド](BUSINESS_LP_INTEGRATION_GUIDE.md) - プロジェクト全体の技術ガイド
+- [URLチェックリスト](BUSINESS_LP_URL_CHECKLIST.md) - 実装前後の検証ツール
+- [コード例集](BUSINESS_LP_CODE_EXAMPLES.md) - すぐに使える実装例
+
+### 開発フロー推奨
+1. **実装前**: INTEGRATION_GUIDE.mdの該当セクションを確認
+2. **実装中**: CODE_EXAMPLES.mdを参照
+3. **実装後**: URL_CHECKLIST.mdで検証
+
+---
+
 ## 環境変数の設定
 
 プロジェクトを実行する前に、`.env.local`ファイルをプロジェクトのルートディレクトリに作成し、以下の環境変数を設定してください：

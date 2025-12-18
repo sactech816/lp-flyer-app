@@ -2589,7 +2589,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
 
         {/* ヘッダー */}
         <div className="bg-white border-b px-4 md:px-6 py-3 md:py-4 sticky top-0 z-50 shadow-sm" style={{ top: !user && !hideLoginBanner ? '120px' : '0' }}>
-          <div className="flex flex-col md:flex-row md:justify-between gap-3">
+          <div className="flex flex-col md:flex-row md:justify-between gap-3 items-start md:items-center">
             <div className="flex items-center gap-3 flex-wrap">
               <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full text-gray-700">
                 <ArrowLeft size={20}/>
@@ -2625,7 +2625,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 </div>
               )}
             </div>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap md:justify-end">
               {savedSlug && (
                 <>
                   <button 
