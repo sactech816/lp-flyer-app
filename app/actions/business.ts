@@ -155,6 +155,14 @@ export async function saveBusinessProject({
   }
 
   try {
+    // サーバー側のセッション情報を確認（デバッグ用）
+    const { data: { user: serverUser } } = await serverSupabase.auth.getUser();
+    console.log('[BusinessProject] Server session:', { 
+      serverUserId: serverUser?.id || 'null',
+      clientUserId: userId,
+      match: serverUser?.id === userId
+    });
+
     console.log('[BusinessProject] Saving:', { slug, nickname, userId, blocksCount: content?.length });
 
     // 既存レコードをチェック（maybeSingleで0件の場合もエラーにならない）
@@ -163,14 +171,32 @@ export async function saveBusinessProject({
       .select('id, user_id')
       .eq('slug', slug)
       .maybeSingle();
+    
+    console.log('[BusinessProject] Existing record:', existing);
 
     let data;
     let error;
 
     if (existing) {
-      // 更新の場合: user_idは変更しない（RLSポリシー違反を回避）
-      console.log('[BusinessProject] Updating existing project:', { slug, existingUserId: existing.user_id });
+      // 更新の場合: アプリケーションレベルで権限チェック
+      // （サーバー側でセッションが認識されないためRLSに依存できない）
+      console.log('[BusinessProject] Updating existing project:', { 
+        slug, 
+        existingUserId: existing.user_id,
+        clientUserId: userId 
+      });
       
+      // 権限チェック: 既存レコードのuser_idとクライアントから渡されたuserIdを比較
+      // user_idがnullの場合（匿名作成）は誰でも更新可能
+      if (existing.user_id && existing.user_id !== userId) {
+        console.log('[BusinessProject] Permission denied: user_id mismatch');
+        return { error: '更新権限がありません。このプロジェクトの所有者ではありません。' };
+      }
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:196',message:'Before UPDATE',data:{slug,existingId:existing.id,existingUserId:existing.user_id},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,C'})}).catch(()=>{});
+      // #endregion
+
       const updateResult = await serverSupabase
         .from('business_projects')
         .update({
@@ -181,11 +207,28 @@ export async function saveBusinessProject({
           updated_at: new Date().toISOString()
         })
         .eq('slug', slug)
-        .select()
-        .single();
+        .eq('id', existing.id) // IDでも絞り込み（より安全）
+        .select();
       
-      data = updateResult.data;
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:210',message:'After UPDATE',data:{updateResultData:updateResult.data,updateResultError:updateResult.error,updateResultStatus:updateResult.status,updateResultCount:updateResult.count,dataLength:updateResult.data?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A,B,D'})}).catch(()=>{});
+      // #endregion
+
+      // 配列から最初の要素を取得
+      data = updateResult.data?.[0] || null;
       error = updateResult.error;
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:218',message:'Parsed result',data:{hasData:!!data,hasError:!!error,errorMsg:error?.message},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'B,D'})}).catch(()=>{});
+      // #endregion
+      
+      // 更新が失敗した場合のエラーハンドリング
+      if (!error && !data) {
+        // #region agent log
+        fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:224',message:'No data returned - RLS likely blocked',data:{updateResultFull:JSON.stringify(updateResult)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        error = { message: '更新に失敗しました。' } as any;
+      }
     } else {
       // 新規作成の場合
       console.log('[BusinessProject] Creating new project:', { slug, userId });
@@ -202,10 +245,10 @@ export async function saveBusinessProject({
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .select()
-        .single();
+        .select();
       
-      data = insertResult.data;
+      // 配列から最初の要素を取得
+      data = insertResult.data?.[0] || null;
       error = insertResult.error;
     }
 
