@@ -65,6 +65,8 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
                     <Link href="/announcements" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><Bell size={20}/> お知らせ</Link>
                     <Link href="/profile-howto" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><HelpCircle size={20}/> 使い方</Link>
                     <Link href="/profile-effective" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Lightbulb size={20}/> 効果的な利用方法</Link>
+                    <Link href="/profile-logic" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><TrendingUp size={20}/> 売れるLPの作り方</Link>
+                    <Link href="/profile-faq" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><FileText size={20}/> よくある質問</Link>
                     <Link href="/contact" onClick={()=>setIsMenuOpen(false)} className="flex items-center gap-3 py-3 border-b border-gray-100 text-gray-700 font-bold"><Mail size={20}/> お問い合わせ</Link>
                     
                     <p className="text-xs font-bold text-gray-400 mt-6 mb-2">サポート・規約</p>

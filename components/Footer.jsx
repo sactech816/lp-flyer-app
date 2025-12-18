@@ -50,6 +50,8 @@ const Footer = ({ setPage, onCreate, user, setShowAuth, variant = 'dark' }) => {
                         <li><Link href="/announcements" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ お知らせ</Link></li>
                         <li><Link href="/profile-howto" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ 使い方</Link></li>
                         <li><Link href="/profile-effective" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ 効果的な利用方法</Link></li>
+                        <li><Link href="/profile-logic" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ 売れるLPの作り方</Link></li>
+                        <li><Link href="/profile-faq" className={`${isLight ? 'text-gray-700 hover:text-indigo-600' : 'text-gray-300 hover:text-white'} transition-colors flex items-center gap-2`}>➤ よくある質問</Link></li>
                     </ul>
                 </div>
 

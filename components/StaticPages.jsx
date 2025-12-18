@@ -719,6 +719,77 @@ export const ProfileHowToPage = ({ onBack, setPage, user, onLogout, setShowAuth,
     );
 };
 
+// --- Profile Logic Page (売れるLPの作り方) ---
+export const ProfileLogicPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
+    useEffect(() => { 
+        document.title = "売れるLPの作り方 | LPチラシメーカー（エルチラ）"; 
+        window.scrollTo(0, 0);
+    }, []);
+    
+    const logics = [
+        { icon: Target, title: "1. ターゲットの「悩み」を明確にする", text: "「誰の、どんな課題を解決するか」を最初に決めます。「なんでも対応」ではなく、「起業初期の集客に悩む個人事業主向け」のように具体的に絞ることで、刺さるLPが作れます。" },
+        { icon: Heart, title: "2. ベネフィットを最初に伝える", text: "サービスの特徴ではなく、「お客様が得られる未来」を最初に見せましょう。「Web制作します」より「24時間働く営業マンを手に入れませんか？」の方が心に響きます。" },
+        { icon: Megaphone, title: "3. キャッチコピーで心を掴む", text: "最初の3秒で離脱されるか決まります。「○○で悩んでいませんか？」「たった○日で○○を実現」など、読み手の感情を動かすフレーズを冒頭に置きましょう。" },
+        { icon: Sparkles, title: "4. 実績・お客様の声で信頼を獲得", text: "「○○件の実績」「お客様満足度○%」など、数字で示せる実績は強力です。お客様の声は「Before→After」形式で、具体的な変化を伝えると効果的です。" },
+        { icon: ImageIcon, title: "5. ビジュアルで世界観を作る", text: "プロフィール写真、サービスイメージ、実績写真など、視覚的な要素でブランドイメージを統一しましょう。文字だけのLPより、画像があるLPの方が滞在時間が長くなります。" },
+        { icon: Smartphone, title: "6. スマホファーストで設計する", text: "LPの閲覧の7割以上はスマホからです。長すぎる文章は避け、スクロールしやすいブロック構成を心がけましょう。CTAボタンは親指で押しやすい位置に配置します。" },
+        { icon: Eye, title: "7. CTAは複数回、具体的に配置", text: "「お問い合わせはこちら」ではなく「無料相談を予約する」「LINEで質問する」など、次のアクションが明確なボタンを、ページ内に複数回配置しましょう。" },
+        { icon: TrendingUp, title: "8. 限定性・緊急性を演出する", text: "「先着○名様限定」「○月○日まで」など、今すぐ行動する理由を作りましょう。ただし、嘘の限定性は信頼を損なうので、本当の限定オファーを用意することが大切です。" },
+        { icon: Users, title: "9. FAQ・不安解消セクションを設ける", text: "「料金は？」「どのくらいで効果が出る？」「キャンセルは？」など、見込み客が抱く疑問に先回りして答えましょう。不安を解消することで、問い合わせのハードルが下がります。" }
+    ];
+
+    return (
+        <div className="min-h-screen bg-gray-50 font-sans">
+            <Header setPage={setPage} user={user} onLogout={onLogout} setShowAuth={setShowAuth} isAdmin={isAdmin} />
+            <div className="bg-orange-500 text-white py-16 px-6 text-center">
+                <h1 className="text-3xl font-extrabold mb-4">思わず問い合わせたくなる！<br/><span className="text-yellow-200">「売れるLP」</span>の鉄板ロジック</h1>
+                <p className="text-orange-100 max-w-xl mx-auto">人が動く心理トリガーを押さえた、効果的なビジネスLPの作り方を伝授します。</p>
+            </div>
+            <div className="max-w-4xl mx-auto py-12 px-4 space-y-8">
+                <button onClick={onBack} className="flex items-center gap-1 text-gray-500 font-bold hover:text-orange-600 mb-4"><ArrowLeft size={16}/> 戻る</button>
+                <div className="space-y-6">
+                    {logics.map((logic, i) => (
+                        <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex gap-4">
+                            <div className="flex-shrink-0 bg-orange-100 text-orange-600 p-3 rounded-full h-fit"><logic.icon size={24}/></div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-2">{logic.title}</h3>
+                                <p className="text-sm text-gray-600 leading-relaxed">{logic.text}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="bg-gradient-to-r from-orange-50 to-yellow-50 p-8 rounded-2xl border border-orange-100 mt-8">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
+                        <Sparkles className="text-yellow-500"/> LPチラシメーカーなら簡単に実現
+                    </h3>
+                    <ul className="space-y-3 text-sm text-gray-700">
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>AIアシスタント:</strong> ビジネス内容を入力するだけで、キャッチコピーや説明文を自動生成。</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>ブロック形式:</strong> ヘッダー・テキスト・画像・リンク集をドラッグ&ドロップで自由に配置。</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>即座に公開:</strong> 保存するだけでURLが発行され、すぐにシェア可能。</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <CheckCircle size={20} className="text-green-500 flex-shrink-0 mt-0.5"/>
+                            <span><strong>完全レスポンシブ:</strong> スマホでもPCでも美しく表示されるデザイン。</span>
+                        </li>
+                    </ul>
+                </div>
+                <div className="text-center pt-8">
+                    <button onClick={()=>window.location.href='/business/dashboard/editor/new'} className="bg-orange-500 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-orange-600 transition-all transform hover:scale-105">このロジックでLPを作ってみる</button>
+                </div>
+            </div>
+            <Footer setPage={setPage} onCreate={()=>window.location.href='/business/dashboard/editor/new'} user={user} setShowAuth={setShowAuth} variant="light" />
+        </div>
+    );
+};
+
 // --- Profile FAQ Page ---
 export const ProfileFaqPage = ({ onBack, setPage, user, onLogout, setShowAuth, isAdmin }) => {
     useEffect(() => { 

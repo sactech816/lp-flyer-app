@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Block } from '@/lib/types';
 import { QRCodeSVG } from 'qrcode.react';
+import { AIFlyerGenerator, AIGenerationMode } from './AIFlyerGenerator';
 
 export type FlyerLayout = 'simple' | 'two-column' | 'image-focus';
 export type FlyerColorTheme = 'business' | 'creative' | 'shop' | 'custom';
@@ -19,6 +20,7 @@ interface FlyerRendererProps {
   initialLayout?: FlyerLayout;
   initialColorTheme?: FlyerColorTheme;
   showControls?: boolean;
+  enableAI?: boolean;
 }
 
 // カラーテーマの定義
@@ -64,12 +66,47 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
   initialLayout = 'simple',
   initialColorTheme = 'business',
   showControls = true,
+  enableAI = true,
 }) => {
   const [layout, setLayout] = useState<FlyerLayout>(initialLayout);
   const [colorTheme, setColorTheme] = useState<FlyerColorTheme>(initialColorTheme);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
+  const [aiBackgroundImage, setAiBackgroundImage] = useState<string | null>(null);
+  const [aiFullImage, setAiFullImage] = useState<string | null>(null);
+  const [aiGenerationMode, setAiGenerationMode] = useState<'none' | 'background' | 'full'>('none');
 
   const lpUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/b/${slug}`;
+
+  // AI画像生成完了ハンドラー
+  const handleAIImageGenerated = (imageData: string, mimeType: string, mode: 'background' | 'full') => {
+    const dataUrl = `data:${mimeType};base64,${imageData}`;
+    
+    if (mode === 'full') {
+      // 完全AI生成モード
+      setAiFullImage(dataUrl);
+      setAiBackgroundImage(null);
+      setAiGenerationMode('full');
+    } else {
+      // 背景のみモード
+      setAiBackgroundImage(dataUrl);
+      setAiFullImage(null);
+      setAiGenerationMode('background');
+    }
+  };
+
+  // AI画像エラーハンドラー
+  const handleAIError = (error: string) => {
+    console.error('[FlyerRenderer] AI生成エラー:', error);
+    alert(`AI画像生成エラー: ${error}`);
+  };
+
+  // AI背景をクリア
+  const clearAIBackground = () => {
+    setAiBackgroundImage(null);
+    setAiFullImage(null);
+    setAiGenerationMode('none');
+  };
   const theme = colorThemes[colorTheme];
 
   // ヘッダーブロックを取得
@@ -577,10 +614,127 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
           <p style={{ marginTop: '8px', fontSize: '11px', color: '#6B7280', textAlign: 'center' }} className="md:text-xs">
             ブラウザの印刷機能で「PDFに保存」を選択するか、PDFダウンロードボタンをご利用ください
           </p>
+
+          {/* AI生成ボタン */}
+          {enableAI && (
+            <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #E5E7EB' }}>
+              <button
+                onClick={() => setShowAIPanel(!showAIPanel)}
+                style={{
+                  width: '100%',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: showAIPanel 
+                    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                    : 'linear-gradient(135deg, #667eea33 0%, #764ba233 100%)',
+                  color: showAIPanel ? 'white' : '#667eea',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                {showAIPanel ? 'AI生成パネルを閉じる' : 'AIで背景を生成（Beta）'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      <div className="flyer-container" style={{ ['--theme-primary' as any]: theme.primary }}>
+      {/* AI生成パネル */}
+      {showControls && showAIPanel && enableAI && (
+        <div className="no-print" style={{ maxWidth: '210mm', margin: '0 auto 20px' }}>
+          <AIFlyerGenerator
+            blocks={blocks}
+            slug={slug}
+            theme={colorTheme}
+            onImageGenerated={handleAIImageGenerated}
+            onError={handleAIError}
+          />
+          
+          {/* AI画像がある場合のコントロール */}
+          {(aiBackgroundImage || aiFullImage) && (
+            <div style={{
+              padding: '12px',
+              background: 'white',
+              borderRadius: '8px',
+              marginTop: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <span style={{ fontSize: '14px', color: '#1F2937' }}>
+                  {aiGenerationMode === 'full' ? 'AI生成チラシが表示されています' : 'AI背景が適用されています'}
+                </span>
+                {aiGenerationMode === 'full' && (
+                  <span style={{
+                    background: '#FEF3C7',
+                    color: '#92400E',
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    borderRadius: '4px'
+                  }}>
+                    実験的
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={clearAIBackground}
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #EF4444',
+                  background: 'white',
+                  color: '#EF4444',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}
+              >
+                クリア
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div 
+        className={`flyer-container ${aiBackgroundImage && aiGenerationMode === 'background' ? 'has-ai-background' : ''}`}
+        style={{ 
+          ['--theme-primary' as any]: theme.primary,
+          ...(aiBackgroundImage && aiGenerationMode === 'background' ? {
+            backgroundImage: `url(${aiBackgroundImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+          } : {})
+        }}
+      >
+        {/* AI全体生成モードの場合は画像のみ表示 */}
+        {aiFullImage && aiGenerationMode === 'full' ? (
+          <div style={{ width: '100%', height: '100%' }}>
+            <img 
+              src={aiFullImage} 
+              alt="AI生成チラシ" 
+              style={{ width: '100%', height: 'auto' }}
+            />
+          </div>
+        ) : (
+          <>
         {/* 印刷用スタイル */}
         <style jsx global>{`
         @media print {
@@ -615,7 +769,19 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
             padding: 20mm;
             background: white;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
           }
+        }
+
+        /* AI背景適用時のテキスト可読性向上 */
+        .flyer-container.has-ai-background .flyer-header,
+        .flyer-container.has-ai-background .flyer-section,
+        .flyer-container.has-ai-background .flyer-footer,
+        .flyer-container.has-ai-background .flyer-price-card {
+          background: rgba(255, 255, 255, 0.92);
+          padding: 15px;
+          border-radius: 8px;
+          backdrop-filter: blur(4px);
         }
 
         .flyer-header {
@@ -742,6 +908,8 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
       `}</style>
 
         {renderContent()}
+          </>
+        )}
       </div>
     </>
   );
