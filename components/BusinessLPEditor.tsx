@@ -13,8 +13,7 @@ import { generateSlug, validateNickname, isAdmin as checkIsAdmin } from '../lib/
 import { supabase } from '../lib/supabase';
 import { Block, generateBlockId, migrateOldContent } from '../lib/types';
 import { BlockRenderer } from './BlockRenderer';
-import { getBusinessAnalytics } from '../app/actions/business';
-import { saveBusinessProject } from '../app/actions/business';
+import { getBusinessAnalytics, saveBusinessProject, deleteBusinessProject } from '../app/actions/business';
 import { QRCodeSVG } from 'qrcode.react';
 import { templates, Template } from '../constants/templates';
 
@@ -1089,15 +1088,14 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     }
 
     try {
-      // Supabaseのbusiness_projectsテーブルから削除
-      const { error } = await supabase
-        .from('business_projects')
-        .delete()
-        .eq('slug', savedSlug)
-        .eq('user_id', user.id); // 所有者のみ削除可能
+      // Server Action経由で削除
+      const result = await deleteBusinessProject({
+        slug: savedSlug,
+        userId: user.id
+      });
 
-      if (error) {
-        throw new Error(error.message);
+      if (result.error) {
+        throw new Error(result.error);
       }
 
       alert('LPを削除しました');

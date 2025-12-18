@@ -253,3 +253,58 @@ export async function saveBusinessProject({
     return { error: error.message };
   }
 }
+
+// ビジネスプロジェクトを削除
+export async function deleteBusinessProject({
+  slug,
+  userId
+}: {
+  slug: string;
+  userId: string;
+}) {
+  // Server Actions用のSupabaseクライアントを作成
+  const serverSupabase = await createServerSupabaseClient();
+  
+  if (!serverSupabase) {
+    return { error: 'Database not available' };
+  }
+
+  try {
+    console.log('[BusinessProject] Deleting:', { slug, userId });
+
+    // 既存レコードをチェック
+    const { data: existing } = await serverSupabase
+      .from('business_projects')
+      .select('id, user_id')
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (!existing) {
+      return { error: 'プロジェクトが見つかりません。' };
+    }
+
+    // 権限チェック: 既存レコードのuser_idとクライアントから渡されたuserIdを比較
+    if (existing.user_id && existing.user_id !== userId) {
+      console.log('[BusinessProject] Delete permission denied: user_id mismatch');
+      return { error: '削除権限がありません。このプロジェクトの所有者ではありません。' };
+    }
+
+    // 削除実行
+    const { error } = await serverSupabase
+      .from('business_projects')
+      .delete()
+      .eq('slug', slug)
+      .eq('id', existing.id);
+
+    if (error) {
+      console.error('[BusinessProject] Delete error:', error);
+      return { error: `削除に失敗しました: ${error.message}` };
+    }
+
+    console.log('[BusinessProject] Deleted successfully:', { slug });
+    return { success: true };
+  } catch (error: any) {
+    console.error('[BusinessProject] Delete exception:', error);
+    return { error: error.message };
+  }
+}
