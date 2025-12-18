@@ -155,33 +155,61 @@ export async function saveBusinessProject({
   }
 
   try {
-    console.log('[BusinessProject] Saving with upsert:', { slug, nickname, userId, blocksCount: content?.length });
+    console.log('[BusinessProject] Saving:', { slug, nickname, userId, blocksCount: content?.length });
 
-    // upsertで保存（slugが同じなら更新、なければ挿入）
-    const projectData = {
-      slug,
-      nickname: nickname || null,
-      content,
-      settings,
-      user_id: userId,
-      featured_on_top: featuredOnTop,
-      updated_at: new Date().toISOString()
-    };
-
-    // upsertを使用 - slugをコンフリクトキーとして使用
-    const { data, error } = await serverSupabase
+    // 既存レコードをチェック
+    const { data: existing } = await serverSupabase
       .from('business_projects')
-      .upsert(
-        { ...projectData, created_at: new Date().toISOString() },
-        { 
-          onConflict: 'slug',
-          ignoreDuplicates: false 
-        }
-      )
-      .select()
+      .select('id, user_id')
+      .eq('slug', slug)
       .single();
 
-    console.log('[BusinessProject] Upsert result:', { 
+    let data;
+    let error;
+
+    if (existing) {
+      // 更新の場合: user_idは変更しない（RLSポリシー違反を回避）
+      console.log('[BusinessProject] Updating existing project:', { slug, existingUserId: existing.user_id });
+      
+      const updateResult = await serverSupabase
+        .from('business_projects')
+        .update({
+          nickname: nickname || null,
+          content,
+          settings,
+          featured_on_top: featuredOnTop,
+          updated_at: new Date().toISOString()
+        })
+        .eq('slug', slug)
+        .select()
+        .single();
+      
+      data = updateResult.data;
+      error = updateResult.error;
+    } else {
+      // 新規作成の場合
+      console.log('[BusinessProject] Creating new project:', { slug, userId });
+      
+      const insertResult = await serverSupabase
+        .from('business_projects')
+        .insert({
+          slug,
+          nickname: nickname || null,
+          content,
+          settings,
+          user_id: userId,
+          featured_on_top: featuredOnTop,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+      
+      data = insertResult.data;
+      error = insertResult.error;
+    }
+
+    console.log('[BusinessProject] Save result:', { 
       hasError: !!error, 
       errorMsg: error?.message,
       hasData: !!data,
