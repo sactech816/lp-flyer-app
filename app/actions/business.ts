@@ -157,12 +157,12 @@ export async function saveBusinessProject({
   try {
     console.log('[BusinessProject] Saving:', { slug, nickname, userId, blocksCount: content?.length });
 
-    // 既存レコードをチェック
+    // 既存レコードをチェック（maybeSingleで0件の場合もエラーにならない）
     const { data: existing } = await serverSupabase
       .from('business_projects')
       .select('id, user_id')
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
 
     let data;
     let error;
