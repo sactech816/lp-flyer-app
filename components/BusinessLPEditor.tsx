@@ -2926,128 +2926,103 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
               <Sparkles size={14} className="md:w-4 md:h-4"/> <span>AIで自動生成</span>
             </button>
           </div>
-          {/* ジャンル別ブロック追加メニュー（セールスLP順） */}
-          
-          {/* ファーストビュー */}
-          <div className="mb-4">
-            <label className="text-xs font-bold text-purple-600 block mb-2">ファーストビュー</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('hero')} className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-0 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:from-purple-600 hover:to-indigo-600 flex items-center gap-1 md:gap-2">
-                <Star size={14} className="md:w-4 md:h-4"/> <span>ヒーロー</span>
-              </button>
-            </div>
-          </div>
+          {/* ジャンル別ブロック追加メニュー（セールスLP順）- 横並びコンパクト表示 */}
+          <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
+            {/* ファーストビュー */}
+            <span className="text-xs font-bold text-purple-600 px-1">FV</span>
+            <button onClick={() => addBlock('hero')} className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-0 px-2 py-1.5 rounded-md font-bold text-xs hover:from-purple-600 hover:to-indigo-600 flex items-center gap-1">
+              <Star size={12}/> <span>ヒーロー</span>
+            </button>
+            <span className="text-gray-300 px-1">|</span>
 
-          {/* 問題・共感 */}
-          <div className="mb-4">
-            <label className="text-xs font-bold text-gray-500 block mb-2">問題・共感</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('problem_cards')} className="bg-gray-50 border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-100 flex items-center gap-1 md:gap-2">
-                <AlertCircle size={14} className="md:w-4 md:h-4 text-gray-600"/> <span>問題提起カード</span>
-              </button>
-              <button onClick={() => addBlock('text_card')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <FileText size={14} className="md:w-4 md:h-4"/> <span>テキストカード</span>
-              </button>
-            </div>
-          </div>
+            {/* 問題・共感 */}
+            <span className="text-xs font-bold text-gray-500 px-1">問題</span>
+            <button onClick={() => addBlock('problem_cards')} className="bg-gray-50 border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-100 flex items-center gap-1">
+              <AlertCircle size={12} className="text-gray-600"/> <span>問題提起</span>
+            </button>
+            <button onClick={() => addBlock('text_card')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <FileText size={12}/> <span>テキスト</span>
+            </button>
+            <span className="text-gray-300 px-1">|</span>
 
-          {/* 解決策・ベネフィット */}
-          <div className="mb-4">
-            <label className="text-xs font-bold text-blue-500 block mb-2">解決策・ベネフィット</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('features')} className="bg-blue-50 border border-blue-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-blue-100 flex items-center gap-1 md:gap-2">
-                <ChevronRight size={14} className="md:w-4 md:h-4 text-blue-600"/> <span>特徴・ベネフィット</span>
-              </button>
-              <button onClick={() => addBlock('two_column')} className="bg-blue-50 border border-blue-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-blue-100 flex items-center gap-1 md:gap-2">
-                <ImageIcon2 size={14} className="md:w-4 md:h-4 text-blue-600"/> <span>2カラム</span>
-              </button>
-              <button onClick={() => addBlock('checklist_section')} className="bg-blue-50 border border-blue-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-blue-100 flex items-center gap-1 md:gap-2">
-                <CheckSquare size={14} className="md:w-4 md:h-4 text-blue-600"/> <span>チェックリスト</span>
-              </button>
-            </div>
-          </div>
+            {/* 解決策・ベネフィット */}
+            <span className="text-xs font-bold text-blue-500 px-1">解決</span>
+            <button onClick={() => addBlock('features')} className="bg-blue-50 border border-blue-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-blue-100 flex items-center gap-1">
+              <ChevronRight size={12} className="text-blue-600"/> <span>特徴</span>
+            </button>
+            <button onClick={() => addBlock('two_column')} className="bg-blue-50 border border-blue-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-blue-100 flex items-center gap-1">
+              <ImageIcon2 size={12} className="text-blue-600"/> <span>2カラム</span>
+            </button>
+            <button onClick={() => addBlock('checklist_section')} className="bg-blue-50 border border-blue-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-blue-100 flex items-center gap-1">
+              <CheckSquare size={12} className="text-blue-600"/> <span>チェック</span>
+            </button>
+            <span className="text-gray-300 px-1">|</span>
 
-          {/* 信頼・実績 */}
-          <div className="mb-4">
-            <label className="text-xs font-bold text-green-500 block mb-2">信頼・実績</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('testimonial')} className="bg-green-50 border border-green-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-green-100 flex items-center gap-1 md:gap-2">
-                <MessageSquare size={14} className="md:w-4 md:h-4 text-green-600"/> <span>お客様の声</span>
-              </button>
-              <button onClick={() => addBlock('case_study_cards')} className="bg-green-50 border border-green-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-green-100 flex items-center gap-1 md:gap-2">
-                <Briefcase size={14} className="md:w-4 md:h-4 text-green-600"/> <span>事例紹介カード</span>
-              </button>
-            </div>
-          </div>
+            {/* 信頼・実績 */}
+            <span className="text-xs font-bold text-green-500 px-1">実績</span>
+            <button onClick={() => addBlock('testimonial')} className="bg-green-50 border border-green-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-green-100 flex items-center gap-1">
+              <MessageSquare size={12} className="text-green-600"/> <span>声</span>
+            </button>
+            <button onClick={() => addBlock('case_study_cards')} className="bg-green-50 border border-green-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-green-100 flex items-center gap-1">
+              <Briefcase size={12} className="text-green-600"/> <span>事例</span>
+            </button>
+            <span className="text-gray-300 px-1">|</span>
 
-          {/* 料金・特典 */}
-          <div className="mb-4">
-            <label className="text-xs font-bold text-orange-500 block mb-2">料金・特典</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('pricing')} className="bg-orange-50 border border-orange-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-orange-100 flex items-center gap-1 md:gap-2">
-                <DollarSign size={14} className="md:w-4 md:h-4 text-orange-600"/> <span>料金表</span>
-              </button>
-              <button onClick={() => addBlock('bonus_section')} className="bg-orange-50 border border-orange-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-orange-100 flex items-center gap-1 md:gap-2">
-                <Gift size={14} className="md:w-4 md:h-4 text-orange-600"/> <span>特典セクション</span>
-              </button>
-            </div>
-          </div>
+            {/* 料金・特典 */}
+            <span className="text-xs font-bold text-orange-500 px-1">料金</span>
+            <button onClick={() => addBlock('pricing')} className="bg-orange-50 border border-orange-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-orange-100 flex items-center gap-1">
+              <DollarSign size={12} className="text-orange-600"/> <span>料金表</span>
+            </button>
+            <button onClick={() => addBlock('bonus_section')} className="bg-orange-50 border border-orange-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-orange-100 flex items-center gap-1">
+              <Gift size={12} className="text-orange-600"/> <span>特典</span>
+            </button>
+            <span className="text-gray-300 px-1">|</span>
 
-          {/* FAQ */}
-          <div className="mb-4">
-            <label className="text-xs font-bold text-yellow-600 block mb-2">FAQ</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('faq')} className="bg-yellow-50 border border-yellow-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-yellow-100 flex items-center gap-1 md:gap-2">
-                <HelpCircle size={14} className="md:w-4 md:h-4 text-yellow-600"/> <span>FAQ</span>
-              </button>
-            </div>
-          </div>
+            {/* FAQ */}
+            <button onClick={() => addBlock('faq')} className="bg-yellow-50 border border-yellow-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-yellow-100 flex items-center gap-1">
+              <HelpCircle size={12} className="text-yellow-600"/> <span>FAQ</span>
+            </button>
+            <span className="text-gray-300 px-1">|</span>
 
-          {/* コンバージョン */}
-          <div className="mb-4">
-            <label className="text-xs font-bold text-red-500 block mb-2">コンバージョン</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('cta_section')} className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:from-orange-600 hover:to-red-600 flex items-center gap-1 md:gap-2">
-                <ChevronRight size={14} className="md:w-4 md:h-4"/> <span>CTA</span>
-              </button>
-              <button onClick={() => addBlock('lead_form')} className="bg-red-50 border border-red-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-red-100 flex items-center gap-1 md:gap-2">
-                <Mail size={14} className="md:w-4 md:h-4 text-red-600"/> <span>リード獲得</span>
-              </button>
-              <button onClick={() => addBlock('line_card')} className="bg-green-50 border border-green-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-green-100 flex items-center gap-1 md:gap-2">
-                <MessageSquare size={14} className="md:w-4 md:h-4 text-green-600"/> <span>LINE登録</span>
-              </button>
-            </div>
-          </div>
+            {/* コンバージョン */}
+            <span className="text-xs font-bold text-red-500 px-1">CV</span>
+            <button onClick={() => addBlock('cta_section')} className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 px-2 py-1.5 rounded-md font-bold text-xs hover:from-orange-600 hover:to-red-600 flex items-center gap-1">
+              <ChevronRight size={12}/> <span>CTA</span>
+            </button>
+            <button onClick={() => addBlock('lead_form')} className="bg-red-50 border border-red-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-red-100 flex items-center gap-1">
+              <Mail size={12} className="text-red-600"/> <span>リード</span>
+            </button>
+            <button onClick={() => addBlock('line_card')} className="bg-green-50 border border-green-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-green-100 flex items-center gap-1">
+              <MessageSquare size={12} className="text-green-600"/> <span>LINE</span>
+            </button>
+            <span className="text-gray-300 px-1">|</span>
 
-          {/* その他・メディア */}
-          <div className="mb-2">
-            <label className="text-xs font-bold text-gray-400 block mb-2">その他・メディア</label>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => addBlock('header')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <User size={14} className="md:w-4 md:h-4"/> <span>ヘッダー</span>
-              </button>
-              <button onClick={() => addBlock('image')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <ImageIcon size={14} className="md:w-4 md:h-4"/> <span>画像</span>
-              </button>
-              <button onClick={() => addBlock('youtube')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <Youtube size={14} className="md:w-4 md:h-4"/> <span>YouTube</span>
-              </button>
-              <button onClick={() => addBlock('links')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <Link size={14} className="md:w-4 md:h-4"/> <span>リンク集</span>
-              </button>
-              <button onClick={() => addBlock('kindle')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <BookOpen size={14} className="md:w-4 md:h-4"/> <span>Kindle書籍</span>
-              </button>
-              <button onClick={() => addBlock('quiz')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <Sparkles size={14} className="md:w-4 md:h-4"/> <span>診断クイズ</span>
-              </button>
-              <button onClick={() => addBlock('dark_section')} className="bg-gray-700 border border-gray-600 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-600 flex items-center gap-1 md:gap-2 text-white">
-                <Layers size={14} className="md:w-4 md:h-4"/> <span>ダークセクション</span>
-              </button>
-              <button onClick={() => addBlock('google_map')} className="bg-white border border-gray-200 px-3 md:px-4 py-2 rounded-lg font-bold text-xs md:text-sm hover:bg-gray-50 flex items-center gap-1 md:gap-2">
-                <MapPin size={14} className="md:w-4 md:h-4 text-red-500"/> <span>Googleマップ</span>
-              </button>
-            </div>
+            {/* その他・メディア */}
+            <span className="text-xs font-bold text-gray-400 px-1">他</span>
+            <button onClick={() => addBlock('header')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <User size={12}/> <span>ヘッダー</span>
+            </button>
+            <button onClick={() => addBlock('image')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <ImageIcon size={12}/> <span>画像</span>
+            </button>
+            <button onClick={() => addBlock('youtube')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <Youtube size={12}/> <span>YouTube</span>
+            </button>
+            <button onClick={() => addBlock('links')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <Link size={12}/> <span>リンク</span>
+            </button>
+            <button onClick={() => addBlock('kindle')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <BookOpen size={12}/> <span>Kindle</span>
+            </button>
+            <button onClick={() => addBlock('quiz')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <Sparkles size={12}/> <span>診断</span>
+            </button>
+            <button onClick={() => addBlock('dark_section')} className="bg-gray-700 border border-gray-600 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-600 flex items-center gap-1 text-white">
+              <Layers size={12}/> <span>ダーク</span>
+            </button>
+            <button onClick={() => addBlock('google_map')} className="bg-white border border-gray-200 px-2 py-1.5 rounded-md font-bold text-xs hover:bg-gray-50 flex items-center gap-1">
+              <MapPin size={12} className="text-red-500"/> <span>マップ</span>
+            </button>
           </div>
         </div>
 

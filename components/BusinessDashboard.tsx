@@ -170,7 +170,9 @@ const BusinessDashboard = ({ user, onEdit, onDelete, setPage, onLogout, isAdmin,
             // 各プロジェクトのアナリティクスを取得
             console.log('[BUSINESS DASHBOARD] アナリティクス取得開始');
             const analyticsPromises = (data || []).map(async (project) => {
-                const analyticsData = await getBusinessAnalytics(project.id);
+                // 修正: project.id ではなく project.slug を使用
+                // アナリティクスはslugをキーとして保存されているため
+                const analyticsData = await getBusinessAnalytics(project.slug);
                 return { projectId: project.id, analytics: analyticsData };
             });
             const analyticsResults = await Promise.all(analyticsPromises);

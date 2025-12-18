@@ -18,14 +18,7 @@ export function ProfileViewTracker({
   const viewTrackedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ProfileViewTracker.tsx:useEffect',message:'ProfileViewTracker mounted',data:{profileId,contentType,viewTrackedRef:viewTrackedRef.current},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
-    // #endregion
-
     if (!profileId) {
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ProfileViewTracker.tsx:noProfileId',message:'No profileId provided',data:{profileId},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       console.warn('[ProfileViewTracker] No profileId provided');
       return;
     }
@@ -44,21 +37,12 @@ export function ProfileViewTracker({
     // ページビューを記録（初回のみ）
     if (!viewTrackedRef.current) {
       viewTrackedRef.current = true;
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ProfileViewTracker.tsx:beforeSaveView',message:'Calling saveAnalyticsFunc for view',data:{profileId,contentType,funcName:contentType==='business'?'saveBusinessAnalytics':'saveAnalytics'},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       saveAnalyticsFunc(profileId, 'view').then((result) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ProfileViewTracker.tsx:afterSaveView',message:'saveAnalyticsFunc result',data:{profileId,contentType,result},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         console.log('[ProfileViewTracker] View tracked:', result);
         if (result.error) {
           console.error('[ProfileViewTracker] View tracking error:', result.error);
         }
       }).catch((error) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ProfileViewTracker.tsx:saveViewException',message:'saveAnalyticsFunc exception',data:{profileId,contentType,error:String(error)},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         console.error('[ProfileViewTracker] View tracking exception:', error);
       });
     }
