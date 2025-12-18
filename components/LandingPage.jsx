@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Smartphone, Code, Share2, ArrowRight, CheckCircle, Eye, Wand2, BookOpen, Store, Briefcase, ExternalLink, Heart } from 'lucide-react';
+import { Sparkles, Smartphone, Code, Share2, ArrowRight, CheckCircle, Eye, Wand2, BookOpen, Store, Briefcase, ExternalLink, Heart, Coffee, ShoppingBag, GraduationCap, Laptop } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import Header from './Header';
 import AnnouncementBanner from './AnnouncementBanner';
-import { templates } from '../constants/templates';
+import { templates, recommendedTemplates } from '../constants/templates';
 
 const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -202,24 +202,65 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
         {/* テンプレート選択セクション */}
         <section className="mb-12 md:mb-20 lg:mb-32 animate-fade-in delay-1">
           <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white text-center mb-3 md:mb-4 drop-shadow-lg px-2">
-            テンプレートで簡単作成
+            業種別テンプレートで簡単作成
           </h3>
           <p className="text-center text-white/90 mb-8 md:mb-12 text-sm md:text-base px-4">
-            業種・目的に合わせて最適なテンプレートをお選びください（最新3つ）
+            あなたのビジネスに合ったテンプレートを選んで、すぐに作成開始
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-            {templates.slice(-3).reverse().map((template, index) => {
-              // テンプレートのカテゴリーに応じた色を設定
-              const colors = [
-                { bg: 'bg-blue-100', hover: 'group-hover:bg-blue-200', text: 'text-blue-600', button: 'bg-blue-600 hover:bg-blue-700' },
-                { bg: 'bg-green-100', hover: 'group-hover:bg-green-200', text: 'text-green-600', button: 'bg-green-600 hover:bg-green-700' },
-                { bg: 'bg-purple-100', hover: 'group-hover:bg-purple-200', text: 'text-purple-600', button: 'bg-purple-600 hover:bg-purple-700' },
-              ];
-              const color = colors[index % colors.length];
+            {recommendedTemplates.map((template) => {
+              // テンプレートIDに応じた色とアイコンを設定
+              const getTemplateStyle = (id) => {
+                const styles = {
+                  'consultant': { 
+                    bg: 'bg-blue-100', 
+                    hover: 'group-hover:bg-blue-200', 
+                    text: 'text-blue-600', 
+                    button: 'bg-blue-600 hover:bg-blue-700',
+                    Icon: Briefcase
+                  },
+                  'store': { 
+                    bg: 'bg-green-100', 
+                    hover: 'group-hover:bg-green-200', 
+                    text: 'text-green-600', 
+                    button: 'bg-green-600 hover:bg-green-700',
+                    Icon: Store
+                  },
+                  'freelance': { 
+                    bg: 'bg-indigo-100', 
+                    hover: 'group-hover:bg-indigo-200', 
+                    text: 'text-indigo-600', 
+                    button: 'bg-indigo-600 hover:bg-indigo-700',
+                    Icon: Laptop
+                  },
+                  'coach': { 
+                    bg: 'bg-purple-100', 
+                    hover: 'group-hover:bg-purple-200', 
+                    text: 'text-purple-600', 
+                    button: 'bg-purple-600 hover:bg-purple-700',
+                    Icon: GraduationCap
+                  },
+                  'retail-ec': { 
+                    bg: 'bg-pink-100', 
+                    hover: 'group-hover:bg-pink-200', 
+                    text: 'text-pink-600', 
+                    button: 'bg-pink-600 hover:bg-pink-700',
+                    Icon: ShoppingBag
+                  },
+                  'cafe-restaurant': { 
+                    bg: 'bg-amber-100', 
+                    hover: 'group-hover:bg-amber-200', 
+                    text: 'text-amber-600', 
+                    button: 'bg-amber-600 hover:bg-amber-700',
+                    Icon: Coffee
+                  },
+                };
+                return styles[id] || styles['consultant'];
+              };
               
-              // アイコンを選択
-              const Icon = index === 0 ? Briefcase : index === 1 ? Store : Sparkles;
+              const style = getTemplateStyle(template.id);
+              const Icon = style.Icon;
               
               return (
                 <div 
@@ -227,8 +268,8 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                   className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 text-center shadow-lg hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer group" 
                   onClick={() => handleGetStarted(template.id)}
                 >
-                  <div className={`${color.bg} w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 ${color.hover} transition-colors`}>
-                    <Icon className={color.text} size={28}/>
+                  <div className={`${style.bg} w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4 ${style.hover} transition-colors`}>
+                    <Icon className={style.text} size={28}/>
                   </div>
                   <h4 className="text-lg md:text-xl font-bold mb-2 md:mb-3 accent-color">
                     {template.name}
@@ -236,12 +277,19 @@ const LandingPage = ({ user, setShowAuth, onNavigateToDashboard, onCreate }) => 
                   <p className="text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base mb-4 md:mb-6">
                     {template.description}
                   </p>
-                  <button className={`w-full ${color.button} text-white py-2.5 md:py-3 rounded-lg font-bold transition-colors text-sm md:text-base min-h-[44px]`}>
+                  <button className={`w-full ${style.button} text-white py-2.5 md:py-3 rounded-lg font-bold transition-colors text-sm md:text-base min-h-[44px]`}>
                     このテンプレートで作成
                   </button>
                 </div>
               );
             })}
+          </div>
+          
+          {/* 全テンプレート表示リンク */}
+          <div className="text-center mt-8">
+            <p className="text-white/80 text-sm mb-2">
+              他にも「コーチ・講師」「物販・EC」「カフェ・飲食店」など全{templates.length}種類のテンプレートをご用意
+            </p>
           </div>
         </section>
 

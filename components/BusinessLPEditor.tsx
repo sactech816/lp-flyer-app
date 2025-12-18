@@ -171,35 +171,61 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // デフォルトのプロフィールコンテンツ
+  // デフォルトのビジネスLPコンテンツ
   const getDefaultContent = (): Block[] => [
     {
       id: generateBlockId(),
       type: 'header',
       data: {
         avatar: '',
-        name: 'あなたの名前',
+        name: 'あなたの名前・会社名',
         title: 'キャッチコピーを入力してください',
-        category: 'other'
+        category: 'business'
       }
     },
     {
       id: generateBlockId(),
       type: 'text_card',
       data: {
-        title: 'メインメッセージのタイトル',
-        text: 'ここにメインメッセージの本文を入力してください。\n改行も可能です。',
+        title: 'お客様の悩みに寄り添うメッセージ',
+        text: 'ここにあなたのビジネスの強みや、お客様にとってのメリットを記載します。\n\n「どんな悩みを解決できるのか」「なぜあなたを選ぶべきなのか」を伝えましょう。',
         align: 'center'
       }
     },
     {
       id: generateBlockId(),
-      type: 'links',
+      type: 'features',
       data: {
-        links: [
-          { label: 'note', url: 'https://note.com/example', style: '' },
-          { label: 'X (旧Twitter)', url: 'https://x.com/example', style: '' }
-        ]
+        title: '選ばれる3つの理由',
+        items: [
+          {
+            id: generateBlockId(),
+            icon: '✨',
+            title: '特徴・強み①',
+            description: 'あなたのサービスの特徴や強みを記載してください。'
+          },
+          {
+            id: generateBlockId(),
+            icon: '🎯',
+            title: '特徴・強み②',
+            description: '他社との違いや、独自の価値を伝えましょう。'
+          },
+          {
+            id: generateBlockId(),
+            icon: '💎',
+            title: '特徴・強み③',
+            description: 'お客様が得られるメリットを具体的に。'
+          }
+        ],
+        columns: 3
+      }
+    },
+    {
+      id: generateBlockId(),
+      type: 'lead_form',
+      data: {
+        title: 'お問い合わせ・ご相談',
+        buttonText: '無料相談を申し込む'
       }
     }
   ];
