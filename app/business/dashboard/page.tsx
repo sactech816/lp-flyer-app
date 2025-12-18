@@ -66,7 +66,7 @@ export default function BusinessDashboardPage() {
       const res = await fetch('/api/business-delete', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ id, anonymousId }),
+        body: JSON.stringify({ id, anonymousId, userId: user?.id }),
       });
       
       let result: any = {};

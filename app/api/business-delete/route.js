@@ -20,7 +20,7 @@ function getSupabaseAdmin() {
 
 export async function POST(request) {
   try {
-    const { id, anonymousId } = await request.json();
+    const { id, anonymousId, userId: clientUserId } = await request.json();
 
     if (!id) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
@@ -41,6 +41,11 @@ export async function POST(request) {
         userId = user.id;
       }
     }
+    
+    // トークンから取得できない場合はクライアントから渡されたuserIdを使用
+    if (!userId && clientUserId) {
+      userId = clientUserId;
+    }
 
     // ビジネスプロジェクトを取得して所有者を確認
     const { data: project, error: fetchError } = await supabase
@@ -54,8 +59,10 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 });
     }
 
-    // 所有者確認
-    if (project.user_id !== userId && !anonymousId) {
+    // 所有者確認（user_idがnullの場合は誰でも削除可能）
+    // また、クライアントから渡されたuserIdとプロジェクトのuser_idが一致する場合も許可
+    if (project.user_id && project.user_id !== userId && !anonymousId) {
+      console.log('Delete permission denied:', { projectUserId: project.user_id, userId, anonymousId });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
