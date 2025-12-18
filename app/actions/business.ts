@@ -147,10 +147,6 @@ export async function saveBusinessProject({
   userId: string | null;
   featuredOnTop: boolean;
 }) {
-  // #region agent log
-  fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:130',message:'saveBusinessProject ENTRY',data:{slug,nickname,userId,hasSupabase:!!supabase},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-  
   // Server Actions用のSupabaseクライアントを作成（クッキーから認証情報を読み取る）
   const serverSupabase = await createServerSupabaseClient();
   
@@ -159,26 +155,9 @@ export async function saveBusinessProject({
   }
 
   try {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:140',message:'Checking auth session with SERVER client',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
-    
-    // 認証セッションを確認（Server用クライアントで）
-    const { data: { session }, error: sessionError } = await serverSupabase.auth.getSession();
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:145',message:'Auth session result with SERVER client',data:{hasSession:!!session,sessionUserId:session?.user?.id,passedUserId:userId,sessionError:sessionError?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'C,D'})}).catch(()=>{});
-    // #endregion
-    
-    console.log('[BusinessProject] Saving:', { slug, nickname, userId });
+    console.log('[BusinessProject] Saving with upsert:', { slug, nickname, userId, blocksCount: content?.length });
 
-    // 既存プロジェクトを確認（Server用クライアントで）
-    const { data: existingProject } = await serverSupabase
-      .from('business_projects')
-      .select('id')
-      .eq('slug', slug)
-      .maybeSingle();
-
+    // upsertで保存（slugが同じなら更新、なければ挿入）
     const projectData = {
       slug,
       nickname: nickname || null,
@@ -189,62 +168,38 @@ export async function saveBusinessProject({
       updated_at: new Date().toISOString()
     };
 
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:165',message:'BEFORE save operation',data:{hasExisting:!!existingProject,projectData:{slug:projectData.slug,user_id:projectData.user_id,nickname:projectData.nickname}},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,D'})}).catch(()=>{});
-    // #endregion
+    // upsertを使用 - slugをコンフリクトキーとして使用
+    const { data, error } = await serverSupabase
+      .from('business_projects')
+      .upsert(
+        { ...projectData, created_at: new Date().toISOString() },
+        { 
+          onConflict: 'slug',
+          ignoreDuplicates: false 
+        }
+      )
+      .select()
+      .single();
 
-    let result;
+    console.log('[BusinessProject] Upsert result:', { 
+      hasError: !!error, 
+      errorMsg: error?.message,
+      hasData: !!data,
+      returnedSlug: data?.slug 
+    });
 
-    if (existingProject) {
-      // 更新（Server用クライアントで）
-      const { error: updateError } = await serverSupabase
-        .from('business_projects')
-        .update(projectData)
-        .eq('id', existingProject.id);
-      
-      if (updateError) {
-        result = { data: null, error: updateError };
-      } else {
-        // 更新後、データを再取得
-        const { data: updatedData, error: fetchError } = await serverSupabase
-          .from('business_projects')
-          .select('*')
-          .eq('id', existingProject.id)
-          .single();
-        
-        result = { data: updatedData, error: fetchError };
-      }
-    } else {
-      // 新規作成（Server用クライアントで）
-      // #region agent log
-      fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:180',message:'Attempting INSERT with SERVER client',data:{insertData:{slug:projectData.slug,user_id:projectData.user_id}},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
-      
-      const { data: insertedData, error: insertError } = await serverSupabase
-        .from('business_projects')
-        .insert([{ ...projectData, created_at: new Date().toISOString() }])
-        .select()
-        .single();
-      
-      result = { data: insertedData, error: insertError };
+    if (error) {
+      console.error('[BusinessProject] Save error:', error);
+      return { error: `保存に失敗しました: ${error.message}` };
     }
 
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/0315c81c-6cd6-42a2-8f4a-ffa0f6597758',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'business.ts:190',message:'AFTER save operation with SERVER client',data:{hasError:!!result.error,errorMsg:result.error?.message,errorCode:result.error?.code,hasData:!!result.data},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'B,E'})}).catch(()=>{});
-    // #endregion
-
-    if (result.error) {
-      console.error('[BusinessProject] Save error:', result.error);
-      return { error: `保存に失敗しました: ${result.error.message}` };
-    }
-
-    if (!result.data) {
+    if (!data) {
       console.error('[BusinessProject] No data returned after save');
       return { error: '保存に失敗しました: データが返されませんでした' };
     }
 
-    console.log('[BusinessProject] Saved successfully:', result.data);
-    return { data: result.data };
+    console.log('[BusinessProject] Saved successfully:', { slug: data.slug, id: data.id });
+    return { data };
   } catch (error: any) {
     console.error('[BusinessProject] Exception:', error);
     return { error: error.message };
