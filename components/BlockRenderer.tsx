@@ -695,6 +695,8 @@ function HeroBlock({ block, profileId }: { block: Extract<Block, { type: 'hero' 
     }
   };
 
+  const isFullWidth = block.data.isFullWidth || false;
+
   const backgroundStyle: React.CSSProperties = {};
   if (block.data.backgroundImage) {
     backgroundStyle.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${block.data.backgroundImage})`;
@@ -706,14 +708,31 @@ function HeroBlock({ block, profileId }: { block: Extract<Block, { type: 'hero' 
     backgroundStyle.background = 'linear-gradient(-45deg, #1e293b, #334155, #475569, #334155)';
   }
 
+  // フル幅の場合はより大きなパディングと高さを適用
+  const sectionClass = isFullWidth 
+    ? "animate-fade-in w-full"
+    : "animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6";
+  
+  const containerClass = isFullWidth
+    ? "relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center px-4 md:px-6"
+    : "relative py-12 md:py-16 lg:py-24 px-4 md:px-6";
+
   return (
-    <section className="animate-fade-in -mx-4 md:-mx-6 lg:-mx-8 mb-4 md:mb-6">
-      <div className="relative py-12 md:py-16 lg:py-24 px-4 md:px-6" style={backgroundStyle}>
+    <section className={sectionClass}>
+      <div className={containerClass} style={backgroundStyle}>
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-3 md:mb-4 drop-shadow-lg px-2">
+          <h2 className={`font-black text-white mb-3 md:mb-4 drop-shadow-lg px-2 ${
+            isFullWidth 
+              ? 'text-3xl md:text-5xl lg:text-6xl' 
+              : 'text-2xl md:text-4xl lg:text-5xl'
+          }`}>
             {block.data.headline || 'あなたのキャッチコピーをここに'}
           </h2>
-          <p className="text-base md:text-lg lg:text-xl text-white mb-6 md:mb-8 drop-shadow-md px-2">
+          <p className={`text-white mb-6 md:mb-8 drop-shadow-md px-2 ${
+            isFullWidth 
+              ? 'text-lg md:text-xl lg:text-2xl' 
+              : 'text-base md:text-lg lg:text-xl'
+          }`}>
             {block.data.subheadline || 'サブテキストを入力してください'}
           </p>
           
@@ -722,7 +741,11 @@ function HeroBlock({ block, profileId }: { block: Extract<Block, { type: 'hero' 
               <img 
                 src={block.data.imageUrl} 
                 alt="Hero" 
-                className="rounded-lg shadow-2xl w-40 md:w-48 lg:w-64 object-cover"
+                className={`rounded-lg shadow-2xl object-cover ${
+                  isFullWidth 
+                    ? 'w-48 md:w-56 lg:w-72' 
+                    : 'w-40 md:w-48 lg:w-64'
+                }`}
                 style={{ filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.25))' }}
               />
             </div>
@@ -734,7 +757,11 @@ function HeroBlock({ block, profileId }: { block: Extract<Block, { type: 'hero' 
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleCtaClick}
-              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold text-base md:text-lg py-3 px-6 md:py-4 md:px-8 rounded-full shadow-lg transition-all transform hover:scale-105 min-h-[44px]"
+              className={`inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-full shadow-lg transition-all transform hover:scale-105 min-h-[44px] ${
+                isFullWidth 
+                  ? 'text-lg md:text-xl py-4 px-8 md:py-5 md:px-10' 
+                  : 'text-base md:text-lg py-3 px-6 md:py-4 md:px-8'
+              }`}
             >
               {block.data.ctaText}
             </a>

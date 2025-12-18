@@ -86,6 +86,7 @@ export type TestimonialItem = {
 
 export type TestimonialBlockData = {
   items: TestimonialItem[];
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 export type QuizBlockData = {
@@ -103,6 +104,7 @@ export type HeroBlockData = {
   ctaUrl?: string; // CTAボタンURL
   backgroundImage?: string; // 背景画像URL
   backgroundColor?: string; // 背景色（グラデーション含む）
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 // 特徴・ベネフィットブロックデータ
@@ -117,6 +119,7 @@ export type FeaturesBlockData = {
   title?: string; // セクションタイトル
   items: FeatureItem[]; // 特徴アイテム（最大6個推奨）
   columns: 2 | 3; // カラム数
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 // CTAセクションブロックデータ
@@ -160,6 +163,7 @@ export type ProblemCardsBlockData = {
     description: string; // 説明文
     borderColor?: string; // 左ボーダー色（例: 'blue', 'red'）
   }[];
+  isFullWidth?: boolean; // フル幅表示オプション
 };
 
 // ダークセクションブロックデータ
