@@ -153,30 +153,10 @@ const App = () => {
                     setShowAuth(true);
                 }
                 
-                // ログイン成功時のリダイレクト制御
+                // ログイン成功時のログ出力のみ（自動リダイレクトは無効化）
+                // ユーザーが意図的にログインした場合は、認証モーダル側でリダイレクトを制御
                 if (event === 'SIGNED_IN' && session?.user) {
-                    const currentSearch = new URLSearchParams(window.location.search);
-                    
-                    // 決済処理中はリダイレクトしない
-                    const paymentStatus = currentSearch.get('payment');
-                    if (paymentStatus === 'success' || paymentStatus === 'cancel') {
-                        console.log('⏸️ 決済処理中のため、リダイレクトをスキップ');
-                        return;
-                    }
-                    
-                    // パスワードリセット中はリダイレクトしない
-                    const hash = window.location.hash;
-                    if (hash && hash.includes('type=recovery')) {
-                        console.log('⏸️ パスワードリセット中のため、リダイレクトをスキップ');
-                        return;
-                    }
-                    
-                    // 通常のリダイレクト処理
-                    const page = currentSearch.get('page');
-                    if (!page || page === 'landing') {
-                        console.log('🏠 ビジネスLPエディターにリダイレクト');
-                        window.location.href = '/business/dashboard/editor/new';
-                    }
+                    console.log('✅ ログイン成功:', session.user.email);
                 }
               });
           }

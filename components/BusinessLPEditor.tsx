@@ -2767,15 +2767,9 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2 md:gap-4 flex-wrap">
               {savedSlug && (
                 <>
-                  <button 
-                    onClick={() => setShowQRModal(true)} 
-                    className="bg-blue-50 border border-blue-200 text-blue-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-blue-100 text-xs md:text-sm"
-                  >
-                    <QrCode size={16}/> <span className="hidden sm:inline">QRコード</span>
-                  </button>
                   <button 
                     onClick={() => setShowSettingsModal(true)} 
                     className="bg-gray-50 border border-gray-200 text-gray-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-gray-100 text-xs md:text-sm"
@@ -2800,10 +2794,10 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
               </button>
               {savedSlug && (
                 <button 
-                  onClick={handlePublish} 
+                  onClick={() => setShowSuccessModal(savedSlug)} 
                   className="bg-green-50 border border-green-200 text-green-700 px-3 md:px-4 py-2 rounded-lg font-bold flex items-center gap-1 md:gap-2 hover:bg-green-100 text-xs md:text-sm"
                 >
-                  <Share2 size={16}/> <span className="hidden sm:inline">公開URL</span>
+                  <Share2 size={16}/> <span className="hidden sm:inline">シェア</span>
                 </button>
               )}
               <button 
@@ -3698,8 +3692,54 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                   })()}
                 </div>
                 <p className="text-[10px] md:text-xs text-gray-500 mt-2 text-center">
-                  作成したプロフィールLPをSNSでシェアして、多くの人に見てもらいましょう！
+                  作成したビジネスLPをSNSでシェアして、多くの人に見てもらいましょう！
                 </p>
+              </div>
+
+              {/* QRコード */}
+              <div className="mb-4 md:mb-6">
+                <label className="block text-xs md:text-sm font-bold text-gray-700 mb-2 md:mb-3">QRコード</label>
+                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex flex-col items-center gap-3">
+                  <div className="bg-white p-4 rounded-xl shadow-sm success-modal-qr">
+                    <QRCodeSVG 
+                      value={`${typeof window !== 'undefined' ? window.location.origin : ''}/b/${showSuccessModal}`} 
+                      size={160}
+                      level="H"
+                      includeMargin={true}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-600 text-center">
+                    スマートフォンで読み取ると、ビジネスLPにアクセスできます
+                  </p>
+                  <button
+                    onClick={() => {
+                      const svg = document.querySelector('.success-modal-qr svg');
+                      if (!svg) return;
+                      const svgData = new XMLSerializer().serializeToString(svg);
+                      const canvas = document.createElement('canvas');
+                      const ctx = canvas.getContext('2d');
+                      const img = new Image();
+                      img.onload = () => {
+                        canvas.width = 320;
+                        canvas.height = 320;
+                        ctx?.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx?.drawImage(img, 0, 0, 320, 320);
+                        const pngUrl = canvas.toDataURL('image/png');
+                        const link = document.createElement('a');
+                        link.download = `qr-${showSuccessModal}.png`;
+                        link.href = pngUrl;
+                        link.click();
+                      };
+                      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+                    }}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-indigo-700 transition-all flex items-center gap-2 text-xs md:text-sm"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    QRコードをダウンロード
+                  </button>
+                </div>
               </div>
 
               {/* Pro機能の案内 */}
