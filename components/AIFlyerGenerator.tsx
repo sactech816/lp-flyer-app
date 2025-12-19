@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { Block } from '@/lib/types';
 
-export type AIGenerationMode = 'background' | 'full';
+export type AIGenerationMode = 'background' | 'full' | 'full-no-text';
 export type AIStyle = 'modern' | 'traditional' | 'minimal' | 'vibrant';
 
 interface AIFlyerGeneratorProps {
@@ -19,6 +19,35 @@ interface GenerationState {
   progress: string;
   error: string | null;
 }
+
+// モード情報
+const modeInfo = {
+  background: {
+    label: '🎨 背景のみ生成',
+    description: 'AI背景 + テンプレートでテキスト表示',
+    recommended: true,
+    warning: null,
+  },
+  'full-no-text': {
+    label: '🖼️ デザインのみ（テキストなし）',
+    description: 'レイアウトデザインを生成（テキストは後で追加）',
+    recommended: false,
+    warning: null,
+  },
+  full: {
+    label: '📄 チラシ全体を生成',
+    description: 'テキスト含むチラシ全体をAIで生成',
+    recommended: false,
+    warning: '⚠️ 日本語テキストが文字化けする可能性があります',
+  },
+};
+
+const styleLabels = {
+  modern: 'モダン',
+  traditional: 'トラディショナル',
+  minimal: 'ミニマル',
+  vibrant: 'ビビッド',
+};
 
 export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
   blocks,
@@ -58,6 +87,9 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
       .slice(0, 3)
       .join(', ');
 
+    const featuresBlock = blocks.find(b => b.type === 'features');
+    const featuresData = featuresBlock?.data as any;
+
     return {
       businessName: headerData?.name || 'ビジネス',
       title: headerData?.title || '',
@@ -68,7 +100,7 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
         .map(b => (b.data as any).title)
         .filter(Boolean)
         .slice(0, 5),
-      features: [],
+      features: featuresData?.items?.map((i: any) => i.title).filter(Boolean).slice(0, 5) || [],
     };
   }, [blocks]);
 
@@ -79,7 +111,7 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
     try {
       const businessInfo = extractBusinessInfo();
 
-      setState(prev => ({ ...prev, progress: 'AIで画像を生成中...' }));
+      setState(prev => ({ ...prev, progress: 'AIで画像を生成中...（10〜30秒）' }));
 
       const response = await fetch('/api/generate-flyer-image', {
         method: 'POST',
@@ -103,7 +135,9 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
 
       if (result.success && result.image) {
         setState(prev => ({ ...prev, progress: '完了！' }));
-        onImageGenerated(result.image.data, result.image.mimeType, mode);
+        // full-no-text の場合も background として扱う（背景として使用）
+        const effectiveMode = mode === 'full-no-text' ? 'background' : mode;
+        onImageGenerated(result.image.data, result.image.mimeType, effectiveMode as 'background' | 'full');
       } else {
         throw new Error(result.error || '画像データが取得できませんでした');
       }
@@ -116,25 +150,16 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
     }
   };
 
-  const modeLabels = {
-    background: '背景のみ生成',
-    full: 'チラシ全体を生成（実験的）',
-  };
-
-  const styleLabels = {
-    modern: 'モダン',
-    traditional: 'トラディショナル',
-    minimal: 'ミニマル',
-    vibrant: 'ビビッド',
-  };
+  const currentModeInfo = modeInfo[mode];
 
   return (
     <div className="ai-flyer-generator" style={{
-      padding: '16px',
+      padding: '20px',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       borderRadius: '12px',
       marginBottom: '16px',
     }}>
+      {/* ヘッダー */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -159,7 +184,7 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
           fontWeight: 'bold',
           margin: 0,
         }}>
-          AI画像生成（Gemini）
+          AI画像生成（Gemini 2.0）
         </h3>
         <span style={{
           background: 'rgba(255,255,255,0.2)',
@@ -173,40 +198,88 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
       </div>
 
       {/* 生成モード選択 */}
-      <div style={{ marginBottom: '12px' }}>
+      <div style={{ marginBottom: '16px' }}>
         <label style={{
           display: 'block',
           color: 'rgba(255,255,255,0.9)',
           fontSize: '12px',
-          marginBottom: '6px',
+          marginBottom: '8px',
+          fontWeight: 'bold',
         }}>
           生成モード
         </label>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {(Object.keys(modeLabels) as AIGenerationMode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              disabled={state.isGenerating}
-              style={{
-                flex: 1,
-                padding: '8px 12px',
-                borderRadius: '8px',
-                border: 'none',
-                background: mode === m ? 'white' : 'rgba(255,255,255,0.2)',
-                color: mode === m ? '#667eea' : 'white',
-                fontSize: '12px',
-                fontWeight: mode === m ? 'bold' : 'normal',
-                cursor: state.isGenerating ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s',
-                opacity: state.isGenerating ? 0.5 : 1,
-              }}
-            >
-              {modeLabels[m]}
-            </button>
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {(Object.keys(modeInfo) as AIGenerationMode[]).map((m) => {
+            const info = modeInfo[m];
+            const isSelected = mode === m;
+            return (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                disabled={state.isGenerating}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  border: isSelected ? '2px solid white' : '2px solid transparent',
+                  background: isSelected ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.15)',
+                  color: isSelected ? '#667eea' : 'white',
+                  fontSize: '13px',
+                  fontWeight: isSelected ? 'bold' : 'normal',
+                  cursor: state.isGenerating ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  opacity: state.isGenerating ? 0.5 : 1,
+                  textAlign: 'left',
+                  position: 'relative',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>{info.label}</span>
+                  {info.recommended && (
+                    <span style={{
+                      background: isSelected ? '#10B981' : 'rgba(16, 185, 129, 0.8)',
+                      color: 'white',
+                      fontSize: '9px',
+                      padding: '2px 8px',
+                      borderRadius: '10px',
+                      fontWeight: 'bold',
+                    }}>
+                      推奨
+                    </span>
+                  )}
+                </div>
+                <p style={{
+                  fontSize: '10px',
+                  margin: '4px 0 0 0',
+                  opacity: 0.8,
+                  color: isSelected ? '#6B7280' : 'rgba(255,255,255,0.8)',
+                }}>
+                  {info.description}
+                </p>
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      {/* 警告表示 */}
+      {currentModeInfo.warning && (
+        <div style={{
+          padding: '10px 12px',
+          background: 'rgba(251, 191, 36, 0.2)',
+          borderRadius: '8px',
+          marginBottom: '12px',
+          border: '1px solid rgba(251, 191, 36, 0.5)',
+        }}>
+          <p style={{
+            fontSize: '11px',
+            color: '#FCD34D',
+            margin: 0,
+            lineHeight: 1.5,
+          }}>
+            {currentModeInfo.warning}
+          </p>
+        </div>
+      )}
 
       {/* スタイル選択 */}
       <div style={{ marginBottom: '16px' }}>
@@ -214,21 +287,22 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
           display: 'block',
           color: 'rgba(255,255,255,0.9)',
           fontSize: '12px',
-          marginBottom: '6px',
+          marginBottom: '8px',
+          fontWeight: 'bold',
         }}>
           デザインスタイル
         </label>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
           {(Object.keys(styleLabels) as AIStyle[]).map((s) => (
             <button
               key={s}
               onClick={() => setStyle(s)}
               disabled={state.isGenerating}
               style={{
-                padding: '6px 12px',
-                borderRadius: '6px',
-                border: 'none',
-                background: style === s ? 'white' : 'rgba(255,255,255,0.2)',
+                padding: '8px 10px',
+                borderRadius: '8px',
+                border: style === s ? '2px solid white' : '2px solid transparent',
+                background: style === s ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.15)',
                 color: style === s ? '#667eea' : 'white',
                 fontSize: '11px',
                 fontWeight: style === s ? 'bold' : 'normal',
@@ -249,29 +323,29 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
         disabled={state.isGenerating}
         style={{
           width: '100%',
-          padding: '12px',
-          borderRadius: '8px',
+          padding: '14px',
+          borderRadius: '10px',
           border: 'none',
           background: state.isGenerating 
             ? 'rgba(255,255,255,0.3)' 
             : 'linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%)',
           color: 'white',
-          fontSize: '14px',
+          fontSize: '15px',
           fontWeight: 'bold',
           cursor: state.isGenerating ? 'not-allowed' : 'pointer',
           transition: 'all 0.2s',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '8px',
+          gap: '10px',
+          boxShadow: state.isGenerating ? 'none' : '0 4px 12px rgba(0,0,0,0.2)',
         }}
       >
         {state.isGenerating ? (
           <>
             <svg 
-              className="animate-spin" 
-              width="20" 
-              height="20" 
+              width="22" 
+              height="22" 
               viewBox="0 0 24 24" 
               fill="none" 
               stroke="currentColor" 
@@ -285,10 +359,10 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
           </>
         ) : (
           <>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
             </svg>
-            AIで画像を生成
+            ✨ AIで画像を生成
           </>
         )}
       </button>
@@ -297,26 +371,34 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
       {state.error && (
         <div style={{
           marginTop: '12px',
-          padding: '10px',
+          padding: '12px',
           background: 'rgba(239, 68, 68, 0.2)',
           borderRadius: '8px',
           color: 'white',
           fontSize: '12px',
+          border: '1px solid rgba(239, 68, 68, 0.5)',
         }}>
-          <strong>エラー:</strong> {state.error}
+          <strong>❌ エラー:</strong> {state.error}
         </div>
       )}
 
-      {/* 注意事項 */}
-      <p style={{
-        marginTop: '12px',
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: '10px',
-        lineHeight: 1.5,
+      {/* 情報・ヒント */}
+      <div style={{
+        marginTop: '14px',
+        padding: '10px 12px',
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '8px',
       }}>
-        ※ AI生成には数秒〜数十秒かかります。
-        {mode === 'full' && ' 完全生成モードでは日本語テキストの精度に課題がある場合があります。'}
-      </p>
+        <p style={{
+          color: 'rgba(255,255,255,0.9)',
+          fontSize: '10px',
+          lineHeight: 1.6,
+          margin: 0,
+        }}>
+          💡 <strong>ヒント:</strong> 日本語テキストを正確に表示したい場合は「背景のみ生成」モードを使用し、
+          テキストはテンプレートで表示することをお勧めします。A4比率（210×297mm）で生成されます。
+        </p>
+      </div>
 
       <style jsx>{`
         @keyframes spin {
@@ -329,4 +411,3 @@ export const AIFlyerGenerator: React.FC<AIFlyerGeneratorProps> = ({
 };
 
 export default AIFlyerGenerator;
-

@@ -6,7 +6,7 @@ export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
 interface FlyerGenerationRequest {
-  mode: 'background' | 'full';
+  mode: 'background' | 'full' | 'full-no-text';
   businessName: string;
   title?: string;
   description?: string;
@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
     let prompt: string;
 
     if (mode === 'background') {
-      // 背景画像生成用プロンプト
-      prompt = `Generate a beautiful decorative background image for a business flyer.
+      // 背景画像生成用プロンプト（推奨モード）
+      prompt = `Generate a beautiful decorative background image for a professional business flyer.
 
 Business: "${businessName}"
 ${title ? `Type: ${title}` : ''}
@@ -95,20 +95,49 @@ Visual Approach: ${styleModifiers[style]}
 
 CRITICAL Requirements:
 - Abstract decorative pattern or gradient background ONLY
-- DO NOT include any text, letters, numbers, or words
+- DO NOT include any text, letters, numbers, or words AT ALL
+- Exact A4 portrait aspect ratio: width 210mm, height 297mm (ratio 1:1.414)
+- Image dimensions should be approximately 2480 x 3508 pixels (300 DPI A4)
 - Leave large open spaces for text overlay (especially center and bottom areas)
-- Soft, professional appearance suitable for A4 print
-- Portrait orientation (taller than wide, like A4 paper)
-- High resolution, print quality
-- Colors should be subtle and not overpower future text overlay
-- Focus on corners and edges for decorative elements
-- Keep the center relatively clean/light for content placement
+- Soft, professional appearance suitable for high-quality print
+- Portrait orientation (taller than wide, exactly like A4 paper)
+- High resolution, print-ready quality (300 DPI equivalent)
+- Colors should be subtle and elegant, not overpower future text overlay
+- Focus decorative elements on corners and edges
+- Keep the center and most of the area clean/light for content placement
+- Background should enhance readability of overlaid text
 
-This is ONLY a background - text will be added separately by software.`;
+This is ONLY a background image - all text will be added separately by software. Do NOT include any characters.`;
+
+    } else if (mode === 'full-no-text') {
+      // テキストなしフルデザイン（後でテキストをオーバーレイ用）
+      prompt = `Create a complete professional A4 flyer DESIGN LAYOUT without any text.
+
+Business Type: ${title || 'Professional Service'}
+Theme: ${themeModifiers[theme]}
+Style: ${styleModifiers[style]}
+
+CRITICAL Requirements:
+- Exact A4 portrait aspect ratio: width 210mm, height 297mm (ratio 1:1.414)
+- Image dimensions should be approximately 2480 x 3508 pixels (300 DPI A4)
+- DO NOT include any text, letters, numbers, words, or characters AT ALL
+- Create visual layout with:
+  * Header area at top (for business name - leave blank)
+  * Content sections with placeholder shapes (rectangles, lines for where text will go)
+  * Decorative elements and icons
+  * Price/feature card shapes (empty, no text)
+  * Footer area for contact info (leave blank)
+  * QR code placeholder box in bottom-right corner
+- Professional ${themeModifiers[theme]}
+- ${styleModifiers[style]}
+- High contrast areas for text readability
+- Print-ready quality (300 DPI equivalent)
+
+Create a beautiful VISUAL TEMPLATE with NO TEXT - text will be overlaid later by software.`;
 
     } else {
-      // フルチラシ生成用プロンプト（実験的）
-      prompt = `Create a complete professional A4 flyer design.
+      // フルチラシ生成用プロンプト（実験的 - 日本語テキストに制限あり）
+      prompt = `Create a complete professional A4 flyer design with text.
 
 Business Information:
 - Name: ${businessName}
@@ -119,17 +148,21 @@ ${priceRange ? `- Pricing: ${priceRange}` : ''}
 ${features?.length ? `- Features: ${features.join(', ')}` : ''}
 ${contactInfo ? `- Contact: ${contactInfo}` : ''}
 
-Design Requirements:
+CRITICAL Design Requirements:
+- Exact A4 portrait aspect ratio: width 210mm, height 297mm (ratio 1:1.414)
+- Image dimensions should be approximately 2480 x 3508 pixels (300 DPI A4)
 - Professional ${themeModifiers[theme]}
 - ${styleModifiers[style]}
-- A4 portrait format
 - Clear visual hierarchy with prominent business name at top
-- Include all provided information in an organized layout
+- Include all provided information in an organized, readable layout
 - Reserve space for QR code in bottom-right corner (show as placeholder box)
-- High contrast for readability
-- Print-ready quality
+- High contrast for text readability
+- Print-ready quality (300 DPI equivalent)
 
-IMPORTANT: Render all Japanese text accurately if the business name or content contains Japanese characters.`;
+TEXT RENDERING NOTE: 
+- If the content contains Japanese characters, try to render them accurately
+- If Japanese text cannot be rendered correctly, use placeholder text or English transliteration
+- Prioritize layout quality and design over perfect text rendering`;
     }
 
     console.log('[generate-flyer-image] Generating image with prompt:', prompt.substring(0, 200) + '...');
@@ -222,9 +255,13 @@ export async function GET() {
   return NextResponse.json({
     status: 'ok',
     apiKeyConfigured: hasApiKey,
-    supportedModes: ['background', 'full'],
+    supportedModes: ['background', 'full', 'full-no-text'],
     supportedThemes: ['business', 'creative', 'shop', 'custom'],
-    supportedStyles: ['modern', 'traditional', 'minimal', 'vibrant']
+    supportedStyles: ['modern', 'traditional', 'minimal', 'vibrant'],
+    recommendations: {
+      bestForJapanese: 'background',
+      experimental: ['full', 'full-no-text']
+    }
   });
 }
 
