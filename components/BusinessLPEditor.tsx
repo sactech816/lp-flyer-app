@@ -2976,6 +2976,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             </button>
           </div>
           {/* ジャンル別ブロック追加メニュー（セールスLP順）- 横並びコンパクト表示 */}
+          <label className="text-sm font-bold text-gray-900 block mb-2">必要なブロック追加でオリジナル作成</label>
           <div className="flex flex-wrap items-center gap-x-1 gap-y-2">
             {/* ファーストビュー */}
             <span className="text-xs font-bold text-purple-600 px-1">FV</span>
