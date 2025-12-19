@@ -160,7 +160,7 @@ export async function saveBusinessProject({
     // 既存レコードをチェック（maybeSingleで0件の場合もエラーにならない）
     const { data: existing } = await serverSupabase
       .from('business_projects')
-      .select('id, user_id')
+      .select('id, user_id, nickname')
       .eq('slug', slug)
       .maybeSingle();
     
@@ -183,6 +183,21 @@ export async function saveBusinessProject({
       if (existing.user_id && existing.user_id !== userId) {
         console.log('[BusinessProject] Permission denied: user_id mismatch');
         return { error: '更新権限がありません。このプロジェクトの所有者ではありません。' };
+      }
+      
+      // nicknameの重複チェック（更新時）
+      if (nickname && nickname !== existing.nickname) {
+        const { data: duplicateCheck } = await serverSupabase
+          .from('business_projects')
+          .select('id')
+          .eq('nickname', nickname)
+          .neq('id', existing.id)
+          .maybeSingle();
+        
+        if (duplicateCheck) {
+          console.log('[BusinessProject] Nickname already exists:', nickname);
+          return { error: 'このネームは既に使用されています。別のネームを選択してください。' };
+        }
       }
       
       const updateResult = await serverSupabase
@@ -209,6 +224,20 @@ export async function saveBusinessProject({
     } else {
       // 新規作成の場合
       console.log('[BusinessProject] Creating new project:', { slug, userId });
+      
+      // nicknameの重複チェック（新規作成時）
+      if (nickname) {
+        const { data: duplicateCheck } = await serverSupabase
+          .from('business_projects')
+          .select('id')
+          .eq('nickname', nickname)
+          .maybeSingle();
+        
+        if (duplicateCheck) {
+          console.log('[BusinessProject] Nickname already exists:', nickname);
+          return { error: 'このネームは既に使用されています。別のネームを選択してください。' };
+        }
+      }
       
       const insertResult = await serverSupabase
         .from('business_projects')

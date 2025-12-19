@@ -1041,10 +1041,39 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
       // ログインユーザーの場合のみuser_idを設定、未ログインの場合はnullにする
       const userId = user?.id || null;
 
+      // ネームのバリデーション
+      let nicknameToSave = nickname.trim().toLowerCase();
+      if (nicknameToSave) {
+        const validation = validateNickname(nicknameToSave);
+        if (!validation.valid) {
+          throw new Error(`ネームエラー: ${validation.error}`);
+        }
+        
+        // ネームが変更された場合の制限チェック
+        if (originalNickname && originalNickname !== nicknameToSave && !isAdmin) {
+          throw new Error('ネームは一度設定すると変更できません。管理者のみ変更可能です。');
+        }
+        
+        // 重複チェック（自分以外で同じnicknameが使われていないか）
+        if (nicknameToSave !== originalNickname) {
+          const { data: existingByNickname } = await supabase
+            .from('business_projects')
+            .select('slug')
+            .eq('nickname', nicknameToSave)
+            .maybeSingle();
+          
+          if (existingByNickname && existingByNickname.slug !== savedSlug) {
+            throw new Error('このネームは既に使用されています。別のネームを選択してください。');
+          }
+        }
+      } else {
+        nicknameToSave = '';
+      }
+
       // Server Action経由で保存
       const result = await saveBusinessProject({
         slug: slugToUse,
-        nickname: null, // ビジネスLPではニックネームは使用しない
+        nickname: nicknameToSave || null,
         content: blocks,
         settings: settingsWithTheme,
         userId,
@@ -3321,11 +3350,11 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             </div>
             
             <div className="space-y-4">
-              {/* ニックネーム設定 */}
+              {/* ネーム設定 */}
               <div className="border-b border-gray-200 pb-4 mb-4">
                 <div className="mb-2">
                   <label className="text-sm font-bold text-gray-900 block mb-2">
-                    ニックネーム（任意）
+                    ネーム（任意）
                     {originalNickname && !isAdmin && (
                       <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">変更不可</span>
                     )}
@@ -3340,16 +3369,16 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                     }`}
                     value={nickname}
                     onChange={e => setNickname(e.target.value.toLowerCase())}
-                    placeholder="例: abc123, my-profile"
+                    placeholder="例: my-company, shop-tokyo"
                     disabled={originalNickname && !isAdmin}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     {originalNickname && !isAdmin ? (
-                      '※ニックネームは変更できません。変更が必要な場合は管理者にお問い合わせください。'
+                      '※ネームは変更できません。変更が必要な場合は管理者にお問い合わせください。'
                     ) : originalNickname && isAdmin ? (
-                      '🔑 管理者権限でニックネームを変更できます'
+                      '🔑 管理者権限でネームを変更できます'
                     ) : (
-                      '※英小文字、数字、ハイフンのみ（3〜20文字）。一度設定すると変更できません。'
+                      '※会社名や店舗名など覚えやすい名前。英小文字、数字、ハイフンのみ（3〜20文字）。一度設定すると変更できません。'
                     )}
                   </p>
                   {nickname && (

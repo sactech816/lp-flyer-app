@@ -11,6 +11,7 @@ import Link from 'next/link';
 interface BusinessProject {
   id: string;
   slug: string;
+  nickname?: string | null;
   content: Block[];
   settings?: {
     gtmId?: string;
@@ -182,11 +183,11 @@ async function getBusinessProject(slug: string): Promise<BusinessProject | null>
   
   if (!supabase) return null;
   
-  // business_projectsテーブルから取得
+  // business_projectsテーブルから取得（slugまたはnicknameで検索）
   const { data, error } = await supabase
     .from('business_projects')
-    .select('id, slug, content, settings')
-    .eq('slug', slug)
+    .select('id, slug, nickname, content, settings')
+    .or(`slug.eq.${slug},nickname.eq.${slug}`)
     .single();
 
   if (error || !data) return null;
