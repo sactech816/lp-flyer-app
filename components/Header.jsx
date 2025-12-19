@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Sparkles, User, LayoutDashboard, TrendingUp, Menu, X, LogOut, HelpCircle, FileText, Lightbulb, Mail, Shield, Scale, PlusCircle, Bell, ExternalLink } from 'lucide-react';
 
@@ -14,6 +14,19 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
         setIsMenuOpen(false);
     };
 
+    // メニュー開閉時のスクロール制御
+    useEffect(() => {
+        if (isMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        
+        // クリーンアップ：コンポーネントがアンマウントされたときにスクロールを元に戻す
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isMenuOpen]);
 
     return (
         <div className="bg-white border-b sticky top-0 z-50 shadow-sm">
@@ -54,8 +67,18 @@ const Header = ({ setPage, user, onLogout, setShowAuth = null }) => {
                 </div>
             </div>
 
+            {/* オーバーレイ：メニューが開いているときに背面を暗くする */}
             {isMenuOpen && (
-                <div className="bg-white border-t absolute w-full left-0 top-16 shadow-xl py-4 px-6 flex flex-col gap-2 animate-fade-in z-50 h-[calc(100vh-64px)] overflow-y-auto pb-20">
+                <div 
+                    className="fixed inset-0 bg-black/50 z-[60] animate-fade-in" 
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{ top: '64px' }}
+                />
+            )}
+
+            {/* ハンバーガーメニュー本体 */}
+            {isMenuOpen && (
+                <div className="bg-white border-t absolute w-full left-0 top-16 shadow-xl py-4 px-6 flex flex-col gap-2 animate-fade-in z-[70] h-[calc(100vh-64px)] overflow-y-auto pb-20">
                     <p className="text-xs font-bold text-gray-400 mt-4 mb-2">メニュー</p>
                     <button onClick={()=>{window.location.href='/business/dashboard/editor/new'; setIsMenuOpen(false);}} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><PlusCircle size={20}/> 新規作成</button>
                     <button onClick={()=>{window.location.href='/business/dashboard'; setIsMenuOpen(false);}} className="flex items-center gap-3 py-3 border-b border-gray-100 text-indigo-600 font-bold"><LayoutDashboard size={20}/> マイページ</button>
