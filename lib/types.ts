@@ -23,6 +23,7 @@ export type TextCardBlockData = {
 
 export type ImageBlockData = {
   url: string; // 空文字列の可能性あり
+  alt?: string; // 代替テキスト（オプショナル）
   caption?: string;
 };
 
