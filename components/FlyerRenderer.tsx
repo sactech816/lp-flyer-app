@@ -5,7 +5,7 @@ import { Block } from '@/lib/types';
 import { QRCodeSVG } from 'qrcode.react';
 import { AIFlyerGenerator, AIGenerationMode } from './AIFlyerGenerator';
 
-export type FlyerLayout = 'simple' | 'two-column' | 'image-focus' | 'full-info';
+export type FlyerLayout = 'simple' | 'two-column' | 'image-focus' | 'full-info' | 'professional' | 'modern-grid';
 export type FlyerColorTheme = 'business' | 'creative' | 'shop' | 'custom';
 
 interface FlyerRendererProps {
@@ -63,14 +63,13 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
   blocks, 
   slug, 
   settings,
-  initialLayout = 'simple',
+  initialLayout = 'professional',
   initialColorTheme = 'business',
   showControls = true,
   enableAI = false, // AI機能は一旦無効化
 }) => {
   const [layout, setLayout] = useState<FlyerLayout>(initialLayout);
   const [colorTheme, setColorTheme] = useState<FlyerColorTheme>(initialColorTheme);
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
   const [aiBackgroundImage, setAiBackgroundImage] = useState<string | null>(null);
   const [aiFullImage, setAiFullImage] = useState<string | null>(null);
@@ -147,62 +146,6 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
   const checklistBlock = blocks.find(b => b.type === 'checklist_section');
   const checklistData = checklistBlock?.data as any;
 
-  // PDF生成ハンドラー
-  const handleGeneratePDF = async () => {
-    console.log('[FlyerRenderer] PDF生成開始');
-    setIsGeneratingPDF(true);
-    try {
-      console.log('[FlyerRenderer] APIリクエスト送信:', `/api/generate-flyer-pdf?slug=${slug}&layout=${layout}&theme=${colorTheme}`);
-      const response = await fetch(`/api/generate-flyer-pdf?slug=${slug}&layout=${layout}&theme=${colorTheme}`);
-      
-      console.log('[FlyerRenderer] レスポンス受信:', response.status, response.statusText);
-      
-      if (!response.ok) {
-        // エラーレスポンスの詳細を取得
-        let errorDetails;
-        try {
-          errorDetails = await response.json();
-          console.error('[FlyerRenderer] エラー詳細:', errorDetails);
-        } catch (e) {
-          console.error('[FlyerRenderer] エラーレスポンスのJSON解析失敗');
-          errorDetails = { error: 'レスポンスの解析に失敗しました' };
-        }
-        
-        throw new Error(errorDetails.details || errorDetails.error || 'PDF生成に失敗しました');
-      }
-      
-      console.log('[FlyerRenderer] PDFデータ取得中...');
-      const blob = await response.blob();
-      console.log('[FlyerRenderer] PDFサイズ:', blob.size, 'bytes');
-      
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `flyer-${slug}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      console.log('[FlyerRenderer] PDF生成成功！');
-    } catch (error) {
-      console.error('[FlyerRenderer] ❌ PDF生成エラー:', error);
-      console.error('[FlyerRenderer] エラーの種類:', error instanceof Error ? error.constructor.name : typeof error);
-      console.error('[FlyerRenderer] エラーメッセージ:', error instanceof Error ? error.message : String(error));
-      
-      alert(
-        'PDF生成に失敗しました。\n\n' +
-        '代わりに以下の方法をお試しください：\n\n' +
-        '1. 「印刷 / PDFで保存」ボタンをクリック\n' +
-        '2. 印刷ダイアログで「PDFに保存」を選択\n' +
-        '3. 保存先を指定して保存\n\n' +
-        'エラー詳細: ' + (error instanceof Error ? error.message : String(error))
-      );
-    } finally {
-      setIsGeneratingPDF(false);
-      console.log('[FlyerRenderer] PDF生成処理終了');
-    }
-  };
 
   // レイアウト別のレンダリング
   const renderContent = () => {
@@ -213,6 +156,10 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
         return renderImageFocusLayout();
       case 'full-info':
         return renderFullInfoLayout();
+      case 'professional':
+        return renderProfessionalLayout();
+      case 'modern-grid':
+        return renderModernGridLayout();
       default:
         return renderSimpleLayout();
     }
@@ -1099,6 +1046,690 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
     </div>
   );
 
+  // プロフェッショナルレイアウト（商用向け・AI生成対応）
+  const renderProfessionalLayout = () => (
+    <div className="professional-layout">
+      {/* ヘッダーバナー */}
+      <div style={{ 
+        background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+        padding: '20px',
+        borderRadius: '8px',
+        marginBottom: '16px',
+        color: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px'
+      }}>
+        {headerData?.avatar && (
+          <img 
+            src={headerData.avatar} 
+            alt={headerData.name || ''} 
+            style={{ 
+              width: '80px', 
+              height: '80px', 
+              borderRadius: '12px', 
+              objectFit: 'cover',
+              border: '3px solid white',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+            }} 
+          />
+        )}
+        <div style={{ flex: 1 }}>
+          <h1 style={{ 
+            fontSize: '28px', 
+            fontWeight: 'bold', 
+            margin: 0,
+            lineHeight: 1.2,
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            {headerData?.name || 'ビジネスLP'}
+          </h1>
+          {headerData?.title && (
+            <p style={{ 
+              fontSize: '14px', 
+              margin: '6px 0 0 0',
+              opacity: 0.95
+            }}>{headerData.title}</p>
+          )}
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <QRCodeSVG 
+            value={lpUrl} 
+            size={80}
+            level="H"
+            includeMargin={false}
+            bgColor="white"
+            fgColor={theme.primary}
+          />
+          <p style={{ fontSize: '9px', marginTop: '4px', opacity: 0.9 }}>詳細はこちら</p>
+        </div>
+      </div>
+
+      {/* キャッチコピー */}
+      {(heroData?.headline || textBlocks[0]) && (
+        <div style={{ 
+          background: `${theme.primary}08`,
+          padding: '16px 20px',
+          borderRadius: '8px',
+          marginBottom: '16px',
+          borderLeft: `4px solid ${theme.primary}`
+        }}>
+          <h2 style={{ 
+            fontSize: '18px', 
+            fontWeight: 'bold',
+            color: theme.text,
+            margin: '0 0 8px 0',
+            lineHeight: 1.4
+          }}>
+            {heroData?.headline || (textBlocks[0]?.data as any)?.title || ''}
+          </h2>
+          {(heroData?.subheadline || (textBlocks[0]?.data as any)?.text) && (
+            <p style={{ 
+              fontSize: '13px', 
+              color: '#4B5563',
+              margin: 0,
+              lineHeight: 1.6
+            }}>
+              {heroData?.subheadline || (textBlocks[0]?.data as any)?.text}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* 3カラムグリッド: 特徴・料金・お客様の声 */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+        {/* 特徴 */}
+        <div style={{ 
+          background: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          border: `1px solid ${theme.border}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        }}>
+          <h3 style={{ 
+            fontSize: '14px', 
+            fontWeight: 'bold', 
+            color: theme.primary,
+            marginBottom: '12px',
+            paddingBottom: '8px',
+            borderBottom: `2px solid ${theme.primary}`
+          }}>
+            ✨ 特徴・強み
+          </h3>
+          {featuresData?.items && featuresData.items.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {featuresData.items.slice(0, 4).map((item: any) => (
+                <div key={item.id} style={{ 
+                  display: 'flex', 
+                  alignItems: 'flex-start', 
+                  gap: '8px',
+                  fontSize: '11px',
+                  lineHeight: 1.5
+                }}>
+                  <span style={{ 
+                    color: theme.primary, 
+                    fontSize: '16px',
+                    flexShrink: 0
+                  }}>
+                    {item.icon || '✓'}
+                  </span>
+                  <div>
+                    <strong style={{ color: theme.text, display: 'block' }}>{item.title}</strong>
+                    {item.description && (
+                      <span style={{ color: '#6B7280', fontSize: '10px' }}>
+                        {item.description.slice(0, 50)}{item.description.length > 50 ? '...' : ''}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {textBlocks.slice(1, 5).map((block, index) => {
+                const data = block.data as any;
+                return (
+                  <div key={block.id || index} style={{ 
+                    display: 'flex', 
+                    alignItems: 'flex-start', 
+                    gap: '8px',
+                    fontSize: '11px'
+                  }}>
+                    <span style={{ color: theme.primary, fontSize: '16px' }}>✓</span>
+                    <span style={{ color: theme.text }}>
+                      {data.title || data.text?.slice(0, 40)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 料金プラン */}
+        <div style={{ 
+          background: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          border: `1px solid ${theme.border}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        }}>
+          <h3 style={{ 
+            fontSize: '14px', 
+            fontWeight: 'bold', 
+            color: theme.primary,
+            marginBottom: '12px',
+            paddingBottom: '8px',
+            borderBottom: `2px solid ${theme.primary}`
+          }}>
+            💰 料金プラン
+          </h3>
+          {pricingData?.plans && pricingData.plans.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {pricingData.plans.slice(0, 3).map((plan: any) => (
+                <div key={plan.id} style={{ 
+                  padding: '12px',
+                  background: plan.isRecommended ? `${theme.primary}08` : '#F9FAFB',
+                  borderRadius: '6px',
+                  border: plan.isRecommended ? `2px solid ${theme.primary}` : '1px solid #E5E7EB'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '6px'
+                  }}>
+                    <span style={{ fontSize: '12px', fontWeight: 'bold', color: theme.text }}>
+                      {plan.title}
+                    </span>
+                    {plan.isRecommended && (
+                      <span style={{ 
+                        fontSize: '9px', 
+                        background: theme.primary, 
+                        color: 'white',
+                        padding: '2px 6px',
+                        borderRadius: '3px'
+                      }}>人気</span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '16px', fontWeight: 'bold', color: theme.primary, marginBottom: '6px' }}>
+                    {plan.price}
+                  </div>
+                  {plan.features && plan.features.length > 0 && (
+                    <div style={{ fontSize: '9px', color: '#6B7280', lineHeight: 1.4 }}>
+                      {plan.features.slice(0, 2).join(' / ')}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'center', margin: '20px 0' }}>
+              料金情報はお問い合わせください
+            </p>
+          )}
+        </div>
+
+        {/* お客様の声 */}
+        <div style={{ 
+          background: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          border: `1px solid ${theme.border}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        }}>
+          <h3 style={{ 
+            fontSize: '14px', 
+            fontWeight: 'bold', 
+            color: theme.primary,
+            marginBottom: '12px',
+            paddingBottom: '8px',
+            borderBottom: `2px solid ${theme.primary}`
+          }}>
+            💬 お客様の声
+          </h3>
+          {testimonialData?.items && testimonialData.items.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {testimonialData.items.slice(0, 2).map((item: any) => (
+                <div key={item.id} style={{ 
+                  padding: '10px',
+                  background: '#FAFAFA',
+                  borderRadius: '6px',
+                  borderLeft: `3px solid ${theme.accent}`
+                }}>
+                  <p style={{ 
+                    fontSize: '10px', 
+                    color: theme.text,
+                    margin: 0,
+                    lineHeight: 1.5,
+                    fontStyle: 'italic'
+                  }}>
+                    "{item.comment.slice(0, 70)}{item.comment.length > 70 ? '...' : ''}"
+                  </p>
+                  <p style={{ 
+                    fontSize: '9px', 
+                    color: '#6B7280',
+                    margin: '6px 0 0 0',
+                    textAlign: 'right'
+                  }}>
+                    — {item.name}{item.role ? ` (${item.role})` : ''}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontSize: '11px', color: '#9CA3AF', textAlign: 'center', margin: '20px 0' }}>
+              お客様の声を募集中
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* FAQ（2カラム） */}
+      {faqData?.items && faqData.items.length > 0 && (
+        <div style={{ 
+          background: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '16px',
+          border: `1px solid ${theme.border}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+        }}>
+          <h3 style={{ 
+            fontSize: '14px', 
+            fontWeight: 'bold', 
+            color: theme.primary,
+            marginBottom: '12px',
+            paddingBottom: '8px',
+            borderBottom: `2px solid ${theme.primary}`
+          }}>
+            ❓ よくある質問
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+            {faqData.items.slice(0, 4).map((item: any) => (
+              <div key={item.id} style={{ 
+                padding: '10px',
+                background: `${theme.primary}05`,
+                borderRadius: '6px',
+                border: `1px solid ${theme.border}`
+              }}>
+                <p style={{ 
+                  fontSize: '11px', 
+                  fontWeight: 'bold',
+                  color: theme.text,
+                  margin: '0 0 4px 0'
+                }}>
+                  Q. {item.question}
+                </p>
+                <p style={{ 
+                  fontSize: '10px', 
+                  color: '#6B7280',
+                  margin: 0,
+                  lineHeight: 1.4
+                }}>
+                  A. {item.answer.slice(0, 80)}{item.answer.length > 80 ? '...' : ''}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* フッター（連絡先） */}
+      <div style={{ 
+        background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+        padding: '16px 20px',
+        borderRadius: '8px',
+        color: 'white'
+      }}>
+        <h3 style={{ 
+          fontSize: '14px', 
+          fontWeight: 'bold', 
+          margin: '0 0 10px 0'
+        }}>
+          📞 お問い合わせ・ご予約
+        </h3>
+        {linksData?.links && linksData.links.length > 0 ? (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '8px' 
+          }}>
+            {linksData.links.slice(0, 6).map((link: any, idx: number) => (
+              <div key={idx} style={{ 
+                fontSize: '11px',
+                padding: '8px 10px',
+                background: 'rgba(255,255,255,0.2)',
+                borderRadius: '6px',
+                textAlign: 'center',
+                fontWeight: '600',
+                backdropFilter: 'blur(10px)'
+              }}>
+                {link.label}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ fontSize: '12px', margin: 0, opacity: 0.9 }}>
+            お気軽にお問い合わせください
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
+  // モダングリッドレイアウト（画像・カード重視）
+  const renderModernGridLayout = () => (
+    <div className="modern-grid-layout">
+      {/* コンパクトヘッダー */}
+      <div style={{ 
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '16px',
+        paddingBottom: '12px',
+        borderBottom: `3px solid ${theme.primary}`
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {headerData?.avatar && (
+            <img 
+              src={headerData.avatar} 
+              alt={headerData.name || ''} 
+              style={{ 
+                width: '60px', 
+                height: '60px', 
+                borderRadius: '12px', 
+                objectFit: 'cover',
+                border: `2px solid ${theme.primary}`,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }} 
+            />
+          )}
+          <div>
+            <h1 style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              color: theme.text,
+              margin: 0,
+              lineHeight: 1.2
+            }}>
+              {headerData?.name || 'ビジネスLP'}
+            </h1>
+            {headerData?.title && (
+              <p style={{ 
+                fontSize: '12px', 
+                color: '#6B7280',
+                margin: '4px 0 0 0'
+              }}>{headerData.title}</p>
+            )}
+          </div>
+        </div>
+        <QRCodeSVG 
+          value={lpUrl} 
+          size={70}
+          level="H"
+          includeMargin={false}
+        />
+      </div>
+
+      {/* メインビジュアル + キャッチコピー */}
+      {imageBlocks.length > 0 && (
+        <div style={{ 
+          position: 'relative',
+          marginBottom: '16px',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+        }}>
+          <img 
+            src={(imageBlocks[0].data as any).url} 
+            alt={(imageBlocks[0].data as any).caption || ''} 
+            style={{ 
+              width: '100%', 
+              height: '180px',
+              objectFit: 'cover'
+            }} 
+          />
+          {(heroData?.headline || textBlocks[0]) && (
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+              padding: '20px 16px 16px',
+              color: 'white'
+            }}>
+              <h2 style={{ 
+                fontSize: '16px', 
+                fontWeight: 'bold',
+                margin: 0,
+                textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+              }}>
+                {heroData?.headline || (textBlocks[0]?.data as any)?.title || ''}
+              </h2>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* カードグリッド */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '16px' }}>
+        {/* 特徴カード */}
+        {featuresData?.items && featuresData.items.length > 0 && featuresData.items.slice(0, 4).map((item: any) => (
+          <div key={item.id} style={{ 
+            background: 'white',
+            padding: '14px',
+            borderRadius: '10px',
+            border: `1px solid ${theme.border}`,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+            transition: 'transform 0.2s'
+          }}>
+            <div style={{ 
+              fontSize: '24px',
+              marginBottom: '8px',
+              color: theme.primary
+            }}>
+              {item.icon || '✨'}
+            </div>
+            <h4 style={{ 
+              fontSize: '12px', 
+              fontWeight: 'bold',
+              color: theme.text,
+              margin: '0 0 4px 0'
+            }}>
+              {item.title}
+            </h4>
+            {item.description && (
+              <p style={{ 
+                fontSize: '10px', 
+                color: '#6B7280',
+                margin: 0,
+                lineHeight: 1.4
+              }}>
+                {item.description.slice(0, 50)}{item.description.length > 50 ? '...' : ''}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* 料金プラン（横並び） */}
+      {pricingData?.plans && pricingData.plans.length > 0 && (
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{ 
+            fontSize: '14px', 
+            fontWeight: 'bold', 
+            color: theme.primary,
+            marginBottom: '10px'
+          }}>
+            料金プラン
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(pricingData.plans.length, 3)}, 1fr)`, gap: '10px' }}>
+            {pricingData.plans.slice(0, 3).map((plan: any) => (
+              <div key={plan.id} style={{ 
+                background: plan.isRecommended 
+                  ? `linear-gradient(135deg, ${theme.primary}15 0%, ${theme.accent}15 100%)`
+                  : 'white',
+                padding: '14px',
+                borderRadius: '10px',
+                border: plan.isRecommended ? `2px solid ${theme.primary}` : `1px solid ${theme.border}`,
+                textAlign: 'center',
+                position: 'relative'
+              }}>
+                {plan.isRecommended && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-8px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: theme.primary,
+                    color: 'white',
+                    fontSize: '9px',
+                    padding: '2px 10px',
+                    borderRadius: '10px',
+                    fontWeight: 'bold'
+                  }}>
+                    おすすめ
+                  </div>
+                )}
+                <div style={{ fontSize: '11px', fontWeight: 'bold', color: theme.text, marginBottom: '6px' }}>
+                  {plan.title}
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: 'bold', color: theme.primary, marginBottom: '6px' }}>
+                  {plan.price}
+                </div>
+                {plan.features && plan.features.length > 0 && (
+                  <div style={{ fontSize: '9px', color: '#6B7280', lineHeight: 1.3 }}>
+                    {plan.features.slice(0, 2).map((f: string, i: number) => (
+                      <div key={i}>✓ {f}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* お客様の声 + FAQ */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+        {/* お客様の声 */}
+        {testimonialData?.items && testimonialData.items.length > 0 && (
+          <div>
+            <h3 style={{ 
+              fontSize: '13px', 
+              fontWeight: 'bold', 
+              color: theme.primary,
+              marginBottom: '8px'
+            }}>
+              お客様の声
+            </h3>
+            {testimonialData.items.slice(0, 2).map((item: any) => (
+              <div key={item.id} style={{ 
+                padding: '10px',
+                background: '#FAFAFA',
+                borderRadius: '8px',
+                marginBottom: '8px',
+                borderLeft: `3px solid ${theme.accent}`
+              }}>
+                <p style={{ 
+                  fontSize: '10px', 
+                  fontStyle: 'italic',
+                  margin: '0 0 4px 0',
+                  lineHeight: 1.4
+                }}>
+                  "{item.comment.slice(0, 60)}..."
+                </p>
+                <p style={{ 
+                  fontSize: '9px', 
+                  color: '#6B7280',
+                  margin: 0,
+                  textAlign: 'right'
+                }}>
+                  — {item.name}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* FAQ */}
+        {faqData?.items && faqData.items.length > 0 && (
+          <div>
+            <h3 style={{ 
+              fontSize: '13px', 
+              fontWeight: 'bold', 
+              color: theme.primary,
+              marginBottom: '8px'
+            }}>
+              よくある質問
+            </h3>
+            {faqData.items.slice(0, 2).map((item: any) => (
+              <div key={item.id} style={{ 
+                padding: '8px 10px',
+                background: `${theme.primary}08`,
+                borderRadius: '6px',
+                marginBottom: '8px'
+              }}>
+                <p style={{ 
+                  fontSize: '10px', 
+                  fontWeight: 'bold',
+                  margin: '0 0 3px 0'
+                }}>
+                  Q. {item.question}
+                </p>
+                <p style={{ 
+                  fontSize: '9px', 
+                  color: '#6B7280',
+                  margin: 0,
+                  lineHeight: 1.3
+                }}>
+                  A. {item.answer.slice(0, 60)}...
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* フッター */}
+      <div style={{ 
+        background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+        padding: '14px 16px',
+        borderRadius: '10px',
+        color: 'white',
+        textAlign: 'center'
+      }}>
+        <h3 style={{ fontSize: '13px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+          お問い合わせ
+        </h3>
+        {linksData?.links && linksData.links.length > 0 ? (
+          <div style={{ 
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '6px',
+            justifyContent: 'center'
+          }}>
+            {linksData.links.slice(0, 5).map((link: any, idx: number) => (
+              <span key={idx} style={{ 
+                fontSize: '10px',
+                padding: '4px 10px',
+                background: 'rgba(255,255,255,0.2)',
+                borderRadius: '12px',
+                fontWeight: '500'
+              }}>
+                {link.label}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p style={{ fontSize: '11px', margin: 0 }}>お気軽にお問い合わせください</p>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <>
       {/* コントロールパネル（画面表示時のみ） */}
@@ -1120,13 +1751,13 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
             <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#374151' }} className="md:text-sm">
               レイアウト
             </label>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {(['simple', 'two-column', 'image-focus', 'full-info'] as FlyerLayout[]).map((l) => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+              {(['professional', 'modern-grid', 'full-info', 'two-column', 'simple', 'image-focus'] as FlyerLayout[]).map((l) => (
                 <button
                   key={l}
                   onClick={() => setLayout(l)}
                   style={{
-                    padding: '6px 12px',
+                    padding: '8px 12px',
                     borderRadius: '6px',
                     border: layout === l ? `2px solid ${theme.primary}` : '2px solid #E5E7EB',
                     background: layout === l ? theme.background : 'white',
@@ -1135,12 +1766,15 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
                     fontWeight: layout === l ? 'bold' : 'normal',
                     cursor: 'pointer',
                     transition: 'all 0.2s',
-                    minHeight: '36px',
-                    flex: '1 1 auto'
+                    minHeight: '40px'
                   }}
-                  className="md:text-sm md:px-4 md:py-2"
+                  className="md:text-sm"
                 >
-                  {l === 'simple' ? 'シンプル' : l === 'two-column' ? '2カラム' : l === 'image-focus' ? '画像重視' : 'フル情報'}
+                  {l === 'professional' ? '🏢 プロフェッショナル' : 
+                   l === 'modern-grid' ? '🎨 モダングリッド' :
+                   l === 'full-info' ? '📋 フル情報' :
+                   l === 'two-column' ? '📰 2カラム' :
+                   l === 'simple' ? '📄 シンプル' : '🖼️ 画像重視'}
                 </button>
               ))}
             </div>
@@ -1184,43 +1818,24 @@ export const FlyerRenderer: React.FC<FlyerRendererProps> = ({
               style={{
                 backgroundColor: theme.primary,
                 color: 'white',
-                padding: '10px 16px',
+                padding: '12px 24px',
                 borderRadius: '8px',
                 border: 'none',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 cursor: 'pointer',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                 transition: 'all 0.2s',
-                minHeight: '44px'
+                minHeight: '44px',
+                width: '100%'
               }}
-              className="md:text-base md:px-6 md:py-3"
+              className="md:text-base md:px-8 md:py-4"
             >
-              印刷 / PDFで保存
-            </button>
-            <button
-              onClick={handleGeneratePDF}
-              disabled={isGeneratingPDF}
-              style={{
-                backgroundColor: isGeneratingPDF ? '#9CA3AF' : theme.secondary,
-                color: 'white',
-                padding: '10px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                cursor: isGeneratingPDF ? 'not-allowed' : 'pointer',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s',
-                minHeight: '44px'
-              }}
-              className="md:text-base md:px-6 md:py-3"
-            >
-              {isGeneratingPDF ? '生成中...' : 'PDFダウンロード'}
+              🖨️ 印刷 / PDFで保存
             </button>
           </div>
           <p style={{ marginTop: '8px', fontSize: '11px', color: '#6B7280', textAlign: 'center' }} className="md:text-xs">
-            ブラウザの印刷機能で「PDFに保存」を選択するか、PDFダウンロードボタンをご利用ください
+            印刷ダイアログで「PDFに保存」を選択すると、PDFファイルとして保存できます
           </p>
 
           {/* AI生成ボタン */}

@@ -85,7 +85,7 @@ export default async function FlyerPage({
   const projectName = headerBlock?.data.name || '無題のビジネスLP';
 
   // クエリパラメータから設定を取得
-  const layout = (search.layout as string) || 'simple';
+  const layout = (search.layout as string) || 'professional';
   const theme = (search.theme as string) || 'business';
   const isPrintMode = search.print === 'true';
 
@@ -98,24 +98,24 @@ export default async function FlyerPage({
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
               <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto">
                 <Link
-                  href={`/b/${slug}`}
+                  href="/business/dashboard"
                   className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-all duration-200 backdrop-blur-sm text-sm md:text-base min-h-[44px]"
                 >
                   <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                   </svg>
-                  <span className="font-semibold">LPに戻る</span>
+                  <span className="font-semibold">ダッシュボードに戻る</span>
                 </Link>
                 <div className="flex-1 md:flex-none">
                   <h1 className="text-base md:text-xl font-bold truncate">{projectName} - チラシ</h1>
-                  <p className="text-xs md:text-sm text-white/80">印刷またはPDFで保存できます</p>
+                  <p className="text-xs md:text-sm text-white/80">プロフェッショナルなレイアウトで印刷・PDF保存</p>
                 </div>
               </div>
               <div className="hidden lg:flex items-center gap-2 text-xs md:text-sm">
                 <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>レイアウトとカラーを選択して印刷できます</span>
+                <span>6種類のプロフェッショナルレイアウトから選択可能</span>
               </div>
             </div>
           </div>
