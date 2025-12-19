@@ -3495,8 +3495,8 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
 
       {/* テンプレート選択モーダル */}
       {showTemplateModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto">
-          <div className="bg-white rounded-2xl p-6 max-w-4xl w-full mx-4 my-8 shadow-xl">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-6xl w-full my-8 shadow-xl">
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-bold text-2xl text-gray-900 flex items-center gap-2">
                 <FileText className="text-indigo-600" size={24}/> テンプレートから始める
@@ -3511,7 +3511,7 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
             
             <p className="text-gray-600 mb-6">プロフィールの用途に合わせて、最適なテンプレートを選択してください。</p>
             
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid md:grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto pr-2">
               {templates.map((template) => (
                 <div
                   key={template.id}
@@ -3571,21 +3571,21 @@ const BusinessLPEditor = ({ onBack, onSave, initialSlug, user, setShowAuth }: Bu
                   }}
                 >
                   <div 
-                    className="h-32 w-full"
+                    className="h-20 w-full"
                     style={{
                       background: template.theme.gradient,
                       backgroundSize: '400% 400%',
                       animation: 'gradient 15s ease infinite'
                     }}
                   />
-                  <div className="p-4">
+                  <div className="p-3">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-bold">
+                      <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-bold">
                         {template.category}
                       </span>
                     </div>
-                    <h4 className="font-bold text-lg text-gray-900 mb-2">{template.name}</h4>
-                    <p className="text-sm text-gray-600 mb-3">{template.description}</p>
+                    <h4 className="font-bold text-base text-gray-900 mb-1.5 line-clamp-1">{template.name}</h4>
+                    <p className="text-xs text-gray-600 mb-2 line-clamp-2">{template.description}</p>
                     <div className="text-xs text-gray-500">
                       {template.blocks.length}個のブロック
                     </div>

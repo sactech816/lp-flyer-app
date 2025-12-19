@@ -10,6 +10,9 @@ import { retailEcTemplate } from './retail-ec';
 import { storeTemplate } from './store';
 import { cafeRestaurantTemplate } from './cafe-restaurant';
 import { freelanceTemplate } from './freelance';
+import { pasonaTemplate } from './pasona';
+import { aidomaTemplate } from './aidoma';
+import { questTemplate } from './quest';
 
 // 個別エクスポート
 export { consultantTemplate } from './consultant';
@@ -18,6 +21,9 @@ export { retailEcTemplate } from './retail-ec';
 export { storeTemplate } from './store';
 export { cafeRestaurantTemplate } from './cafe-restaurant';
 export { freelanceTemplate } from './freelance';
+export { pasonaTemplate } from './pasona';
+export { aidomaTemplate } from './aidoma';
+export { questTemplate } from './quest';
 
 // 全テンプレート配列（order順にソート）
 export const templates = [
@@ -27,6 +33,9 @@ export const templates = [
   storeTemplate,
   cafeRestaurantTemplate,
   freelanceTemplate,
+  pasonaTemplate,
+  aidomaTemplate,
+  questTemplate,
 ].sort((a, b) => (a.order || 0) - (b.order || 0));
 
 // おすすめテンプレート（トップページ表示用）

@@ -23,7 +23,8 @@ export type TemplateCategory =
   | '物販・EC'
   | '店舗ビジネス'
   | 'カフェ・飲食店'
-  | 'フリーランス';
+  | 'フリーランス'
+  | 'マーケティング法則';
 
 // テンプレートIDの型定義
 export type TemplateId = 
@@ -32,5 +33,8 @@ export type TemplateId =
   | 'retail-ec'
   | 'store'
   | 'cafe-restaurant'
-  | 'freelance';
+  | 'freelance'
+  | 'pasona'
+  | 'aidoma'
+  | 'quest';
 
